@@ -1,0 +1,25 @@
+# Ensure that all files that git considers to be text will have normalized (LF) line endings in the repository
+* text=auto
+
+# Ensure that these files are recognized as texts
+*.css text
+*.html text
+*.php text
+*.js text
+*.json text
+*.jsp text
+*.less text
+*.properties text
+*.sql text
+*.txt text
+*.xhtml text
+*.xml text
+
+# Ensure that these files are recognized as binary
+*.bmp binary
+*.gif binary
+*.jar binary
+*.jpeg binary
+*.jpg binary
+*.png binary
+*.zip binary
