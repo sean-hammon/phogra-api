@@ -2,13 +2,14 @@
 
 use Illuminate\Database\Seeder;
 use App\Phogra\Gallery;
+use App\Phogra\Eloquent\Gallery as GalleryTable;
 
 class GalleryTableSeeder extends Seeder
 {
 
     public function run()
     {
-        Gallery::truncate();
+        GalleryTable::truncate();
 
         $galleries = [
             [
@@ -62,7 +63,7 @@ class GalleryTableSeeder extends Seeder
                         'children' => [
                             [
                                 'id'    => 10,
-                                'title' => 'Hobbiton    '
+                                'title' => 'Hobbiton'
                             ],
                             [
                                 'id'    => 11,
@@ -123,13 +124,14 @@ class GalleryTableSeeder extends Seeder
     private function makeGalleries($galleries, $parent = null)
     {
         foreach ($galleries as $g) {
-            $aGallery = Gallery::create([
+            $aGallery = new Gallery([
+                'id' => $g['id'],
                 'parent_id' => ($parent == null ? null : $parent->id),
-                'title' => $g['title'],
-                'slug' => strtolower(preg_replace('/\W/','_', $g['title']))
+                'title' => $g['title']
             ]);
+            $row = $aGallery->create();
             if (!empty($g['children'])) {
-                $this->makeGalleries($g['children'], $aGallery);
+                $this->makeGalleries($g['children'], $row);
             }
         }
     }
