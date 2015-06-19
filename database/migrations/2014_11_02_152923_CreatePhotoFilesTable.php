@@ -16,7 +16,6 @@ class CreatePhotoFilesTable extends Migration {
 			$table->increments('id')->unsigned();
 			$table->integer('photo_id');
 			$table->integer('file_id');
-			$table->integer('size_id');
 		});
 	}
 	/**
