@@ -16,7 +16,7 @@ class CreateGalleriesTable extends Migration {
 			$table->increments('id')->unsigned();
 			$table->integer('parent_id')->nullable();
 			$table->string('title', 64);
-			$table->string('slug', 64);
+			$table->string('slug', 64)->unique();
 			$table->text('description')->nullable();
 			$table->tinyInteger('protected')->default(0);
 			$table->timestamps();
