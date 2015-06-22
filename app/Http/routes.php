@@ -14,3 +14,25 @@
 Route::get('/', function () {
     return view('welcome');
 });
+
+
+//  /galleries
+//  /galleries/:id
+Route::resource('galleries','GalleriesController', array(
+    'except' => array('create','edit')
+));
+
+//  /galleries/:id/photos
+//  /galleries/:id/children
+
+//  /photos
+Route::resource('photos','PhotoController', array(
+    'except' => array('create','edit')
+));
+
+//  /photos/:id/files
+//  /photos/:id/metadata
+
+//  /user/login
+//	/user/token
+//	/user/token/refresh
