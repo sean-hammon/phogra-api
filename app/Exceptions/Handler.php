@@ -5,6 +5,7 @@ namespace App\Exceptions;
 use Exception;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use App\Phogra\Exception\PhograException;
 
 class Handler extends ExceptionHandler
 {
@@ -39,6 +40,16 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $e)
     {
-        return parent::render($request, $e);
+		$content = (object)[
+			'message' => "An unexpected error occurred: " . $e->getMessage()
+		];
+		$status = 500;
+
+		if ($e instanceof PhograException) {
+			$content->message = $e->getMessage();
+			$status = $e->getCode();
+		}
+
+		return response()->json($content, $status);
     }
 }
