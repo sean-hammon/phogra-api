@@ -38,24 +38,64 @@ class Gallery
         }
     }
 
-    public static function all($params) {
-		$query = self::table();
 
-		$table = self::$tableName;
-		if (isset($params->fields->$table)) {
-            $query->select($params->fields->$table);
-		} else {
-			$query->addSelect("galleries.*");
-		}
+	/**
+	 * Fetch all gallery rows
+	 *
+	 * @param $params  object  parameter object created in BaseController
+	 *
+	 * @return array|static[]
+	 */
+    public static function all($params) {
+		$query = self::table($params);
 
 		return $query->get();
 	}
 
+
+	/**
+	 * Fetch a single gallery result
+	 *
+	 * @param $id	   int     row id of the gallery
+	 * @param $params  object  parameter object created in BaseController
+	 *
+	 * @return array|static[]
+	 */
+	public static function one($id, $params) {
+		$query = self::table($params);
+
+		$query->where("id", "=", $id);
+
+		return $query->first();
+	}
+
+
+	/**
+	 * Fetch multiple gallery rows based on a comma separated list
+	 *
+	 * @param $list	   string  comma separated row ids of the galleries
+	 * @param $params  object  parameter object created in BaseController
+	 *
+	 * @return array|static[]
+	 */
+	public static function multiple($list, $params) {
+		$query = self::table($params);
+
+		$anArray = explode(',', $list);
+		$query->whereIn("id", $anArray);
+
+		return $query->get();
+	}
+
+
 	/**
 	 * Initialize the table query with SQL common to all queries
+	 *
+	 * @param $params  object  the parameter object created by the BaseController
+	 *
 	 * @return \Illuminate\Database\Query\Builder;
 	 */
-	private static function table() {
+	private static function table($params) {
 		$children = DB::table(self::$tableName)
 			->select('parent_id', DB::raw("GROUP_CONCAT(id SEPARATOR ',') as children"))
 			->groupBy('parent_id');
@@ -72,6 +112,40 @@ class Gallery
 			->mergeBindings($photos)
 			->whereNull('deleted_at');
 
+		self::applyParams($query, $params);
+
 		return $query;
 	}
+
+	/**
+	 * Look through the parameter object and modify the query as necessary
+	 *
+	 * @param $query   \Illuminate\Database\Query\Builder  the query builder class
+	 * @param $params  object                              the parameter object created by the BaseController
+	 */
+	private static function applyParams(&$query, $params) {
+		self::hasFields($query, $params);
+	}
+
+	/**
+	 * Add select fields if necessary
+	 *
+	 * @param $query   \Illuminate\Database\Query\Builder  the query builder class
+	 * @param $params  object                              the parameter object created by the BaseController
+	 */
+	private static function hasFields(&$query, $params) {
+		$table = self::$tableName;
+		if (isset($params->fields->$table)) {
+
+			//  This will overwrite the select statement that adds the children
+			//  and photo ids to the results. According to the spec at http://jsonapi.org
+			//  if you are specifying fields and you want child objects you need to
+			//  add those to your field list.
+			$query->select($params->fields->$table);
+		} else {
+			$query->addSelect("galleries.*");
+		}
+
+	}
+
 }
