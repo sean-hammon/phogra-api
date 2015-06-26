@@ -40,8 +40,15 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $e)
     {
+		$file = explode('/',$e->getFile());
+		//	TODO: check environment and only give bare bones messages in production
 		$content = (object)[
-			'message' => "An unexpected error occurred: " . $e->getMessage()
+			'message' => "An unexpected error occurred: "
+                . $e->getMessage()
+                . " in "
+                . array_pop($file)
+                . " on line "
+                . $e->getLine()
 		];
 		$status = 500;
 
