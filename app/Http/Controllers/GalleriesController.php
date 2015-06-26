@@ -1,6 +1,12 @@
 <?php
 
-class GalleriesController extends \BaseController {
+namespace App\Http\Controllers;
+
+use App\Phogra\Gallery;
+use App\Phogra\Response\Gallery as GalleryResponse;
+use App\Phogra\Response\Galleries as GalleriesResponse;
+
+class GalleriesController extends BaseController {
 
 	/**
 	 * Display a listing of the resource.
@@ -9,12 +15,10 @@ class GalleriesController extends \BaseController {
 	 */
 	public function index()
 	{
-		$reponse = (object)[
-			"links" => [
-				"self" => "/galleries"
-			],
-		];
-    }
+		$galleries = Gallery::all($this->requestParams);
+		$content = new GalleriesResponse($galleries);
+		return response()->json($content);
+	}
 
 	/**
 	 * Store a newly created resource in storage.

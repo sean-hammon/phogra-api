@@ -4,42 +4,51 @@ namespace App\Phogra\Response;
 
 class Gallery
 {
-	var $data;
+	var $type = 'galleries';
+	var $id = null;
+	var $attributes;
 	var $relationships;
+	var $links;
 
 	public function __construct($row) {
-		$this->data = (object)[
-			"type"       => "galleries",
-			"id"         => $row->id,
-			"attributes" => (object)[
-
-			]
+		$this->id = $row->id;
+		$this->attributes = (object)[
+			'parent_id' => $row->parent_id,
+			'title' => $row->title,
+			'slug' => $row->slug,
+			'description' => $row->description,
+			'protected' => $row->protected,
+			'created_at' => $row->created_at,
+			'updated_at' => $row->updated_at
 		];
 
 		$this->relationships = (object)[
 			"children" => (object)[
 				"type"  => "galleries",
-				"ids"   => [],
+				"data" => ($row->children == null ? null : explode(',', $row->children)),
 				"links" => (object)[
-					"related" => "/galleries/{$row->id}/children"
+					"self" => "/galleries/{$row->id}/children"
 				]
 			],
 			"photos" => (object)[
 				"type"  => "photos",
-				"ids"   => [],
+				"data" => ($row->photos == null ? null : explode(',', $row->photos)),
 				"links" => (object)[
-					"related" =>  "/galleries/{$row->id}/photos"
+					"self" =>  "/galleries/{$row->id}/photos"
 				]
 			]
 		];
-	}
 
-	public function setChildren($children) {
+		if ($row->children != null) {
+			$this->relationships->children->links->related = "/galleries/{$row->children}";
+		}
+		if ($row->photos != null) {
+			$this->relationships->photos->links->related = "/galleries/{$row->photos}";
+		}
 
-	}
-
-	public function setPhotos($photos) {
-
+		$this->links = (object)[
+			"self" => "/galleries/{$row->id}"
+		];
 	}
 
 }

@@ -1,16 +1,14 @@
 <?php
 
-class Photo extends Eloquent
+namespace App\Phogra;
+
+/**
+ * Class Photo
+ * @package App\Phogra
+ *
+ * Still trying to decide if this is how I want to handle this.
+ */
+class Photo
 {
-    protected $fillable = array('title','slug','description');
-
-    public function galleries()
-    {
-        return $this->belongsToMany('Gallery', 'gallery_photos');
-    }
-
-    public function files()
-    {
-        return $this->belongsToMany('Files', 'photo_files');
-    }
+    public static $tableName = 'galleries';
 }
