@@ -124,14 +124,15 @@ class GalleryTableSeeder extends Seeder
     private function makeGalleries($galleries, $parent = null)
     {
         foreach ($galleries as $g) {
-            $aGallery = new Gallery([
-                'id' => $g['id'],
-                'parent_id' => ($parent == null ? null : $parent->id),
-                'title' => $g['title']
-            ]);
-            $row = $aGallery->create();
-            if (!empty($g['children'])) {
-                $this->makeGalleries($g['children'], $row);
+			$g['parent_id'] = ($parent == null ? null : $parent->id);
+
+			$children = isset($g['children']) ? $g['children'] : null;
+			unset($g['children']);
+
+			$row = Gallery::create($g);
+
+            if (!empty($children)) {
+                $this->makeGalleries($children, $row);
             }
         }
     }

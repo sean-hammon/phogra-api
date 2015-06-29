@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 
 class CreateGalleriesTable extends Migration {
 
@@ -12,7 +12,7 @@ class CreateGalleriesTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('galleries', function($table){
+		Schema::create('galleries', function(Blueprint $table){
 			$table->increments('id')->unsigned();
 			$table->integer('parent_id')->nullable();
 			$table->string('title', 64);

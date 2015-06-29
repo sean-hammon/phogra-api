@@ -10,6 +10,6 @@ class Gallery extends Model
 
     public function photos()
     {
-        return $this->belongsToMany('Photo', 'gallery_photos');
+        return $this->belongsToMany('App\Phogra\Eloquent\Photo', 'gallery_photos');
     }
 }

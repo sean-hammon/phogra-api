@@ -16,24 +16,20 @@ class Gallery
     public static $tableName = 'galleries';
     public static $photoJoin = 'gallery_photos';
 
-    public function __construct(array $data) {
-        $this->rowData = $data;
-        if (!isset($this->rowData['slug']) || empty($this->rowData['slug'])) {
-            $this->rowData['slug'] = str_slug($this->rowData['title']);
-        }
-    }
-
     /**
      * @return object
      */
     public static function create($data)
     {
         try {
-            //  Returning an Eloquent model here feels oogy to me.
+			if (!isset($data['slug']) || empty($data['slug'])) {
+				$data['slug'] = str_slug($data['title']);
+			}
             $row = GalleryModel::create($data);
-            return $row->getAttributes();
+			//  Returning an Eloquent model here feels oogy to me.
+            return (object)$row->getAttributes();
         }
-        catch(Exception $e) {
+        catch(\Exception $e) {
             // Do something if the insert fails
         }
     }
