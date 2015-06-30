@@ -1,6 +1,6 @@
 <?php 
 
-namespace Phogra\File;
+namespace App\Phogra\File;
 
 class UnknownFileTypeException extends \Exception
 {

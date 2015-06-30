@@ -12,6 +12,7 @@ class Upload
 	 * @var File_[]
 	 */
 	private $records;
+
 	/**
 	 * The file path of the uploaded file
 	 *
@@ -27,8 +28,8 @@ class Upload
 	 * @param string $filePath
 	 * @param string $type
 	 *
-	 * @throws \Phogra\File\DuplicateFileException
-	 * @throws \Phogra\File\UnknownFileTypeException
+	 * @throws DuplicateFileException
+	 * @throws UnknownFileTypeException
 	 */
 	public function __construct($photo_id, $filePath, $type = 'original')
 	{

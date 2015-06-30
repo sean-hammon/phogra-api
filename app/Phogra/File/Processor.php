@@ -1,5 +1,5 @@
 <?php
-namespace Phogra\File;
+namespace App\Phogra\File;
 
 use Config;
 use Intervention\Image\ImageManagerStatic as Image;
@@ -31,8 +31,7 @@ class Processor
 	 *
 	 * @param string $filePath
 	 *
-	 * @throws \Phogra\File\DuplicateFileException
-	 * @throws \Phogra\File\UnknownFileTypeException
+	 * @throws DuplicateFileException
 	 */
 	public function __construct($filePath)
 	{

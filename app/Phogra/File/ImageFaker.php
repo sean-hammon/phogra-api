@@ -1,5 +1,5 @@
 <?php
-namespace Phogra\File;
+namespace App\Phogra\File;
 
 use Intervention\Image\ImageManagerStatic as Image;
 
