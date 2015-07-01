@@ -253,7 +253,16 @@ class PhotoTableSeeder extends Seeder
 						"title" => 'Snow Peak',
 						'short_desc' => "A prominent feature of Banff.",
 						'long_desc' => ''
+						// DSC20060327-192
+					],
+					[
+						"id" => 32,
+						"title" => 'Snow Peak 2',
+						'short_desc' => "Snow Peak stands above everything near Banff.",
+						'long_desc' => ''
+						// DSC20060327-195
 					]
+
 				]
 			]
 		);
