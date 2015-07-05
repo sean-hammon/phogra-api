@@ -14,10 +14,14 @@ class CreateFileTypesTable extends Migration {
 	{
 		Schema::create('file_types', function(Blueprint $table)
 		{
+			$types = get_object_vars(config('phogra.fileTypes'));
+			$typeKeys = array_keys($types);
+			$default = $typeKeys[0];
 			$table->increments('id');
-			$table->enum("type",['original','fit1080','fit1920','1080p','540p','thumb'])->default('original');
+			$table->enum("type", $typeKeys)->default($default);
 			$table->smallInteger('height')->nullable();
 			$table->smallInteger('width')->nullable();
+			$table->smallInteger('longest')->nullable();
 		});
 	}
 
