@@ -14,7 +14,7 @@ class FileTypesTableSeeder extends Seeder
 		$types = array_keys($typeConfig);
 		foreach ($types as $type) {
 			$data = get_object_vars($typeConfig[$type]);
-			$data['type'] = $type;
+			$data['name'] = $type;
 			FileType::create($data);
 		}
 

@@ -3,6 +3,12 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
+/**
+ * Class CreateFileTypesTable
+ *
+ * File types are defined in the config/phogra.php file and populated by the seeder.
+ * The same array is used to create an enum field in the files table.
+ */
 class CreateFileTypesTable extends Migration {
 
 	/**
@@ -14,11 +20,8 @@ class CreateFileTypesTable extends Migration {
 	{
 		Schema::create('file_types', function(Blueprint $table)
 		{
-			$types = get_object_vars(config('phogra.fileTypes'));
-			$typeKeys = array_keys($types);
-			$default = $typeKeys[0];
 			$table->increments('id');
-			$table->enum("type", $typeKeys)->default($default);
+			$table->string("name", 16)->unique();
 			$table->smallInteger('height')->nullable();
 			$table->smallInteger('width')->nullable();
 			$table->smallInteger('longest')->nullable();
