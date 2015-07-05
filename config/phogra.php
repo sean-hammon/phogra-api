@@ -1,7 +1,8 @@
 <?php
 
 return array(
-	//  File types available. Keys used by CreateFileTypes migration.
+	//  File types available. Types are used by the api to retrieve files for specific
+	//  contexts, such as retina or mobile. The types migration and seeder read this file.
 	//
 	//  Sizes are defaults for auto-generation.
 	//  Original size isn't used. It's just here to make testing more straight forward.
