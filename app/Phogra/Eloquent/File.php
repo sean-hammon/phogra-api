@@ -1,6 +1,5 @@
 <?php
 
-
 namespace app\Phogra\Eloquent;
 
 use Illuminate\Database\Eloquent\Model;
