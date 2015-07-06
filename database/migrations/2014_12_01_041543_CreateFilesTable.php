@@ -24,8 +24,11 @@ class CreateFilesTable extends Migration {
 			$default = $typeKeys[0];
 			$table->increments('id');
 			$table->enum('type', $typeKeys)->default($default);
+			$table->string('mimetype', 32);
+			$table->smallInteger('height')->nullable();
+			$table->smallInteger('width')->nullable();
 			$table->smallInteger('bytes')->nullable();
-			$table->string('hash', 60)->unique();
+			$table->char('hash', 60)->unique();
 			$table->timestamps();
 		});
 	}
