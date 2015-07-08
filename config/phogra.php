@@ -2,39 +2,60 @@
 
 return array(
 	//  File types available. Types are used by the api to retrieve files for specific
-	//  contexts, such as retina or mobile. The types migration and seeder read this file.
+	//  contexts, such as retina or mobile. The file types migration and seeder read this file.
 	//
 	//  Sizes are defaults for auto-generation.
-	//  Original size isn't used. It's just here to make testing more straight forward.
-	//
-	//	If only one dimension is supplied, proportional scaling is applied.
-	//
-	//	Two files for each type are supported for mobile. If this is desired,
-	//  the property 'longest' will generate landscape and portrait files with
-	//  the long edge matching the given dimension. The resulting files wil
-	//  be recorded as {filetype}-l and {filetype}-p
+	//	One dimension given:
+	//		If dimension given is the same as the longest edge,
+	//			proportional scaling will be applied.
+	//		If dimension given is not the longest edge,
+	//			the image will be scaled and then cropped.
+	//          (ie. a portrait sized piece will be cropped out of a landscape image)
+	//	Both dimensions given:
+	// 		The image will be scaled cropped.
+
 	'fileTypes'    => (object)[
 		'original' => (object)[
 			'height' => null,
-			'width'  => null
+			'width'  => null,
+			'autoGenerate' => ['2k', '1k-l', '1k-p', 'thumb']
 		],
 		'4k' =>	(object)[
-			'width'  => 3840
+			'height' => null,
+			'width'  => 3840,
+			'autoGenerate' => ['2k', '1k-l', '1k-p', 'thumb']
 		],
 		'2k' => (object)[
-			'width'  => 1980
-
+			'height' => null,
+			'width'  => 1980,
+			'autoGenerate' => ['1k-l', '1k-p', 'thumb']
 		],
-		'1k' => (object)[
-			'longest'  => 990
+		'1k-l' => (object)[
+			'height' => null,
+			'width'  => 990,
+			'autoGenerate' => ['thumb']
+		],
+		'1k-p' => (object)[
+			'height'  => 990,
+			'width' => null,
+			'autoGenerate' => ['thumb']
 		],
 		'thumb' => (object)[
 			'height' => 320,
-			'width'  => 320
+			'width'  => 320,
+			'autoGenerate' => []
 		]
 	],
 
 	//  Directories for file storage
-	'photoDir'     => base_path() . DIRECTORY_SEPARATOR . "photos",
-	'photoTempDir' => base_path() . DIRECTORY_SEPARATOR . "photos" . DIRECTORY_SEPARATOR . "tmp"
+	//
+	//  If the photoDir is in the public_path, the API will return URLs pointing
+	//  directly to the image file.
+	//
+	//  If the photoDir is outside the public path,
+	//  the API will return an API endpoint that will use readfile() to return
+	//	the image data.
+
+	'photoDir'     => public_path() . DIRECTORY_SEPARATOR . "photos",
+	'photoTempDir' => storage_path() . DIRECTORY_SEPARATOR . "photo-tmp"
 );
