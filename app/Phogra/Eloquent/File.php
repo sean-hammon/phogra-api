@@ -19,7 +19,7 @@ class File extends Model
 
 	public function location()
 	{
-		preg_match('/([\w]{5})([\w]{5})(.*)/', $this->hash, $matches);
+		preg_match('/([\w]{2})([\w]{2})(.*)/', $this->hash, $matches);
 		array_shift($matches);
 		$location = implode(DIRECTORY_SEPARATOR, $matches) . $this->fileExtension();
 
