@@ -1,29 +1,44 @@
 <?php
 namespace App\Phogra\File;
 
-use Config;
-use Intervention\Image\ImageManagerStatic as Image;
+use App\Phogra\Eloquent\File as FileModel;
 
 class Processor
 {
 	/**
-	 * The file path of the uploaded file
+	 * The file path of the file to be processed
 	 *
 	 * @var string
 	 */
 	private $filePath;
-	/**
-	 * The Eloquent model for files that owns these files
-	 *
-	 * @var array
-	 */
-	private $fileRecords;
+
 	/**
 	 * The mime type of the file returned by FileInfo
 	 *
 	 * @var string
 	 */
 	private $mime_type;
+
+	/**
+	 * An image resource handle to the original image
+	 *
+	 * @var resource
+	 */
+	private $imageResource;
+
+	/**
+	 * The width of the original image.
+	 *
+	 * @var int
+	 */
+	private $originalWidth;
+
+	/**
+	 * The height of the original image.
+	 *
+	 * @var int
+	 */
+	private $originalHeight;
 
 	/**
 	 * Process a new file: create the database record and move the file to its home
@@ -35,91 +50,166 @@ class Processor
 	 */
 	public function __construct($filePath)
 	{
-		$hash = hash('sha256', file_get_contents($filePath));
-		$dupCheck = File_::where("hash", "=", $hash)->first();
-		if ($dupCheck) {
-			throw new DuplicateFileException("This image appears to already exist in the database.");
-		}
-
 		$this->filePath = $filePath;
 		$fileInfo = new \finfo(FILEINFO_MIME_TYPE);
 		$this->mime_type = $fileInfo->file($this->filePath);
-	}
+		switch ($this->mime_type) {
+			case "image/jpeg":
+				$this->imageResource = imagecreatefromjpeg($this->filePath);
+				break;
 
-	public function processOriginal(array $needs = ['thumb'])
-	{
-		$this->autoGenerate($needs);
-		$this->process($this->filePath, 'original');
+			case "image/png":
+				$this->imageResource = imagecreatefrompng($this->filePath);
+				break;
+		}
 
-		return $this->fileRecords;
-	}
-
-	public function processHires(array $needs = ['thumb'])
-	{
-		$this->autoGenerate($needs);
-		$this->process($this->filePath, 'hires');
-
-		return $this->fileRecords;
-	}
-
-	public function processLowres(array $needs = ['thumb'])
-	{
-		$this->autoGenerate($needs);
-		$this->process($this->filePath, 'lowres');
-
-		return $this->fileRecords;
-	}
-
-	public function processThumb()
-	{
-		$this->process($this->filePath, 'thumb');
-
-		return $this->fileRecords;
+		$this->originalWidth = imagesx($this->imageResource);
+		$this->originalHeight = imagesy($this->imageResource);
 	}
 
 	/**
-	 * Loop through the file types that need to be auto-generated.
-	 *
-	 * @param array $needs
+	 * Make sure we're releasing the memory associate with this image resource
 	 */
-	private function autoGenerate(array $needs)
+	public function __destruct() {
+		imagedestroy($this->imageResource);
+	}
+
+	/**
+	 * @param  $imageType string  the image type to generate. Types defined in config/phogra.php
+	 * @return FileModel  App\Phogra\Eloquent\File
+	 *
+	 * @throws DuplicateFileException
+	 */
+	public function make($imageType)
 	{
-		foreach ($needs as $type) {
-			$file_path = $this->make($type);
-			$this->process($file_path, $type);
+		$tmpPath = config('phogra.photoTempDir') . '/tmp_' . bin2hex(openssl_random_pseudo_bytes(16));
+
+		$typeConfig = config("phogra.fileTypes");
+		$type = $typeConfig->$imageType;
+
+		if (is_null($type->width) && is_null($type->height)) {
+
+			//	We're just going to copy the original image and do not need make any
+			//	modifications.
+
+			$modified = imagecreatetruecolor($this->originalWidth, $this->originalHeight);
+			imagecopy($modified, $this->imageResource, 0, 0, 0, 0, $this->originalWidth, $this->originalHeight);
+
+		} elseif (isset($type->width) && isset($type->height)) {
+
+			//	If both dimensions are given, we know we need to crop.
+
+			$modified = $this->cropImage($this->imageResource, $type->width, $type->height);
+
+		} elseif (is_null($type->width) ) {
+			if ($this->originalHeight >= $this->originalWidth) {
+
+				//	If width is null and we have a portrait image, just scale.
+
+				$modified = $this->resizeImage($this->imageResource, $type->width, $type->height);
+
+			} else {
+
+				//	Otherwise we're going to crop it to a portrait image
+
+				$croppedWidth = intval($type->height * $this->originalHeight / $this->originalWidth);
+				$modified = $this->cropImage($this->imageResource, $croppedWidth, $type->height);
+			}
+		} elseif (is_null($type->height)) {
+			if ($this->originalWidth >= $this->originalHeight) {
+
+				//	Height is null and we have a landscape image. Just scale.
+
+				$modified = $this->resizeImage($this->imageResource, $type->width, $type->height);
+			} else {
+
+				//	Otherwise we're going to crop it to a portrait image
+
+				$croppedHeight = intval($type->width * $this->originalWidth / $this->originalHeight);
+				$modified = $this->cropImage($this->imageResource, $type->width, $croppedHeight);
+			}
 		}
 
-	}
-
-	private function make($type)
-	{
-		$tmpPath = Config::get('phogra.tempPhotoDir') . '/tmp_' . bin2hex(openssl_random_pseudo_bytes(16));
-		$size = Config::get("phogra.sizes.{$type}");
-		$image = Image::make($this->filePath);
-		$image->resize(null, $size['height'], function($constraint){
-			$constraint->aspectRatio();
-		});
-		$image->crop($size['width'], $size['height']);
-		$image->save($tmpPath);
-
-		return $tmpPath;
-	}
-
-	private function process($file_path, $file_type)
-	{
-		$hash = hash('sha256', file_get_contents($file_path));
-		$image = Image::make($file_path);
+		$this->writeTempFile($modified, $tmpPath);
+		$hash = hash('sha256', file_get_contents($tmpPath));
+		$dupCheck = FileModel::where("hash", "=", $hash)->first();
+		if ($dupCheck) {
+			throw new DuplicateFileException("This image appears to already exist in the database.");
+		}
 		$data = [
-			'type'     => $file_type,
+			'type'     => $imageType,
 			'hash'     => $hash,
-			'bytes'    => $image->filesize(),
-			'height'   => $image->height(),
-			'width'    => $image->width(),
+			'bytes'    => filesize($tmpPath),
+			'height'   => imagesy($modified),
+			'width'    => imagesx($modified),
 			'mimetype' => $this->mime_type
 		];
+		$fileRecord = FileModel::create($data);
+		$this->moveFile($tmpPath, $fileRecord->location());
 
-		$this->fileRecords[] = new File_($data);
-		$this->moveFile($this->filePath, $this->fileRecord->location());
+		imagedestroy($modified);
+
+		return $fileRecord;
+	}
+
+	private function resizeImage($image, $width, $height) {
+		$original = (object)[
+			'width' => imagesx($image),
+			'height' => imagesy($image)
+		];
+		$modified = (object)[
+			'width' => $width,
+			'height' => $height
+		];
+		$ratio = $original->width/$original->height;
+
+		if (is_null($modified->width)) {
+			$modified->width = intval($modified->height * $ratio);
+		}
+
+		if (is_null($modified->height)) {
+			$modified->height = intval($modified->width / $ratio);
+		}
+
+		$copy = imagecreatetruecolor($modified->width, $modified->height);
+		imagecopyresampled($copy, $image, 0, 0, 0, 0, $modified->width, $modified->height, $original->width, $original->height);
+
+		return $copy;
+	}
+
+	private function cropImage($image, $width, $height) {
+		$original = (object)[
+			'width' => imagesx($image),
+			'height' => imagesy($image)
+		];
+		$resize = (object)[
+			'width' => $original->width <= $original->height ? $width : null,
+			'height' => $original->height <= $original->width ? $height : null,
+		];
+		$resized = $this->resizeImage($image, $resize->width, $resize->height);
+
+		$newX = intval((imagesx($resized) - $width) / 2);
+		$newY = intval((imagesy($resized) - $height) / 2);
+		$copy = imagecreatetruecolor($width, $height);
+		imagecopy($copy, $resized, 0, 0, $newX, $newY, $width, $height);
+
+		imagedestroy($resized);
+		return $copy;
+	}
+
+	private function writeTempFile($image, $path, $quality = null) {
+		switch ($this->mime_type) {
+			case "image/jpeg":
+				$quality = is_null($quality) ? 75 : $quality;
+				imagejpeg($image, $path, $quality);
+				break;
+
+			case "image/png":
+				$quality = is_null($quality) ? 3 : $quality;
+				imagepng($image, $path, $quality);
+				break;
+		}
+
 	}
 
 	/**
@@ -132,10 +222,10 @@ class Processor
 	{
 		$exploded = explode(DIRECTORY_SEPARATOR, $newPath);
 		$filename = array_pop($exploded);
-		$path = Config::get('phogra.photoDir') . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $exploded);
+		$path = config('phogra.photoDir') . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $exploded);
 
 		if (!file_exists($path)) {
-			mkdir($path, 0777, true);
+			mkdir($path, 0775, true);
 		}
 
 		rename($oldPath, $path . DIRECTORY_SEPARATOR . $filename);
