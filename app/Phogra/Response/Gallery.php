@@ -43,7 +43,7 @@ class Gallery
 			$this->relationships->children->links->related = "/galleries/{$row->children}";
 		}
 		if ($row->photos != null) {
-			$this->relationships->photos->links->related = "/galleries/{$row->photos}";
+			$this->relationships->photos->links->related = "/photos/{$row->photos}";
 		}
 
 		$this->links = (object)[
