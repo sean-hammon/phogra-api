@@ -8,7 +8,8 @@ use App\Phogra\Exception\InvalidParameterException;
 class BaseController extends Controller {
 
 	protected $requestParams;
-	private $allowedParams = ['include','page','sort','filter','fields'];
+	protected $allowedParams = ['include','page','sort','filter','fields','empty'];
+	protected $warnings = [];
 
 	public function __construct(Request $request) {
 		$this->requestParams = (object)[
@@ -16,7 +17,8 @@ class BaseController extends Controller {
 			'page' => null,
 			'sort' => null,
 			'filter' => [],
-			'fields' => []
+			'fields' => [],
+			'empty' => null
 		];
 		$this->processParams($request);
 	}
@@ -63,6 +65,9 @@ class BaseController extends Controller {
 				case 'fields':
 					$this->processFields($value);
 				break;
+
+				case 'empty':
+					$this->processEmpty($value);
 			}
 		}
 	}
@@ -88,5 +93,14 @@ class BaseController extends Controller {
 
 	private function processFields($value) {
 		$this->requestParams->fields[] = $value;
+	}
+
+	private function processEmpty($value) {
+		if (class_basename($this) == 'GalleriesController') {
+			$this->requestParams->empty = $value;
+		} else {
+			$warnings = app('Warnings');
+			$warnings->addWarning('The empty parameter only applies to galleries and was ignored.');
+		}
 	}
 }
