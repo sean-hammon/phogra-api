@@ -12,11 +12,12 @@ class GalleriesController extends BaseController {
 	/**
 	 * Return all gallery records
 	 *
+	 * @param Gallery $galleryRepo
 	 * @return Response
 	 */
-	public function index()
+	public function index(Gallery $galleryRepo)
 	{
-		$galleries = Gallery::all($this->requestParams);
+		$galleries = $galleryRepo->all($this->requestParams);
 
 		$response = new GalleriesResponse($galleries);
 		return $response->send();
