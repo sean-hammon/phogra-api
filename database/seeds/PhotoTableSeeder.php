@@ -39,7 +39,7 @@ class PhotoTableSeeder extends Seeder
 						"title" => 'Mirrored Sunset',
 						'short_desc' => "Sunset during one of my trips to the Boundary Waters.",
 						'long_desc' => ''
-						// DSC20091020-43
+						// DSC20041020-043
 					]
 				]
 			],
@@ -65,7 +65,7 @@ class PhotoTableSeeder extends Seeder
 						"title" => 'Temple of the Moon',
 						'short_desc' => "A smaller temple near to the Temple of the Sun.",
 						'long_desc' => ''
-						// DSC20070705-2793
+						// DSC20070705-2783
 					]
 				]
 			],
@@ -119,7 +119,7 @@ class PhotoTableSeeder extends Seeder
 						"title" => 'Mount Timpanogos',
 						'short_desc' => "Mt. Timpanogos is a prominent feature of Utah County and, like any mountain peak, has many moods.",
 						'long_desc' => ''
-						// DSC20050522-470
+						// DSC20070416-031
 					],
 					[
 						"id" => 15,
@@ -168,14 +168,14 @@ class PhotoTableSeeder extends Seeder
 						"title" => 'Sunset Near Bald Mountain',
 						'short_desc' => "Lovely orange sky.",
 						'long_desc' => ''
-						// DSC20091017-003
+						// DSC20100814-119
 					],
 					[
 						"id" => 22,
 						"title" => 'Sunset Above Bald Mountain',
 						'short_desc' => "Everyone takes sunset photos of the horizon. I wanted to try something different.",
 						'long_desc' => ''
-						// DSC20091017-003
+						// DSC20100814-128
 					]
 				]
 			],
@@ -187,21 +187,21 @@ class PhotoTableSeeder extends Seeder
 						"title" => 'Paradox Valley',
 						'short_desc' => "A hidden gem in southwest Colorado. Had no idea such a beautiful little valley existed.",
 						'long_desc' => ''
-						// 20090719-153
+						// DSC20090719-153
 					],
 					[
 						"id" => 30,
 						"title" => 'Ute Canyon, Colorado National Monument',
 						'short_desc' => "Ute Canyon overlook on the south end of the park.",
 						'long_desc' => ''
-						// 20090619-DSC090619_031
+						// 20090619-DSC_090619_031
 					],
 					[
 						"id" => 31,
 						"title" => 'Sunset over McPhee Reservoir',
 						'short_desc' => "Just an amazing summer sky at sunset.",
 						'long_desc' => ''
-						// DSC20090713-123
+						// DSC20090718-123
 					]
 				]
 			],
@@ -227,21 +227,21 @@ class PhotoTableSeeder extends Seeder
 						"title" => 'Big Ball of Fire',
 						'short_desc' => "Sunrise on the water.",
 						'long_desc' => ''
-						// DSC20090327-023
+						// DSC20090328-008
 					],
 					[
 						"id" => 28,
 						"title" => 'Kayaking in the Florida Keys',
 						'short_desc' => "Stopping on a small island for a look-see.",
 						'long_desc' => ''
-						// DSC20090327-023
+						// DSC20090328-017
 					],
 					[
 						"id" => 29,
 						"title" => 'Too Windy to Fly',
 						'short_desc' => "Terns waiting for the wind to settle down.",
 						'long_desc' => ''
-						// DSC20090327-023
+						// DSC20090328-052
 					]
 				]
 			],
@@ -260,7 +260,7 @@ class PhotoTableSeeder extends Seeder
 						"title" => 'Snow Peak 2',
 						'short_desc' => "Snow Peak stands above everything near Banff.",
 						'long_desc' => ''
-						// DSC20060327-195
+						// DSC20060327-194
 					]
 
 				]
