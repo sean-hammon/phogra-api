@@ -18,4 +18,8 @@ class Warnings
 		return $this->warnings;
 	}
 
+	public function count(){
+		return count($this->warnings);
+	}
+
 }

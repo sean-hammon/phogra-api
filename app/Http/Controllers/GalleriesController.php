@@ -18,8 +18,8 @@ class GalleriesController extends BaseController {
 	{
 		$galleries = Gallery::all($this->requestParams);
 
-		$content = new GalleriesResponse($galleries);
-		return response()->json($content);
+		$response = new GalleriesResponse($galleries);
+		return $response->send();
 	}
 
 	/**
