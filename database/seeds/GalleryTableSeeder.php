@@ -123,13 +123,16 @@ class GalleryTableSeeder extends Seeder
 
     private function makeGalleries($galleries, $parent = null)
     {
+		$query = new \App\Phogra\Query();
+        $galleryRepo = new Gallery($query);
+
         foreach ($galleries as $g) {
 			$g['parent_id'] = ($parent == null ? null : $parent->id);
 
 			$children = isset($g['children']) ? $g['children'] : null;
 			unset($g['children']);
 
-			$row = Gallery::create($g);
+			$row = $galleryRepo->create($g);
 
             if (!empty($children)) {
                 $this->makeGalleries($children, $row);
