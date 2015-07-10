@@ -32,12 +32,11 @@ class Gallery
 			if (!isset($data['slug']) || empty($data['slug'])) {
 				$data['slug'] = str_slug($data['title']);
 			}
-            $row = GalleryModel::create($data);
-			//  Returning an Eloquent model here feels oogy to me.
-            return (object)$row->getAttributes();
+
+			return GalleryModel::create($data);
         }
         catch(\Exception $e) {
-            // Do something if the insert fails
+            // TODO: Do something if the insert fails
         }
     }
 
@@ -156,56 +155,6 @@ EOT;
 		}
 
 		$this->applyParams($params);
-/*
-		SELECT
-  `children`.`children`,
-  `photos`.`photos`,
-  photo_counts.total_count,
-  `galleries`.*
-FROM `galleries`
-  JOIN (SELECT
-          id,
-          (SELECT count(photo_id)
-           FROM gallery_photos
-           WHERE gallery_id IN (SELECT id
-                                FROM galleries AS g
-                                WHERE node LIKE CONCAT(galleries.node,
-													   ':%'))) AS total_count
-        FROM galleries) AS photo_counts
-    ON photo_counts.id = galleries.id
-  LEFT JOIN (SELECT
-               `parent_id`,
-               GROUP_CONCAT(id SEPARATOR ',') AS children
-             FROM `galleries`
-             GROUP BY `parent_id`)
-    AS children
-    ON `children`.`parent_id` = `galleries`.`id`
-  LEFT JOIN (SELECT
-               `gallery_id`,
-               GROUP_CONCAT(photo_id SEPARATOR ',') AS photos
-             FROM `gallery_photos`
-             GROUP BY `gallery_id`)
-    AS photos
-    ON `photos`.`gallery_id` = `galleries`.`id`
-WHERE `deleted_at` IS NULL
-		*/
-
-/*
-		$children = DB::table(self::$tableName)
-			->select('parent_id', DB::raw("GROUP_CONCAT(id SEPARATOR ',') as children"))
-			->groupBy('parent_id');
-		$photos = DB::table(self::$photoJoin)
-			->select('gallery_id', DB::raw("GROUP_CONCAT(photo_id SEPARATOR ',') as photos"))
-			->groupBy('gallery_id');
-		$counts = DB::table(self::$tableName)
-			->select('id', DB::raw())
-			select id, (SELECT count(photo_id)
-
-		$query = DB::table(self::$tableName)
-			->select("children.children", "photos.photos")
-			->leftJoin(DB::raw("({$children->toSql()}) as children"), "children.parent_id", "=", self::$tableName.".id" )
-			->mergeBindings($children);
-*/
 	}
 
 	/**
