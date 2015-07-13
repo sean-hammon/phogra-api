@@ -33,6 +33,12 @@ class Gallery
 			if (!isset($data['slug']) || empty($data['slug'])) {
 				$data['slug'] = str_slug($data['title']);
 			}
+			if (!isset($data['parent_id'])) {
+				$data['parent_id'] = null;
+			}
+			if (!isset($data['node'])) {
+				$data['node'] = $this->makeNode($data);
+			}
 
 			return GalleryModel::create($data);
         }
@@ -89,6 +95,23 @@ class Gallery
 		return DB::select($this->query->sql(), $this->query->variables());
 	}
 
+	private function makeNode($data) {
+		$max_node = GalleryModel::where('parent_id', $data['parent_id'])->max('node');
+
+		if (is_null($max_node)) {
+			$parent_node = GalleryModel::where('id', $data['parent_id'])->max('node');
+			if (is_null($parent_node)) {
+				return "001";
+			}
+
+			return $parent_node.":001";
+		}
+
+		$tree = explode(":", $max_node);
+		$int = (int)array_pop($tree);
+		$tree[] = sprintf('%03d',++$int);
+		return implode(":", $tree);
+	}
 
 	/**
 	 * Initialize the table query with SQL common to all queries
