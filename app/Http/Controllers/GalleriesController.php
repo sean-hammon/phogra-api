@@ -56,8 +56,8 @@ class GalleriesController extends BaseController {
 			//	This should be a single id
 			$gallery = $this->repository->one($id, $this->requestParams);
 
-			$content = new GalleryResponse($gallery);
-			return response()->json($content);
+			$response = new GalleryResponse($gallery);
+			return $response->send();
 		} else {
 
 			//	Pull out all the commas. It should still be numeric.
@@ -68,8 +68,8 @@ class GalleriesController extends BaseController {
 
 			$galleries = $this->repository->multiple($id, $this->requestParams);
 
-			$content = new GalleriesResponse($galleries);
-			return response()->json($content);
+			$response = new GalleriesResponse($galleries);
+			return $response->send();
 		}
 	}
 
