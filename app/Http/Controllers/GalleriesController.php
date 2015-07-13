@@ -6,18 +6,25 @@ use App\Phogra\Exception\BadRequestException;
 use App\Phogra\Gallery;
 use App\Phogra\Response\Gallery as GalleryResponse;
 use App\Phogra\Response\Galleries as GalleriesResponse;
+use Illuminate\Http\Request;
 
 class GalleriesController extends BaseController {
+
+	private $repository;
+
+	public function __construct(Request $request, Gallery $repository) {
+		parent::__construct($request);
+		$this->repository = $repository;
+	}
 
 	/**
 	 * Return all gallery records
 	 *
-	 * @param Gallery $galleryRepo
-	 * @return Response
+	 * @return \App\Phogra\Response
 	 */
-	public function index(Gallery $galleryRepo)
+	public function index()
 	{
-		$galleries = $galleryRepo->all($this->requestParams);
+		$galleries = $this->repository->all($this->requestParams);
 
 		$response = new GalleriesResponse($galleries);
 		return $response->send();
@@ -47,7 +54,7 @@ class GalleriesController extends BaseController {
 		if (is_numeric($id)) {
 
 			//	This should be a single id
-			$gallery = Gallery::one($id, $this->requestParams);
+			$gallery = $this->repository->one($id, $this->requestParams);
 
 			$content = new GalleryResponse($gallery);
 			return response()->json($content);
@@ -59,7 +66,7 @@ class GalleriesController extends BaseController {
 				throw new BadRequestException('Non-numeric ids given. Spaces in your list?');
 			}
 
-			$galleries = Gallery::multiple($id, $this->requestParams);
+			$galleries = $this->repository->multiple($id, $this->requestParams);
 
 			$content = new GalleriesResponse($galleries);
 			return response()->json($content);
