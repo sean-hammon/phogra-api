@@ -19,6 +19,7 @@ class Gallery
     private $tableName = 'galleries';
     private $photoJoin = 'gallery_photos';
 
+
 	public function __construct(Query $query) {
 		$this->query = $query;
 	}
@@ -51,7 +52,7 @@ class Gallery
     public function all($params) {
 		$this->initQuery($params);
 
-		return DB::select($this->query);
+		return DB::select($this->query->sql(), $this->query->variables());
 	}
 
 
@@ -64,11 +65,11 @@ class Gallery
 	 * @return array|static[]
 	 */
 	public function one($id, $params) {
-		$query = $this->initQuery($params);
+		$this->initQuery($params);
 
-		$query->where("id", "=", $id);
+		$this->query->addWhere("AND `id` = :id", [":id" => $id]);
 
-		return $query->first();
+		return DB::select($this->query->sql(), $this->query->variables());
 	}
 
 
@@ -81,12 +82,11 @@ class Gallery
 	 * @return array|static[]
 	 */
 	public function multiple($list, $params) {
-		$query = $this->initQuery($params);
+		$this->initQuery($params);
 
-		$anArray = explode(',', $list);
-		$query->whereIn("id", $anArray);
+		$this->query->addWhere("AND `id` IN (:list)", ["list" => $list]);
 
-		return $query->get();
+		return DB::select($this->query->sql(), $this->query->variables());
 	}
 
 
@@ -128,8 +128,7 @@ EOT;
 					   FROM `{$this->photoJoin}`
 					   WHERE `gallery_id` IN (SELECT `id`
 											FROM `{$this->tableName}` AS g
-											WHERE `node` LIKE CONCAT(galleries.node,
-																   ':%'))) AS total_count
+											WHERE `node` LIKE CONCAT(galleries.node, ':%'))) AS total_count
 					FROM `{$this->tableName}`) AS photo_counts
 				ON `photo_counts`.`id` = `galleries`.`id`
 EOT;

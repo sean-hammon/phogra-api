@@ -11,6 +11,7 @@ class Query
 	private $order = [];
 	private $group = [];
 	private $limit = [];
+	private $vars = [];
 
 	public function reset() {
 		$this->table = '';
@@ -20,6 +21,7 @@ class Query
 		$this->order = [];
 		$this->group = [];
 		$this->limit = [];
+		$this->vars = [];
 	}
 
 	public function setTable($table) {
@@ -42,8 +44,19 @@ class Query
 		$this->joins[] = $join;
 	}
 
-	public function addWhere($where) {
+	public function addWhere($where, $vars = null) {
 		$this->wheres[] = $where;
+		if ($vars != null) {
+			$this->vars = array_merge($this->vars, $vars);
+		}
+	}
+
+	public function variables() {
+		return $this->vars;
+	}
+
+	public function sql() {
+		return $this->__toString();
 	}
 
 	public function toString() {
