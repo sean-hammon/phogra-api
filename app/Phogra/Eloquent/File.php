@@ -14,7 +14,7 @@ class File extends Model
 
 	public function photos()
 	{
-		return $this->belongsToMany('App\Phogra\Eloquent\Photo', 'photo_files');
+		return $this->belongsTo('App\Phogra\Eloquent\Photo');
 	}
 
 	public function location()

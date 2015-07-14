@@ -145,14 +145,12 @@ class FilesTableSeeder extends Seeder
         foreach ($data as $photo) {
 			echo "{$photo['photo_id']}:{$photo['filename']}\n";
             $path = "seed-photos/" . $photo['filename'];
-			$processor = new Processor($path);
-			$file = $processor->make('original');
-			$file->photos()->attach($photo['photo_id']);
+			$processor = new Processor($photo["photo_id"], $path);
+			$processor->make('original');
 
 			$typeConfig = config('phogra.fileTypes');
 			foreach ($typeConfig->original->autoGenerate as $type) {
-				$file = $processor->make($type);
-				$file->photos()->attach($photo['photo_id']);
+				$processor->make($type);
 			}
 			unset($processor);
         }

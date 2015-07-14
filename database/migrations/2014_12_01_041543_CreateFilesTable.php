@@ -23,6 +23,7 @@ class CreateFilesTable extends Migration {
 			$typeKeys = array_keys($types);
 			$default = $typeKeys[0];
 			$table->increments('id');
+			$table->integer('photo_id')->index('files_photo_id');
 			$table->enum('type', $typeKeys)->default($default);
 			$table->string('mimetype', 32);
 			$table->smallInteger('height')->unsigned()->nullable();
