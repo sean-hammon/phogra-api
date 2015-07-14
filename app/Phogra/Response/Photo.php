@@ -2,7 +2,7 @@
 
 namespace App\Phogra\Response;
 
-class Photo extends BaseResponse
+class Photo
 {
 	var $type = 'photos';
 	var $id = null;
@@ -11,7 +11,6 @@ class Photo extends BaseResponse
 	var $links;
 
 	public function __construct($row) {
-		parent::__construct();
 
 		$this->id = $row->id;
 		$this->attributes = (object)[
