@@ -72,8 +72,14 @@ class Photo
 	public function one($id, $params) {
 		$this->initQuery($params);
 
-		$this->query->addWhere("AND `{$this->photosTable}`.`id` = :id", [":id" => $id]);
-		return DB::select($this->query->sql(), $this->query->variables());
+		$this->query->addWhere("AND `{$this->photosTable}`.`id` = :id", ["id" => $id]);
+		$result = DB::select($this->query->sql(), $this->query->variables());
+
+		if (count($result)) {
+			return $result[0];
+		} else {
+			return null;
+		}
 	}
 
 
@@ -86,11 +92,17 @@ class Photo
 	 * @return array|static[]
 	 */
 	public function multiple($list, $params) {
+
 		$this->initQuery($params);
+		$this->query->addWhere("AND `{$this->photosTable}`.`id` IN ({$list})");
 
-		$this->query->addWhere("AND `id` IN (:list)", ["list" => $list]);
+		$result = DB::select($this->query->sql(), $this->query->variables());
 
-		return DB::select($this->query->sql(), $this->query->variables());
+		if (count($result)) {
+			return $result;
+		} else {
+			return null;
+		}
 	}
 
 	private function makeNode($data) {
@@ -127,7 +139,7 @@ class Photo
 						   GROUP_CONCAT(id SEPARATOR ',') AS file_ids
 						 FROM `{$this->filesTable}`
 						 GROUP BY `photo_id`)
-				AS files
+				AS {$this->filesTable}
 				ON `{$this->filesTable}`.`photo_id` = `{$this->photosTable}`.`id`
 EOT;
 
