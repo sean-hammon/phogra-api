@@ -18,7 +18,7 @@ class Upload
 	 *
 	 * @var string
 	 */
-	private $filPath;
+	private $filePath;
 
 	/**
 	 * Process a file upload: create the database record and move the file to its home
@@ -71,14 +71,15 @@ class Upload
 			'bytes' => $image->filesize(),
 			'height' => $image->height(),
 			'width' => $image->width(),
-			'mimetype' => $fileInfo->file($filePath)
+			'mimetype' => $fileInfo->file($filePath),
+			'type' => $type
 		];
 
 		$this->fileRecord = File_::create($data);
 		$this->moveFile($filePath, $this->fileRecord->location());
 
-		$thumbPath = Config::get('phogra.tempPhotoDir') . '/th_' . bin2hex(openssl_random_pseudo_bytes(8)) . $this->fileRecord->fileExtension();
-		$thumbSize = Config::get('phogra.thumbSize');
+		$thumbPath = config('phogra.tempPhotoDir') . '/th_' . bin2hex(openssl_random_pseudo_bytes(8)) . $this->fileRecord->fileExtension();
+		$thumbSize = config('phogra.thumbSize');
 		$image->resize(null, $thumbSize, function($constraint){
 			$constraint->aspectRatio();
 		});
@@ -104,7 +105,7 @@ class Upload
 	 * @return string
 	 */
 	public function getPhotoFilePath(){
-		return Config::get('phogra.photoDir') . DIRECTORY_SEPARATOR . $this->fileRecord->location();
+		return config('phogra.photoDir') . DIRECTORY_SEPARATOR . $this->fileRecord->location();
 	}
 
 	/**
@@ -113,7 +114,7 @@ class Upload
 	 * @return string
 	 */
 	public function getThumbFilePath(){
-		return Config::get('phogra.photoDir') . DIRECTORY_SEPARATOR . $this->thumbRecord->location();
+		return config('phogra.photoDir') . DIRECTORY_SEPARATOR . $this->thumbRecord->location();
 	}
 
 	/**
@@ -126,7 +127,7 @@ class Upload
 	{
 		$exploded = explode(DIRECTORY_SEPARATOR, $newPath);
 		$filename = array_pop($exploded);
-		$path = Config::get('phogra.photoDir') . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $exploded);
+		$path = config('phogra.photoDir') . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $exploded);
 
 		if (!file_exists($path)) {
 			mkdir($path, 0777, true);

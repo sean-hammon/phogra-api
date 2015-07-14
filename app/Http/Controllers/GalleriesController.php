@@ -54,23 +54,25 @@ class GalleriesController extends BaseController {
 		if (is_numeric($id)) {
 
 			//	This should be a single id
-			$gallery = $this->repository->one($id, $this->requestParams);
-
-			$response = new GalleryResponse($gallery);
-			return $response->send();
+			$result = $this->repository->one($id, $this->requestParams);
 		} else {
 
 			//	Pull out all the commas. It should still be numeric.
 			$quickcheck = str_replace(',', '', $id);
 			if (!is_numeric($quickcheck)) {
-				throw new BadRequestException('Non-numeric ids given. Spaces in your list?');
+				throw new BadRequestException('Non-numeric ids given. Spaces in your list? Or are you being naughty?');
 			}
 
-			$galleries = $this->repository->multiple($id, $this->requestParams);
+			$result = $this->repository->multiple($id, $this->requestParams);
+		}
 
-			$response = new GalleriesResponse($galleries);
+		if (is_null($result)) {
+			throw new NotFoundException("No data found for {$id}.");
+		} else {
+			$response = new GalleriesResponse($result);
 			return $response->send();
 		}
+
 	}
 
 

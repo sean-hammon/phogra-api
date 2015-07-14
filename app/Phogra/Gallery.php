@@ -73,9 +73,15 @@ class Gallery
 	public function one($id, $params) {
 		$this->initQuery($params);
 
-		$this->query->addWhere("AND `id` = :id", [":id" => $id]);
+		$this->query->addWhere("AND `{$this->tableName}`.`id` = :id", [":id" => $id]);
 
-		return DB::select($this->query->sql(), $this->query->variables());
+		$result = DB::select($this->query->sql(), $this->query->variables());
+
+		if (count($result)) {
+			return $result[0];
+		} else {
+			return null;
+		}
 	}
 
 
@@ -90,11 +96,24 @@ class Gallery
 	public function multiple($list, $params) {
 		$this->initQuery($params);
 
-		$this->query->addWhere("AND `id` IN (:list)", ["list" => $list]);
+		$this->query->addWhere("AND `{$this->tableName}`.`id` IN ({$list})");
 
-		return DB::select($this->query->sql(), $this->query->variables());
+		$result = DB::select($this->query->sql(), $this->query->variables());
+
+		if (count($result)) {
+			return $result;
+		} else {
+			return null;
+		}
 	}
 
+	/**
+	 * Generate the tree node data that is used in SQL queries.
+	 *
+	 * @param $data  array  row data for the gallery
+	 *
+	 * @return string
+	 */
 	private function makeNode($data) {
 		$max_node = GalleryModel::where('parent_id', $data['parent_id'])->max('node');
 

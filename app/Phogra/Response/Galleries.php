@@ -2,8 +2,6 @@
 
 namespace App\Phogra\Response;
 
-use App\Phogra\Eloquent\Gallery;
-
 class Galleries extends BaseResponse
 {
 
