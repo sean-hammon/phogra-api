@@ -26,7 +26,7 @@ Route::resource('galleries','GalleriesController', array(
 //  /galleries/:id/children
 
 //  /photos
-Route::resource('photos','PhotoController', array(
+Route::resource('photos','PhotosController', array(
     'except' => array('create','edit')
 ));
 
