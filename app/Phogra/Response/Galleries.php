@@ -2,15 +2,21 @@
 
 namespace App\Phogra\Response;
 
+use App\Phogra\Eloquent\Gallery;
+
 class Galleries extends BaseResponse
 {
 
-	public function __construct($rows) {
+	public function __construct($data) {
 		parent::__construct();
-		$this->data = [];
 
-		foreach ($rows as $row) {
-			$this->data[] = new Gallery($row);
+		if (is_array($data)) {
+			$this->data = [];
+			foreach ($data as $row) {
+				$this->data[] = new Gallery($row);
+			}
+		} else {
+			$this->data = new Gallery($data);
 		}
 
 	}
