@@ -28,15 +28,23 @@ class PhotosController extends BaseController {
 		throw new InvalidOperationException('Retrieving all photos is not supported.');
 	}
 
-
 	/**
 	 * Store a newly created resource in storage.
 	 *
 	 * @return Response
+	 * @throws InvalidJsonException
 	 */
 	public function store()
 	{
-		//
+		$incoming = json_decode($this->request->getContent());
+		if (json_last_error()) {
+			throw new InvalidJsonException(json_last_error_msg());
+		}
+
+		$photo = $this->repository->create(get_object_vars($incoming));
+		$response = new PhotosResponse($photo);
+		return $response->send();
+
 	}
 
 	/**

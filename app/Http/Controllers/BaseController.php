@@ -7,11 +7,14 @@ use App\Phogra\Exception\InvalidParameterException;
 
 class BaseController extends Controller {
 
+	protected $request;
+	protected $hasParams = false;
 	protected $requestParams;
 	protected $allowedParams = ['include','page','sort','filter','fields','empty'];
 	protected $warnings = [];
 
 	public function __construct(Request $request) {
+		$this->request = $request;
 		$this->requestParams = (object)[
 			'include' => [],
 			'page' => null,
@@ -20,25 +23,15 @@ class BaseController extends Controller {
 			'fields' => [],
 			'empty' => null
 		];
-		$this->processParams($request);
+		$this->processParams();
 	}
 
-
-	/**
-	 * Setup the layout used by the controller.
-	 *
-	 * @return void
-	 */
-	protected function setupLayout()
-	{
-		if ( ! is_null($this->layout))
-		{
-			$this->layout = View::make($this->layout);
+	private function processParams() {
+		$get = $this->request->all();
+		if(count($get)) {
+			$this->hasParams = true;
 		}
-	}
 
-	private function processParams(Request $request) {
-		$get = $request->all();
 		$incoming = array_keys($get);
 		$disallowed = array_diff($incoming, $this->allowedParams);
 		if (count($disallowed)) {
