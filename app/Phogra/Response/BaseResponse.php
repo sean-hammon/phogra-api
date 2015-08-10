@@ -15,6 +15,9 @@ class BaseResponse
 		];
 	}
 
+	/**
+	 * @return \Illuminate\Http\Response
+	 */
 	public function send() {
 		$responseObj = new \stdClass();
 
@@ -35,7 +38,7 @@ class BaseResponse
 			$responseObj->included = $this->included;
 		}
 
-		return $this->addHeaders()->json($responseObj, $this->$http_code, $this->addHeaders(), $this->jsonOptions() );
+		return response()->json($responseObj, $this->http_code, $this->addHeaders(), $this->jsonOptions() );
 	}
 
 	/**
