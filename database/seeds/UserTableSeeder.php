@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
-use App\Phogra\User;
+use App\Phogra\Eloquent\User;
 
 class UserTableSeeder extends Seeder
 {
@@ -9,7 +9,8 @@ class UserTableSeeder extends Seeder
 	{
 		DB::statement('truncate table users');
 		User::create([
-			"email" => 'sean@sean-hammon.com',
+			"name" => 'Dummy User',
+			"email" => 'dummy@example.com',
 			"password" => 'foobar'
 	    ]);
 	}
