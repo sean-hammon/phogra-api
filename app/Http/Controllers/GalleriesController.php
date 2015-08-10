@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Phogra\Exception\BadRequestException;
 use App\Phogra\Gallery;
-use App\Phogra\Response\Gallery as GalleryResponse;
 use App\Phogra\Response\Galleries as GalleriesResponse;
 use Illuminate\Http\Request;
 
@@ -43,11 +42,12 @@ class GalleriesController extends BaseController {
 	/**
 	 * Display the specified galleries.
 	 *
-	 * @param  int|string  $id  integer row id for a single gallery OR
+	 * @param  int|string $id integer row id for a single gallery OR
 	 *                          string of comma separated ids
 	 *
-	 * @return Response
+	 * @return \Illuminate\Http\Response
 	 * @throws BadRequestException
+	 * @throws NotFoundException
 	 */
 	public function show($id)
 	{
