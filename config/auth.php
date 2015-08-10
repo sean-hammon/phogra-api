@@ -28,7 +28,7 @@ return [
     |
     */
 
-    'model' => App\User::class,
+    'model' => App\Phogra\Eloquent\User::class,
 
     /*
     |--------------------------------------------------------------------------
