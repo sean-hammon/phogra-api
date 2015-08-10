@@ -12,7 +12,7 @@
 */
 
 Route::get('/', 'ApiController@index');
-
+Route::post('/authenticate', 'AuthController@authenticate');
 
 //  /galleries
 //  /galleries/:id
