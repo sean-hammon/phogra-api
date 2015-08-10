@@ -50,6 +50,9 @@ class Handler extends ExceptionHandler
                 . " on line "
                 . $e->getLine()
 		];
+        if( app()->environment('local')) {
+            $content->stacktrace = $e->getTraceAsString();
+        }
 		$status = 500;
 
 		if ($e instanceof PhograException) {
@@ -57,6 +60,6 @@ class Handler extends ExceptionHandler
 			$status = $e->getCode();
 		}
 
-		return response()->json($content, $status);
+		return response()->json($content, $status, [], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
     }
 }
