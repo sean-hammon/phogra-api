@@ -105,5 +105,9 @@ class PhotosController extends BaseController {
 		//
 	}
 
+	public function options() {
+		return parent::options();
+	}
+
 
 }

@@ -18,6 +18,7 @@ Route::group(['middleware' => 'phogra.api.token'], function(){
 
 	//  /galleries
 	//  /galleries/:id
+	Route::options('galleries', 'GalleriesController@options');
 	Route::resource('galleries','GalleriesController', array(
 		'except' => array('create','edit')
 	));
@@ -26,6 +27,7 @@ Route::group(['middleware' => 'phogra.api.token'], function(){
 	//  /galleries/:id/children
 
 	//  /photos
+	Route::options('photos', 'PhotosController@options');
 	Route::resource('photos','PhotosController', array(
 		'except' => array('create','edit')
 	));

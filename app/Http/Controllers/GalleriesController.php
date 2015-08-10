@@ -99,5 +99,9 @@ class GalleriesController extends BaseController {
 		//
 	}
 
+	public function options() {
+		return parent::options();
+	}
+
 
 }

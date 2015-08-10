@@ -26,6 +26,23 @@ class BaseController extends Controller {
 		$this->processParams();
 	}
 
+	protected function options() {
+		$response = response('', 200)
+			->header('Accept', 'application/json')
+			->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+			->header('Access-Control-Allow-Headers', 'X-Phogra-Token')
+			//	30 days
+			->header('Access-Control-Max-Age', 30 * 24 * 60 * 60);
+
+		$requestDomain = $this->request->server('HTTP_HOST');
+		$allowedDomains = config('phogra.allowedDomains');
+		if ($allowedDomains[0] === "*" || in_array($requestDomain, $allowedDomains)) {
+			$response->header('Access-Control-Allow-Origin', $requestDomain);
+		}
+
+		return $response;
+	}
+
 	private function processParams() {
 		$get = $this->request->all();
 		if(count($get)) {
