@@ -7,6 +7,7 @@ class BaseResponse
 	public $links;
 	public $data;
 	public $included;
+	public $http_code = 200;
 
 	public function __construct() {
 		$this->links = (object)[
@@ -34,7 +35,7 @@ class BaseResponse
 			$responseObj->included = $this->included;
 		}
 
-		return $this->addHeaders()->json($responseObj);
+		return $this->addHeaders()->json($responseObj, $this->$http_code, $this->addHeaders(), $this->jsonOptions() );
 	}
 
 	/**
@@ -56,7 +57,11 @@ class BaseResponse
 	}
 
 	private function addHeaders() {
-		return response();
+		return [];
+	}
+
+	private function jsonOptions() {
+		return JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT;
 	}
 
 }
