@@ -14,23 +14,26 @@
 Route::get('/', 'ApiController@index');
 Route::post('/authenticate', 'AuthController@authenticate');
 
-//  /galleries
-//  /galleries/:id
-Route::resource('galleries','GalleriesController', array(
-    'except' => array('create','edit')
-));
+Route::group(['middleware' => 'phogra.api.token'], function(){
 
-//  /galleries/:id/photos
-//  /galleries/:id/children
+	//  /galleries
+	//  /galleries/:id
+	Route::resource('galleries','GalleriesController', array(
+		'except' => array('create','edit')
+	));
 
-//  /photos
-Route::resource('photos','PhotosController', array(
-    'except' => array('create','edit')
-));
+	//  /galleries/:id/photos
+	//  /galleries/:id/children
 
-//  /photos/:id/files
-//  /photos/:id/metadata
+	//  /photos
+	Route::resource('photos','PhotosController', array(
+		'except' => array('create','edit')
+	));
 
-//  /user/login
-//	/user/token
-//	/user/token/refresh
+	//  /photos/:id/files
+	//  /photos/:id/metadata
+
+	//  /user/login
+	//	/user/token
+	//	/user/token/refresh
+});

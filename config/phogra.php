@@ -56,6 +56,8 @@ return array(
 	//  the API will return an API endpoint that will use readfile() to return
 	//	the image data.
 
-	'photoDir'     => public_path() . DIRECTORY_SEPARATOR . "photos",
-	'photoTempDir' => storage_path() . DIRECTORY_SEPARATOR . "photo-tmp"
+	'photoDir'       => public_path() . DIRECTORY_SEPARATOR . "photos",
+	'photoTempDir'   => storage_path() . DIRECTORY_SEPARATOR . "photo-tmp",
+	'publicApi'      => false,
+	'apiTokenHeader' => 'X-Phogra-Token'
 );
