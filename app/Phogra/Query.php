@@ -51,6 +51,10 @@ class Query
 		}
 	}
 
+	public function addOrderBy($order) {
+		$this->order[] = $order;
+	}
+
 	public function variables() {
 		return $this->vars;
 	}
@@ -69,6 +73,10 @@ class Query
 			"FROM " . $this->table . "\n" .
 			implode("\n", $this->joins) . "\n" .
 			"WHERE " . implode(' ', $this->wheres);
+
+		if (!empty($this->order)) {
+			$query .= "\nORDER BY " . implode(',', $this->order);
+		}
 
 		return str_replace("\t", '', $query);
 	}
