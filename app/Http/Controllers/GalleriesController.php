@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Phogra\Exception\BadRequestException;
+use App\Phogra\Exception\NotFoundException;
 use App\Phogra\Gallery;
 use App\Phogra\Response\Galleries as GalleriesResponse;
 use Illuminate\Http\Request;
@@ -52,7 +53,6 @@ class GalleriesController extends BaseController {
 	public function show($id)
 	{
 		if (is_numeric($id)) {
-
 			//	This should be a single id
 			$result = $this->repository->one($id, $this->requestParams);
 		} else {
