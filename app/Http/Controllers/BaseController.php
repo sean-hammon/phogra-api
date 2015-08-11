@@ -10,7 +10,7 @@ class BaseController extends Controller {
 	protected $request;
 	protected $hasParams = false;
 	protected $requestParams;
-	protected $allowedParams = ['include','page','sort','filter','fields','empty'];
+	protected $allowedParams = ['include','page','sort','filter','fields'];
 	protected $warnings = [];
 
 	public function __construct(Request $request) {
