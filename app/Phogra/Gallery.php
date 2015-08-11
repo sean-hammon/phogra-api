@@ -63,7 +63,8 @@ class Gallery
 
 
 	/**
-	 * Fetch a single gallery result
+	 * Fetch a single gallery result. Force empty to be true.
+	 * Requests for specific ids should always return results if the ids exist.
 	 *
 	 * @param $id	   int     row id of the gallery
 	 * @param $params  object  parameter object created in BaseController
@@ -71,6 +72,7 @@ class Gallery
 	 * @return array|static[]
 	 */
 	public function one($id, $params) {
+		$params->empty = "true";
 		$this->initQuery($params);
 
 		$this->query->addWhere("AND `{$this->tableName}`.`id` = :id", [":id" => $id]);
@@ -86,7 +88,8 @@ class Gallery
 
 
 	/**
-	 * Fetch multiple gallery rows based on a comma separated list
+	 * Fetch multiple gallery rows based on a comma separated list. Force empty to be true.
+	 * Requests for specific ids should always return results if the ids exist.
 	 *
 	 * @param $list	   string  comma separated row ids of the galleries
 	 * @param $params  object  parameter object created in BaseController
@@ -94,6 +97,7 @@ class Gallery
 	 * @return array|static[]
 	 */
 	public function multiple($list, $params) {
+		$params->empty = "true";
 		$this->initQuery($params);
 
 		$this->query->addWhere("AND `{$this->tableName}`.`id` IN ({$list})");
