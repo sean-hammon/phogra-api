@@ -2,8 +2,8 @@
 
 namespace App\Phogra;
 
+use Auth;
 use App\Phogra\Eloquent\Gallery as GalleryModel;
-use App\Phogra\Query;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -22,6 +22,7 @@ class Gallery
 
 	public function __construct(Query $query) {
 		$this->query = $query;
+		$this->user = Auth::user();
 	}
 
     /**
@@ -155,6 +156,16 @@ class Gallery
 				AS children
 				ON `children`.`parent_id` = `galleries`.`id`
 EOT;
+		//	Retrieve private galleries
+		$userJoin = <<<EOT
+			  LEFT JOIN (SELECT
+						   `parent_id`,
+						   GROUP_CONCAT(id SEPARATOR ',') AS children
+						 FROM `{$this->tableName}`
+						 GROUP BY `parent_id`)
+				AS children
+				ON `children`.`parent_id` = `galleries`.`id`
+EOT;
 		//	Get IDs of any photos in a gallery for relationship related links
 		$photosJoin = <<<EOT
 			  LEFT JOIN (SELECT
@@ -189,6 +200,19 @@ EOT;
 		$this->query->addJoin($childJoin);
 		$this->query->addJoin($photosJoin);
 		$this->query->addWhere("`{$this->tableName}`.`deleted_at` IS NULL");
+		$this->query->addWhere("AND (`{$this->tableName}`.`protected` = 0");
+
+		if (isset($this->user)) {
+			$this->query->addWhere("
+			 	OR (`{$this->tableName}`.`protected` = 1
+					AND `{$this->tableName}`.`id` IN (
+						SELECT gallery_id FROM gallery_users WHERE user_id = :user_id
+					)
+				)",
+		   		["user_id" => $this->user->id]);
+		} else {
+			$this->query->addWhere(")");
+		}
 
 		//	By default only return galleries that have photos, unless empty = true
 		//	then return them all.
