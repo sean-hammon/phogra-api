@@ -72,21 +72,7 @@ class Photo
 
 
 	/**
-	 * Fetch all gallery rows
-	 *
-	 * @param $params  object  parameter object created in BaseController
-	 *
-	 * @return array|static[]
-	 */
-    public function all($params) {
-		$this->initQuery($params);
-
-		return DB::select($this->query->sql(), $this->query->variables());
-	}
-
-
-	/**
-	 * Fetch a single gallery result
+	 * Fetch a single photo result
 	 *
 	 * @param $id	   int     row id of the gallery
 	 * @param $params  object  parameter object created in BaseController
@@ -108,7 +94,7 @@ class Photo
 
 
 	/**
-	 * Fetch multiple gallery rows based on a comma separated list
+	 * Fetch multiple photo rows based on a comma separated list
 	 *
 	 * @param $list	   string  comma separated row ids of the galleries
 	 * @param $params  object  parameter object created in BaseController
@@ -127,24 +113,6 @@ class Photo
 		} else {
 			return null;
 		}
-	}
-
-	private function makeNode($data) {
-		$max_node = PhotoModel::where('parent_id', $data['parent_id'])->max('node');
-
-		if (is_null($max_node)) {
-			$parent_node = PhotoModel::where('id', $data['parent_id'])->max('node');
-			if (is_null($parent_node)) {
-				return "001";
-			}
-
-			return $parent_node.":001";
-		}
-
-		$tree = explode(":", $max_node);
-		$int = (int)array_pop($tree);
-		$tree[] = sprintf('%03d',++$int);
-		return implode(":", $tree);
 	}
 
 	/**
