@@ -55,8 +55,12 @@ return array(
 	//  If the photoDir is outside the public path,
 	//  the API will return an API endpoint that will use readfile() to return
 	//	the image data.
+	//
+	//	If the photoDir is inside the public path, it cannot match any api endpoints.
+	//	So photos, is a no-no since there is a /photos endpoint. You'll end up with a
+	//	redirect loop when accessing /photos.
 
-	'photoDir'       => public_path() . DIRECTORY_SEPARATOR . "photos",
+	'photoDir'       => public_path() . DIRECTORY_SEPARATOR . "photo",
 	'photoTempDir'   => storage_path() . DIRECTORY_SEPARATOR . "photo-tmp",
 
 	//	Is the API public? If you want anyone to be able to hit the api, set publicApi = true
