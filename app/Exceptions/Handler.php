@@ -57,7 +57,7 @@ class Handler extends ExceptionHandler
 			$content->message = $e->getMessage();
 			$status = $e->getCode();
 		} elseif( app()->environment('local')) {
-            $content->stacktrace = $e->getTraceAsString();
+            $content->stacktrace = explode("\n", $e->getTraceAsString());
         }
 
 
