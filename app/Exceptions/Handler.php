@@ -41,12 +41,13 @@ class Handler extends ExceptionHandler
     public function render($request, Exception $e)
     {
 		$file = explode('/',$e->getFile());
+        $file = array_slice($file, -2);
 		//	TODO: check environment and only give bare bones messages in production
 		$content = (object)[
 			'message' => "An unexpected error occurred: "
                 . $e->getMessage()
                 . " in "
-                . array_pop($file)
+                . implode("/", $file)
                 . " on line "
                 . $e->getLine()
 		];
