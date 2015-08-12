@@ -83,9 +83,13 @@ class BaseController extends Controller {
 	}
 
 	private function processInclude($value) {
-		$pairs = explode(',', $value);
-		foreach ($pairs as $p) {
-			$this->requestParams->include[] = explode('.', $p);
+		$values = explode(',', $value);
+		foreach ($values as $val) {
+			if (strpos($val, '.') !== false) {
+				$this->requestParams->include[] = explode('.', $val);
+			} else {
+				$this->requestParams->include[] = $val;
+			}
 		}
 	}
 
