@@ -2,10 +2,15 @@
 
 namespace App\Phogra;
 
-use App\Phogra\Eloquent\Photo as PhotoModel;
-use App\Phogra\Exception\InvalidParameterException;
-use App\Phogra\Query;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
+use App\Phogra\Eloquent\Photo as PhotoModel;
+use App\Phogra\Exception\BadRequestException;
+use App\Phogra\Exception\InvalidParameterException;
+use App\Phogra\Query\Join;
+use App\Phogra\Query\JoinParams;
+use App\Phogra\Query\WhereIn;
+
 
 /**
  * Class Photo
@@ -15,14 +20,13 @@ use Illuminate\Support\Facades\DB;
  */
 class Photo
 {
+	/**
+	 * @var Builder
+	 */
 	private $query;
 
     private $photosTable = 'photos';
     private $filesTable = 'files';
-
-	public function __construct(Query $query) {
-		$this->query = $query;
-	}
 
 	/**
 	 * @param $data
@@ -82,8 +86,8 @@ class Photo
 	public function one($id, $params) {
 		$this->initQuery($params);
 
-		$this->query->addWhere("AND `{$this->photosTable}`.`id` = :id", ["id" => $id]);
-		$result = DB::select($this->query->sql(), $this->query->variables());
+		$this->query->where("{$this->photosTable}.id", "=", $id);
+		$result = $this->query->get();
 
 		if (count($result)) {
 			return $result[0];
@@ -104,9 +108,10 @@ class Photo
 	public function multiple($list, $params) {
 
 		$this->initQuery($params);
-		$this->query->addWhere("AND `{$this->photosTable}`.`id` IN ({$list})");
+		$ids = explode(",", $list);
+		$this->query->whereIn("{$this->photosTable}.id", $ids);
 
-		$result = DB::select($this->query->sql(), $this->query->variables());
+		$result = $this->query->get();
 
 		if (count($result)) {
 			return $result;
@@ -124,25 +129,25 @@ class Photo
 	 */
 	private function initQuery($params) {
 
-		//	Retrieve files
-		$fileJoin = <<<EOT
-			  LEFT JOIN (SELECT
-						   `photo_id`,
-						   GROUP_CONCAT(id SEPARATOR ',') AS file_ids
-						 FROM `{$this->filesTable}`
-						 GROUP BY `photo_id`)
-				AS {$this->filesTable}
-				ON `{$this->filesTable}`.`photo_id` = `{$this->photosTable}`.`id`
-EOT;
+		$this->query = DB::table($this->photosTable);
 
-		$this->query->reset();
-		$this->query->setTable($this->photosTable);
-		$this->query->setSelect([
-				"`{$this->photosTable}`.*",
-				"`{$this->filesTable}`.file_ids"
-			]);
-		$this->query->addJoin($fileJoin);
-		$this->query->addWhere("`{$this->photosTable}`.`deleted_at` IS NULL");
+
+		$joinParams = new JoinParams();
+		$joinParams->as = 'relationships';
+		$joinParams->raw = "(SELECT
+						   photo_id,
+						   GROUP_CONCAT({$this->filesTable}.id SEPARATOR ',') AS file_ids,
+						   GROUP_CONCAT({$this->filesTable}.type SEPARATOR ',') AS file_types
+						 FROM {$this->filesTable}
+						 GROUP BY photo_id)
+						 AS {$joinParams->as}";
+		$joinParams->on = ["{$joinParams->as}.photo_id", "=", "{$this->photosTable}.id"];
+		$join = new Join($joinParams);
+		$join->apply($this->query);
+
+
+		$this->query->select("{$this->photosTable}.*", "{$joinParams->as}.file_types");
+		$this->query->whereNull("{$this->photosTable}.deleted_at");
 
 		$this->applyParams($params);
 	}
@@ -154,6 +159,7 @@ EOT;
 	 */
 	private function applyParams($params) {
 		$this->hasFields($params);
+		$this->hasIncludes($params);
 	}
 
 	/**
@@ -169,8 +175,102 @@ EOT;
 			//  and photo ids to the results. According to the spec at http://jsonapi.org
 			//  if you are specifying fields and you want child objects you need to
 			//  add those to your field list.
-			$this->query->setSelect($params->fields->$table);
+			$this->query->select($params->fields->$table);
 		}
 	}
 
+	/**
+	 * Add hydrated related objects
+	 *
+	 * @param $params  object   the parameter object created by the BaseController
+	 * @throws BadRequestException
+	 */
+	private function hasIncludes($params) {
+		if (empty($params->include)) {
+			return;
+		}
+
+		$filesJoin = null;
+		$filesWhere = null;
+
+		foreach ($params->include as $relation) {
+			if (is_array($relation)) {
+				switch($relation[0]) {
+					case "files":
+						if (count($relation) > 2) {
+							throw new BadRequestException(implode(".",$relation) . " is not a valid relationship.");
+						}
+						$validTypes = array_keys(get_object_vars(config("phogra.fileTypes")));
+						if( !in_array($relation[1], $validTypes)) {
+							throw new BadRequestException(implode(".",$relation) . " is not a valid relationship.");
+						}
+
+						if (is_null($filesJoin)) {
+							$filesJoin = $this->joinFiles();
+						}
+						if (is_null($filesWhere)) {
+							$filesWhere = new WhereIn('files.type', $relation[1]);
+							$filesJoin->addWhere($filesWhere);
+						} else {
+							$filesWhere->addValue($relation[1]);
+						}
+						break;
+
+					case "users":
+						//	TODO: Someday?
+						throw new BadRequestException(implode(".",$relation) . " is not a valid relationship.");
+						break;
+
+					default:
+						throw new BadRequestException(implode(".",$relation) . " is not a valid relationship.");
+
+				}
+
+				continue;
+			}
+
+			switch($relation) {
+				case 'files':
+					$this->joinFiles();
+					break;
+
+				case "users":
+					//	TODO: Someday?
+					throw new BadRequestException("$relation is not a valid relationship.");
+					break;
+
+				default:
+					throw new BadRequestException("$relation is not a valid relationship.");
+			}
+		}
+
+		if (isset($filesJoin)) {
+			$filesJoin->apply($this->query);
+		}
+	}
+
+	/**
+	 * Build the Join object to do a join to the files table.
+	 *
+	 * @return Join
+	 */
+	private function joinFiles() {
+		$this->query->addSelect([
+			"files.id as file_id", "type", "mimetype",
+			"height", "width", "bytes", "hash",
+			"files.created_at as file_created_at",
+			"files.updated_at as file_updated_at"]
+		);
+		$this->query->orderBy("{$this->photosTable}.id");
+		$this->query->orderBy("{$this->filesTable}.type");
+
+		$joinParams = new JoinParams();
+		$joinParams->table = $this->filesTable;
+		$joinParams->on = [
+			"{$this->filesTable}.photo_id",
+			"=",
+			"{$this->photosTable}.id"
+		];
+		return new Join($joinParams);
+	}
 }

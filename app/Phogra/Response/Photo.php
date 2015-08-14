@@ -25,7 +25,7 @@ class Photo
 		$this->relationships = (object)[
 			"files" => (object)[
 				"type"  => "files",
-				"data" => ($row->file_ids == null ? null : explode(',', $row->file_ids)),
+				"data" => ($row->file_types == null ? null : explode(',', $row->file_types)),
 				"links" => (object)[
 					"self" => "/photos/{$row->id}/files"
 				]

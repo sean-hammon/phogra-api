@@ -3,8 +3,11 @@
 namespace App\Phogra;
 
 use Auth;
-use App\Phogra\Eloquent\Gallery as GalleryModel;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
+use App\Phogra\Query\Join;
+use App\Phogra\Query\JoinParams;
+use App\Phogra\Eloquent\Gallery as GalleryModel;
 
 /**
  * Class Gallery
@@ -14,20 +17,24 @@ use Illuminate\Support\Facades\DB;
  */
 class Gallery
 {
+	/**
+	 * @var Builder
+	 */
 	private $query;
 
-    private $tableName = 'galleries';
-    private $photoJoin = 'gallery_photos';
+    private $galleryTable = 'galleries';
+    private $photoJoinTable = 'gallery_photos';
 
 
-	public function __construct(Query $query) {
-		$this->query = $query;
+	public function __construct() {
 		$this->user = Auth::user();
 	}
 
-    /**
-     * @return object
-     */
+	/**
+	 * @param array $data row data for insert
+	 *
+	 * @return object
+	 */
     public function create($data)
     {
         try {
@@ -59,7 +66,7 @@ class Gallery
     public function all($params) {
 		$this->initQuery($params);
 
-		return DB::select($this->query->sql(), $this->query->variables());
+		return $this->query->get();
 	}
 
 
@@ -76,9 +83,9 @@ class Gallery
 		$params->empty = "true";
 		$this->initQuery($params);
 
-		$this->query->addWhere("AND `{$this->tableName}`.`id` = :id", [":id" => $id]);
+		$this->query->where("{$this->tableName}.id", "=", $id);
 
-		$result = DB::select($this->query->sql(), $this->query->variables());
+		$result = $this->query->get();
 
 		if (count($result)) {
 			return $result[0];
@@ -101,9 +108,10 @@ class Gallery
 		$params->empty = "true";
 		$this->initQuery($params);
 
-		$this->query->addWhere("AND `{$this->tableName}`.`id` IN ({$list})");
+		$ids = explode(",", $list);
+		$this->query->whereIn("{$this->tableName}.id", $ids);
 
-		$result = DB::select($this->query->sql(), $this->query->variables());
+		$result = $this->query->get();
 
 		if (count($result)) {
 			return $result;
@@ -146,81 +154,87 @@ class Gallery
 	 */
 	private function initQuery($params) {
 
-		//	Retrieve sub galleries
-		$childJoin = <<<EOT
-			  LEFT JOIN (SELECT
-						   `parent_id`,
-						   GROUP_CONCAT(id SEPARATOR ',') AS children
-						 FROM `{$this->tableName}`
-						 GROUP BY `parent_id`)
-				AS children
-				ON `children`.`parent_id` = `galleries`.`id`
-EOT;
-		//	Retrieve private galleries
-		$userJoin = <<<EOT
-			  LEFT JOIN (SELECT
-						   `parent_id`,
-						   GROUP_CONCAT(id SEPARATOR ',') AS children
-						 FROM `{$this->tableName}`
-						 GROUP BY `parent_id`)
-				AS children
-				ON `children`.`parent_id` = `galleries`.`id`
-EOT;
-		//	Get IDs of any photos in a gallery for relationship related links
-		$photosJoin = <<<EOT
-			  LEFT JOIN (SELECT
-						   `gallery_id`,
-						   GROUP_CONCAT(photo_id SEPARATOR ',') AS photos
-						 FROM `{$this->photoJoin}`
-						 GROUP BY `gallery_id`)
-				AS photos
-				ON `photos`.`gallery_id` = `galleries`.`id`
-EOT;
-		//	Check for photos contained by a parent gallery that doesn't have
-		//	photos of its own.
-		$photoCountJoin = <<<EOT
-			  JOIN (SELECT
-					  id,
-					  (SELECT count(photo_id)
-					   FROM `{$this->photoJoin}`
-					   WHERE `gallery_id` IN (SELECT `id`
-											FROM `{$this->tableName}` AS g
-											WHERE `node` LIKE CONCAT(galleries.node, ':%'))) AS total_count
-					FROM `{$this->tableName}`) AS photo_counts
-				ON `photo_counts`.`id` = `galleries`.`id`
-EOT;
+		$this->query = DB::table($this->galleryTable);
 
-		$this->query->reset();
-		$this->query->setTable($this->tableName);
-		$this->query->setSelect([
-				'`children`.`children`',
-				'`photos`.`photos`',
-				'`galleries`.*'
-			]);
-		$this->query->addJoin($childJoin);
-		$this->query->addJoin($photosJoin);
-		$this->query->addWhere("`{$this->tableName}`.`deleted_at` IS NULL");
-		$this->query->addWhere("AND (`{$this->tableName}`.`protected` = 0");
+		//	Retrieve sub galleries
+		$childParams = new JoinParams();
+		$childParams->as = 'children';
+		$childParams->raw = "(SELECT
+						   `parent_id`,
+						   GROUP_CONCAT(id SEPARATOR ',') AS children
+						 FROM `{$this->galleryTable}`
+						 GROUP BY `parent_id`)
+						 AS {$childParams->as}";
+		$childParams->on = ["{$childParams->as}.parent_id", "=", "{$this->galleryTable}.id"];
+		$childParams->type = 'left';
+		$childJoin = new Join($childParams);
+		$childJoin->apply($this->query);
+
+		//	Get IDs of any photos in a gallery for relationship related links
+		$photoParams = new JoinParams();
+		$photoParams->as = 'photos';
+		$photoParams->raw = "
+			(SELECT
+				`gallery_id`,
+				GROUP_CONCAT(photo_id SEPARATOR ',') AS photos
+			FROM `{$this->photoJoinTable}`
+			GROUP BY `gallery_id`)
+			AS {$photoParams->as}";
+		$photoParams->on = ["{$photoParams->as}.gallery_id", "=", "{$this->galleryTable}.id"];
+		$photoParams->type = "left";
+		$photoJoin = new Join($photoParams);
+		$photoJoin->apply($this->query);
+
+		$this->query->select(
+			"{$childParams->as}.children",
+			"{$photoParams->as}.photos",
+			"{$this->galleryTable}.*"
+		);
+		$this->query->whereNull("{$this->galleryTable}.deleted_at");
+		$this->query->where("{$this->galleryTable}.protected", "=",  0);
 
 		if (isset($this->user)) {
-			$this->query->addWhere("
-			 	OR (`{$this->tableName}`.`protected` = 1
-					AND `{$this->tableName}`.`id` IN (
-						SELECT gallery_id FROM gallery_users WHERE user_id = :user_id
-					)
-				)",
-		   		["user_id" => $this->user->id]);
-		} else {
-			$this->query->addWhere(")");
+			$this->query->orWhere(function($query){
+				$query->where("{$this->galleryTable}.protected", "=" ,1);
+				$query->whereRaw(
+					"{$this->galleryTable}.id IN
+					(SELECT gallery_id
+						FROM {$this->userJoinTable}
+						WHERE user_id = {$this->user->id}
+					)"
+				);
+			});
 		}
 
 		//	By default only return galleries that have photos, unless empty = true
 		//	then return them all.
+		$countParams = new JoinParams();
+		$countParams->as = 'photo_counts';
+		$countParams->raw =
+			"(SELECT
+				id,
+				(SELECT count(photo_id)
+					FROM {$this->photoJoinTable}
+					WHERE gallery_id IN
+						(SELECT `id`
+							FROM {$this->galleryTable} AS g
+							WHERE node LIKE CONCAT({$this->galleryTable}.node, ':%'))
+						) AS total_count
+					FROM {$this->galleryTable}
+				) AS {$countParams->as}";
+		$countParams->on = ["{$countParams->as}.id", "=", "{$this->galleryTable}.id"];
+		$countJoin = new Join($countParams);
 
 		if (!isset($params->empty) || $params->empty == 'false') {
-			$this->query->addSelectColumns('`photo_counts`.`total_count`');
-			$this->query->addJoin($photoCountJoin);
-			$this->query->addWhere('AND (photos IS NOT NULL OR total_count > 0)');
+			//	Check for photos contained by a parent gallery that doesn't have
+			//	photos of its own.
+			$countJoin->apply($this->query);
+
+			$this->query->addSelect("{$countParams->as}.total_count");
+			$this->query->where(function($query){
+				$query->whereNotNull("photos")
+					->orWhere("total_count", ">",  0);
+			});
 		}
 
 		$this->applyParams($params);
@@ -241,7 +255,7 @@ EOT;
 	 * @param $params  object   the parameter object created by the BaseController
 	 */
 	private function hasFields($params) {
-		$table = $this->tableName;
+		$table = $this->galleryTable;
 		if (isset($params->fields->$table)) {
 
 			//  This will overwrite the select statement that adds the children
