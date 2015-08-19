@@ -1,6 +1,6 @@
 <?php
 
-namespace app\Phogra\Query;
+namespace App\Phogra\Query;
 
 class JoinParams
 {
