@@ -2,6 +2,8 @@
 
 namespace App\Phogra\Response;
 
+use App\Phogra\Response\Item\Photo;
+
 class Photos extends BaseResponse
 {
 
@@ -10,13 +12,22 @@ class Photos extends BaseResponse
 
 		if (is_array($data)) {
 			$this->data = [];
+			$current = null;
 			foreach ($data as $row) {
-				$this->data[] = new Photo($row);
+				if (!isset($current) || $row->id != $current->id) {
+					$current = new Photo($row);
+					$this->data[] = $current;
+				}
+
+				if (isset($row->file_id)) {
+					$current->addFile($row);
+				}
 			}
 		} else {
 			$this->data = new Photo($data);
+			if (isset($data->file_id)) {
+				$this->data->addFile($data);
+			}
 		}
-
-
 	}
 }

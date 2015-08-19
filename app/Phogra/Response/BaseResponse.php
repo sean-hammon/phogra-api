@@ -6,7 +6,6 @@ class BaseResponse
 {
 	public $links;
 	public $data;
-	public $included;
 	public $http_code = 200;
 
 	public function __construct() {

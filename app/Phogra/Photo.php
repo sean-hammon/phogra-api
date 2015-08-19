@@ -231,7 +231,7 @@ class Photo
 
 			switch($relation) {
 				case 'files':
-					$this->joinFiles();
+					$filesJoin = $this->joinFiles();
 					break;
 
 				case "users":

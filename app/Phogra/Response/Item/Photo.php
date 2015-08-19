@@ -1,16 +1,12 @@
 <?php
 
-namespace App\Phogra\Response;
+namespace App\Phogra\Response\Item;
 
-class Photo
+class Photo extends ResponseItem
 {
-	var $type = 'photos';
-	var $id = null;
-	var $attributes;
-	var $relationships;
-	var $links;
-
 	public function __construct($row) {
+
+		$this->type = 'photos';
 
 		$this->id = $row->id;
 		$this->attributes = (object)[
@@ -35,6 +31,10 @@ class Photo
 		$this->links = (object)[
 			"self" => "/photos/{$row->id}"
 		];
+	}
+
+	public function addFile($row) {
+		$this->included[] = new File($row, true);
 	}
 
 }
