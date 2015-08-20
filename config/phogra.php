@@ -64,7 +64,7 @@ return array(
 	'photoTempDir'   => storage_path() . DIRECTORY_SEPARATOR . "photo-tmp",
 
 	//	Is the API public? If you want anyone to be able to hit the api, set publicApi = true
-	'publicApi'      => false,
+	'publicApi'      => true,
 	//	The name of the HTTP header where the token should be placed if required.
 	'apiTokenHeader' => 'X-Phogra-Token',
 	//	Domains to allow AJAX requests from

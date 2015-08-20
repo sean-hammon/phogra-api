@@ -83,7 +83,7 @@ class Gallery
 		$params->empty = "true";
 		$this->initQuery($params);
 
-		$this->query->where("{$this->tableName}.id", "=", $id);
+		$this->query->where("{$this->galleryTable}.id", "=", $id);
 
 		$result = $this->query->get();
 
@@ -109,7 +109,7 @@ class Gallery
 		$this->initQuery($params);
 
 		$ids = explode(",", $list);
-		$this->query->whereIn("{$this->tableName}.id", $ids);
+		$this->query->whereIn("{$this->galleryTable}.id", $ids);
 
 		$result = $this->query->get();
 
