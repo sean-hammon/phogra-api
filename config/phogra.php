@@ -67,6 +67,7 @@ return array(
 	'publicApi'      => true,
 	//	The name of the HTTP header where the token should be placed if required.
 	'apiTokenHeader' => 'X-Phogra-Token',
-	//	Domains to allow AJAX requests from
+	//	Domains to allow AJAX requests from, if you specify a domain, it must be fully qualified.
+	//	Remember that http://foo.com is considered a different domain from https://foo.com.
 	'allowedDomains' => ['*']
 );

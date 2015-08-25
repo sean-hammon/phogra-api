@@ -8,6 +8,8 @@ class BaseResponse
 	public $data;
 	public $http_code = 200;
 
+	protected $allowedHttpVerbs = 'GET, HEAD, OPTIONS';
+
 	public function __construct() {
 		$this->links = (object)[
 			'self' => $this->getSelf()
@@ -40,6 +42,10 @@ class BaseResponse
 		return response()->json($responseObj, $this->http_code, $this->addHeaders(), $this->jsonOptions() );
 	}
 
+	public function options() {
+		return response("Phogra API", 200, $this->addHeaders());
+	}
+
 	/**
 	 * Determines the self link from the request URI. If for some reason someone
 	 * is using a script name, eg. /index.php/foo/bar, then the check for
@@ -59,7 +65,26 @@ class BaseResponse
 	}
 
 	private function addHeaders() {
-		return [];
+
+		$allowedDomains = config("phogra.allowedDomains");
+		$ssl = !empty($_SERVER['HTTPS']) ? "s" : '';
+		$requestHost = $_SERVER['HTTP_ORIGIN'];
+		$requestDomain = "";
+
+		if ($allowedDomains[0] == "*" || in_array($allowedDomains, $requestHost)) {
+			$requestDomain = $requestHost;
+		}
+
+		$headers = [
+			'Accept' => 'application/json',
+			'Access-Control-Allow-Headers' => 'X-Phogra-Token',
+			//	30 days
+			'Access-Control-Max-Age' => 30 * 24 * 60 * 60,
+			'Access-Control-Allow-Origin' => $requestDomain,
+			'Access-Control-Allow-Methods' => $this->allowedHttpVerbs
+		];
+
+		return $headers;
 	}
 
 	private function jsonOptions() {

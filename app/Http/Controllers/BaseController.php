@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Phogra\Exception\InvalidParameterException;
+use App\Phogra\Response\BaseResponse;
 
 class BaseController extends Controller {
 
@@ -27,20 +28,8 @@ class BaseController extends Controller {
 	}
 
 	protected function options() {
-		$response = response('', 200)
-			->header('Accept', 'application/json')
-			->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-			->header('Access-Control-Allow-Headers', 'X-Phogra-Token')
-			//	30 days
-			->header('Access-Control-Max-Age', 30 * 24 * 60 * 60);
-
-		$requestDomain = $this->request->server('HTTP_HOST');
-		$allowedDomains = config('phogra.allowedDomains');
-		if ($allowedDomains[0] === "*" || in_array($requestDomain, $allowedDomains)) {
-			$response->header('Access-Control-Allow-Origin', $requestDomain);
-		}
-
-		return $response;
+		$response = new BaseResponse();
+		return $response->options();
 	}
 
 	private function processParams() {

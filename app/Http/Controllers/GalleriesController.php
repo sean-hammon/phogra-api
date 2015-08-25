@@ -13,6 +13,7 @@ class GalleriesController extends BaseController {
 	private $repository;
 
 	public function __construct(Request $request, Gallery $repository) {
+
 		$this->allowedParams[] = 'empty';
 		parent::__construct($request);
 
@@ -100,10 +101,5 @@ class GalleriesController extends BaseController {
 	{
 		//
 	}
-
-	public function options() {
-		return parent::options();
-	}
-
 
 }
