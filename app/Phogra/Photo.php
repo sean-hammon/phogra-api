@@ -27,6 +27,7 @@ class Photo
 
     private $photosTable = 'photos';
     private $filesTable = 'files';
+	private $galleryLookup = 'gallery_photos';
 
 	/**
 	 * @param $data
@@ -110,6 +111,63 @@ class Photo
 		$this->initQuery($params);
 		$ids = explode(",", $list);
 		$this->query->whereIn("{$this->photosTable}.id", $ids);
+
+		$result = $this->query->get();
+
+		if (count($result)) {
+			return $result;
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * Fetch multiple photo rows based on a comma separated list
+	 *
+	 * @param $gallery_id  int  the gallery id to filter by
+	 * @param $params  object  parameter object created in BaseController
+	 *
+	 * @return array|static[]
+	 */
+	public function byGalleryId($gallery_id, $params) {
+
+		$this->initQuery($params);
+		$this->query->join($this->galleryLookup, function($join) use ($gallery_id) {
+			$join->on("{$this->galleryLookup}.photo_id", "=", "{$this->photosTable}.id")
+				->where("gallery_id", "=", $gallery_id);
+		});
+
+		$result = $this->query->get();
+
+		if (count($result)) {
+			return $result;
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * Fetch multiple photo rows based on a comma separated list
+	 *
+	 * @param $gallery_id  int  the gallery id to filter by
+     * @param $photo_ids  integer|string  a single integer that is a photo_id or string of comma separated ids
+	 * @param $params  object  parameter object created in BaseController
+	 *
+	 * @return array|static[]
+	 */
+	public function byGalleryAndPhotoIds($gallery_id, $photo_ids, $params) {
+
+		$this->initQuery($params);
+		$this->query->join($this->galleryLookup, function($join) use ($gallery_id, $photo_ids) {
+            if (strpos($photo_ids, ",") !== false) {
+                $photos = explode(',', $photo_ids);
+            } else {
+                $photos = array($photo_ids);
+            }
+			$join->on("{$this->galleryLookup}.photo_id", "=", "{$this->photosTable}.id")
+				 ->where("gallery_id", "=", $gallery_id)
+				 ->whereIn("{$this->galleryLookup}.photo_id", $photos);
+		});
 
 		$result = $this->query->get();
 
