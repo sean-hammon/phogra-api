@@ -8,6 +8,8 @@ class File extends ResponseItem
 {
 	public function __construct($row, $included = false) {
 
+		parent::__construct();
+
 		$this->type = 'files';
 		$this->id = (isset($row->id) ? $row->id : $row->file_id);
 
@@ -28,13 +30,13 @@ class File extends ResponseItem
 			'height' => $row->height,
 			'width' => $row->width,
 			'bytes' => $row->bytes,
-			'href' => $href,
+			'href' => $this->baseUrl . $href,
 			'created_at' => (isset($row->created_at) ? $row->created_at : $row->file_created_at),
 			'updated_at' => (isset($row->updated_at) ? $row->updated_at : $row->file_updated_at),
 		];
 
 		$this->links = (object)[
-			"self" => "/photos/{$this->attributes->photo_id}/files/{$this->attributes->type}"
+			"self" => $this->baseUrl . "/photos/{$this->attributes->photo_id}/files/{$this->attributes->type}"
 		];
 
 		if (!$included) {
@@ -44,7 +46,7 @@ class File extends ResponseItem
 					"type"  => "photos",
 					"data" => $this->attributes->photo_id,
 					"links" => (object)[
-						"self" => "/photos/{$this->attributes->photo_id}"
+						"self" => $this->baseUrl . "/photos/{$this->attributes->photo_id}"
 					]
 				]
 			];

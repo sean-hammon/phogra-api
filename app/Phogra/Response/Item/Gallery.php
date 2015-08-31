@@ -1,16 +1,15 @@
 <?php
 
-namespace App\Phogra\Response;
+namespace App\Phogra\Response\Item;
 
-class Gallery
+class Gallery extends ResponseItem
 {
-	var $type = 'galleries';
-	var $id = null;
-	var $attributes;
-	var $relationships;
-	var $links;
-
 	public function __construct($row) {
+
+        parent::__construct();
+
+		$this->type = 'galleries';
+
 		$this->id = $row->id;
 		$this->attributes = (object)[
 			'parent_id' => $row->parent_id,
@@ -27,27 +26,27 @@ class Gallery
 				"type"  => "galleries",
 				"data" => ($row->children == null ? null : explode(',', $row->children)),
 				"links" => (object)[
-					"self" => "/galleries/{$row->id}/children"
+					"self" => $this->baseUrl . "/galleries/{$row->id}/children"
 				]
 			],
 			"photos" => (object)[
 				"type"  => "photos",
 				"data" => ($row->photos == null ? null : explode(',', $row->photos)),
 				"links" => (object)[
-					"self" =>  "/galleries/{$row->id}/photos"
+					"self" => $this->baseUrl . "/galleries/{$row->id}/photos"
 				]
 			]
 		];
 
 		if ($row->children != null) {
-			$this->relationships->children->links->related = "/galleries/{$row->children}";
+			$this->relationships->children->links->related = $this->baseUrl . "/galleries/{$row->children}";
 		}
 		if ($row->photos != null) {
-			$this->relationships->photos->links->related = "/photos/{$row->photos}";
+			$this->relationships->photos->links->related = $this->baseUrl . "/photos/{$row->photos}";
 		}
 
 		$this->links = (object)[
-			"self" => "/galleries/{$row->id}"
+			"self" => $this->baseUrl . "/galleries/{$row->id}"
 		];
 	}
 

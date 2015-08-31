@@ -6,6 +6,8 @@ class Photo extends ResponseItem
 {
 	public function __construct($row) {
 
+		parent::__construct();
+
 		$this->type = 'photos';
 
 		$this->id = $row->id;
@@ -23,13 +25,13 @@ class Photo extends ResponseItem
 				"type"  => "files",
 				"data" => ($row->file_types == null ? null : explode(',', $row->file_types)),
 				"links" => (object)[
-					"self" => "/photos/{$row->id}/files"
+					"self" => $this->baseUrl . "/photos/{$row->id}/files"
 				]
 			]
 		];
 
 		$this->links = (object)[
-			"self" => "/photos/{$row->id}"
+			"self" => $this->baseUrl . "/photos/{$row->id}"
 		];
 	}
 
