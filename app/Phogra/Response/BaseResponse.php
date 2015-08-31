@@ -68,7 +68,7 @@ class BaseResponse
 
 		$allowedDomains = config("phogra.allowedDomains");
 		$ssl = !empty($_SERVER['HTTPS']) ? "s" : '';
-		$requestHost = $_SERVER['HTTP_ORIGIN'];
+		$requestHost = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
 		$requestDomain = "";
 
 		if ($allowedDomains[0] == "*" || in_array($allowedDomains, $requestHost)) {
