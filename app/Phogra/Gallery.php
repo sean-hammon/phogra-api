@@ -99,16 +99,15 @@ class Gallery
 	 * Fetch multiple gallery rows based on a comma separated list. Force empty to be true.
 	 * Requests for specific ids should always return results if the ids exist.
 	 *
-	 * @param $list	   string  comma separated row ids of the galleries
-	 * @param $params  object  parameter object created in BaseController
+	 * @param $ids	  integer[] a collection of row ids
+	 * @param $params object    parameter object created in BaseController
 	 *
 	 * @return array|static[]
 	 */
-	public function multiple($list, $params) {
+	public function multiple($ids, $params) {
 		$params->empty = "true";
 		$this->initQuery($params);
 
-		$ids = explode(",", $list);
 		$this->query->whereIn("{$this->galleryTable}.id", $ids);
 
 		$result = $this->query->get();

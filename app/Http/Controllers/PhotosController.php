@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Phogra\Exception\BadRequestException;
+use Hashids;
+use Illuminate\Http\Request;
 use App\Phogra\Exception\NotFoundException;
 use App\Phogra\Exception\InvalidOperationException;
 use App\Phogra\Photo;
 use App\Phogra\Response\Photos as PhotosResponse;
-use Illuminate\Http\Request;
 
 class PhotosController extends BaseController {
 
@@ -50,31 +50,26 @@ class PhotosController extends BaseController {
 	/**
 	 * Display the specified photo(s).
 	 *
-	 * @param  int|string $id integer row id for a single photo OR
-	 *                          string of comma separated ids
+	 * @param  string $hash string hash
+	 *
 	 * @return \Illuminate\Http\Response
 	 * @throws \App\Phogra\Exception\BadRequestException
 	 * @throws \App\Phogra\Exception\NotFoundException
 	 */
-	public function show($id)
+	public function show($hash)
 	{
-		if (is_numeric($id)) {
-
-			//	This should be a single id
-			$result = $this->repository->one($id, $this->requestParams);
+		$ids = Hashids::decode($hash);
+        if (count($ids) === 0) {
+            throw new NotFoundException("Nothing found for {$hash}.");
+        }
+		if (count($ids) === 1) {
+			$result = $this->repository->one($ids[0], $this->requestParams);
 		} else {
-
-			//	Pull out all the commas. It should still be numeric.
-			$quickcheck = str_replace(',', '', $id);
-			if (!is_numeric($quickcheck)) {
-				throw new BadRequestException('Non-numeric ids given. Spaces in your list? Or are you being naughty?');
-			}
-
-			$result = $this->repository->multiple($id, $this->requestParams);
+			$result = $this->repository->multiple($ids, $this->requestParams);
 		}
 
 		if (is_null($result)) {
-			throw new NotFoundException("photo {$id} does not exist.");
+            throw new NotFoundException("Nothing found for {$hash}.");
 		} else {
 			$response = new PhotosResponse($result);
 			return $response->send();

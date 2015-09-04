@@ -7,6 +7,7 @@ use App\Phogra\Exception\NotFoundException;
 use App\Phogra\Gallery;
 use App\Phogra\Response\Galleries as GalleriesResponse;
 use Illuminate\Http\Request;
+use Hashids;
 
 class GalleriesController extends BaseController {
 
@@ -55,18 +56,15 @@ class GalleriesController extends BaseController {
 	 */
 	public function show($id)
 	{
-		if (is_numeric($id)) {
-			//	This should be a single id
-			$result = $this->repository->one($id, $this->requestParams);
+        $ids = Hashids::decode($id);
+        if (count($ids) === 0) {
+            throw new NotFoundException("No data found for {$id}");
+        }
+
+		if (count($ids) == 1) {
+            $result = $this->repository->one($ids[0], $this->requestParams);
 		} else {
-
-			//	Pull out all the commas. It should still be numeric.
-			$quickcheck = str_replace(',', '', $id);
-			if (!is_numeric($quickcheck)) {
-				throw new BadRequestException('Non-numeric ids given. Spaces in your list? Or are you being naughty?');
-			}
-
-			$result = $this->repository->multiple($id, $this->requestParams);
+            $result = $this->repository->multiple($ids, $this->requestParams);
 		}
 
 		if (is_null($result)) {

@@ -6,6 +6,7 @@ use App\Phogra\Exception\BadRequestException;
 use App\Phogra\Exception\NotFoundException;
 use App\Phogra\Photo;
 use App\Phogra\Response\Photos as PhotosResponse;
+use Hashids;
 use Illuminate\Http\Request;
 
 class GalleryPhotosController extends BaseController {
@@ -22,16 +23,31 @@ class GalleryPhotosController extends BaseController {
     /**
      * Return all gallery records
      *
-     * @param $gallery_id  int  the gallery id to filter on
+     * @param $gallery_hash  string  the gallery hash
      *
      * @return \App\Phogra\Response
+     * @throws BadRequestException
+     * @throws NotFoundException
      */
-	public function index($gallery_id)
+	public function index($gallery_hash)
 	{
-		$photos = $this->repository->byGalleryId($gallery_id, $this->requestParams);
+        $gallery_ids = Hashids::decode($gallery_hash);
+        if (count($gallery_ids) === 0) {
+            throw new NotFoundException("No data found for {$gallery_hash}.");
+        }
 
-		$response = new PhotosResponse($photos);
-		return $response->send();
+        if (count($gallery_ids) > 1) {
+            throw new BadRequestException('Multiple gallery ids not supported.');
+        }
+
+		$result = $this->repository->byGalleryId($gallery_ids[0], $this->requestParams);
+
+        if (is_null($result)) {
+            throw new NotFoundException("No data found for /galleries/{$gallery_hash}/photos.");
+        }
+
+        $response = new PhotosResponse($result);
+        return $response->send();
 	}
 
 	/**
@@ -47,38 +63,38 @@ class GalleryPhotosController extends BaseController {
 	/**
 	 * Display the specified galleries.
 	 *
-     * @param $gallery_id  integer  the gallery_id
-     * @param $photo_ids  integer|string  a single integer that is a photo_id or string of comma separated ids
+     * @param $gallery_hash  string  the gallery_id hash
+     * @param $photo_hash    string  hash for the photos
 	 *
 	 * @return \Illuminate\Http\Response
 	 * @throws BadRequestException
 	 * @throws NotFoundException
 	 */
-	public function show($gallery_id, $photo_ids)
+	public function show($gallery_hash, $photo_hash)
     {
-        if (!is_numeric($gallery_id)) {
-            if (strpos($gallery_id, ',') !== false) {
-                throw new BadRequestException('Multiple gallery ids not supported.');
-            }
-            throw new BadRequestException('Non-numeric gallery_id given.');
+		$gallery_ids = Hashids::decode($gallery_hash);
+		if (count($gallery_ids) === 0) {
+			throw new NotFoundException("No data found for /galleries/{$gallery_hash}/photos/{$photo_hash}.");
+		}
+
+        if (count($gallery_ids) > 1) {
+			throw new BadRequestException('Multiple gallery ids not supported.');
         }
 
-        if (!is_numeric($photo_ids)) //	Pull out all the commas. It should still be numeric.
+		$photo_ids = Hashids::decode($photo_hash);
+        if (count($photo_ids) === 0)
         {
-            $quickcheck = str_replace(',', '', $photo_ids);
-            if (!is_numeric($quickcheck)) {
-                throw new BadRequestException('Non-numeric ids given. Spaces in your list? Or are you being naughty?');
-            }
+			throw new NotFoundException("No data found for /galleries/{$gallery_hash}/photos/{$photo_hash}.");
         }
 
-        $result = $this->repository->byGalleryAndPhotoIds($gallery_id, $photo_ids, $this->requestParams);
+        $result = $this->repository->byGalleryAndPhotoIds($gallery_ids[0], $photo_ids, $this->requestParams);
 
 		if (is_null($result)) {
-			throw new NotFoundException("No data found for /galleries/{$gallery_id}/photos/{$photo_ids}.");
-		} else {
-			$response = new GalleriesResponse($result);
-			return $response->send();
+			throw new NotFoundException("No data found for /galleries/{$gallery_hash}/photos/{$photo_hash}.");
 		}
+
+        $response = new GalleriesResponse($result);
+        return $response->send();
 	}
 
 

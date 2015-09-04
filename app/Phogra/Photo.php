@@ -101,15 +101,14 @@ class Photo
 	/**
 	 * Fetch multiple photo rows based on a comma separated list
 	 *
-	 * @param $list	   string  comma separated row ids of the galleries
-	 * @param $params  object  parameter object created in BaseController
+	 * @param $ids	  integer[] a collection of row ids
+	 * @param $params object    parameter object created in BaseController
 	 *
 	 * @return array|static[]
 	 */
-	public function multiple($list, $params) {
+	public function multiple($ids, $params) {
 
 		$this->initQuery($params);
-		$ids = explode(",", $list);
 		$this->query->whereIn("{$this->photosTable}.id", $ids);
 
 		$result = $this->query->get();
@@ -124,8 +123,8 @@ class Photo
 	/**
 	 * Fetch multiple photo rows based on a comma separated list
 	 *
-	 * @param $gallery_id  int  the gallery id to filter by
-	 * @param $params  object  parameter object created in BaseController
+	 * @param $gallery_id  int     the gallery id to filter by
+	 * @param $params      object  parameter object created in BaseController
 	 *
 	 * @return array|static[]
 	 */
@@ -149,9 +148,9 @@ class Photo
 	/**
 	 * Fetch multiple photo rows based on a comma separated list
 	 *
-	 * @param $gallery_id  int  the gallery id to filter by
-     * @param $photo_ids  integer|string  a single integer that is a photo_id or string of comma separated ids
-	 * @param $params  object  parameter object created in BaseController
+	 * @param $gallery_id  integer    the gallery id to filter by
+     * @param $photo_ids   integer[]  a collection of row ids
+	 * @param $params      object     parameter object created in BaseController
 	 *
 	 * @return array|static[]
 	 */
@@ -159,14 +158,9 @@ class Photo
 
 		$this->initQuery($params);
 		$this->query->join($this->galleryLookup, function($join) use ($gallery_id, $photo_ids) {
-            if (strpos($photo_ids, ",") !== false) {
-                $photos = explode(',', $photo_ids);
-            } else {
-                $photos = array($photo_ids);
-            }
 			$join->on("{$this->galleryLookup}.photo_id", "=", "{$this->photosTable}.id")
 				 ->where("gallery_id", "=", $gallery_id)
-				 ->whereIn("{$this->galleryLookup}.photo_id", $photos);
+				 ->whereIn("{$this->galleryLookup}.photo_id", $photo_ids);
 		});
 
 		$result = $this->query->get();
