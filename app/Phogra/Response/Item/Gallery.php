@@ -2,17 +2,24 @@
 
 namespace App\Phogra\Response\Item;
 
+use Hashids;
+
 class Gallery extends ResponseItem
 {
+	private $childHashes = [];
+    private $childIds = [];
+	private $photoHashes = [];
+    private $photoIds = [];
+
 	public function __construct($row) {
 
         parent::__construct();
 
 		$this->type = 'galleries';
 
-		$this->id = $row->id;
+		$this->id = Hashids::encode($row->id);
 		$this->attributes = (object)[
-			'parent_id' => $row->parent_id,
+			'parent_id' => Hashids::encode($row->parent_id),
 			'title' => $row->title,
 			'slug' => $row->slug,
 			'description' => $row->description,
@@ -21,32 +28,42 @@ class Gallery extends ResponseItem
 			'updated_at' => $row->updated_at
 		];
 
+		if ($row->children != null) {
+			$this->childIds = explode(',', $row->children);
+			$this->childHashes = array_map("Hashids::encode", $this->childIds);
+		}
+		if ($row->photos != null) {
+			$this->photoIds = explode(',', $row->photos);
+			$this->photoHashes = array_map("Hashids::encode", $this->photoIds);
+		}
+
 		$this->relationships = (object)[
 			"children" => (object)[
 				"type"  => "galleries",
-				"data" => ($row->children == null ? null : explode(',', $row->children)),
+				"data" => ($row->children == null ? null : $this->childHashes),
 				"links" => (object)[
-					"self" => $this->baseUrl . "/galleries/{$row->id}/children"
+					"self" => $this->baseUrl . "/galleries/{$this->id}/children"
 				]
 			],
 			"photos" => (object)[
 				"type"  => "photos",
-				"data" => ($row->photos == null ? null : explode(',', $row->photos)),
+				"data" => ($row->photos == null ? null : $this->photoHashes),
 				"links" => (object)[
-					"self" => $this->baseUrl . "/galleries/{$row->id}/photos"
+					"self" => $this->baseUrl . "/galleries/{$this->id}/photos"
 				]
 			]
 		];
 
-		if ($row->children != null) {
-			$this->relationships->children->links->related = $this->baseUrl . "/galleries/{$row->children}";
+		if (count($this->childHashes) > 0) {
+			$this->relationships->children->links->related = $this->baseUrl . "/galleries/" . Hashids::encode($this->childIds);
 		}
-		if ($row->photos != null) {
-			$this->relationships->photos->links->related = $this->baseUrl . "/photos/{$row->photos}";
+
+		if (count($this->photoHashes) > 0) {
+			$this->relationships->photos->links->related = $this->baseUrl . "/photos/" . Hashids::encode($this->photoIds);
 		}
 
 		$this->links = (object)[
-			"self" => $this->baseUrl . "/galleries/{$row->id}"
+			"self" => $this->baseUrl . "/galleries/{$this->id}"
 		];
 	}
 

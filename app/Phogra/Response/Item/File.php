@@ -3,6 +3,7 @@
 namespace App\Phogra\Response\Item;
 
 use App\Phogra\Eloquent\File as FileModel;
+use Hashids;
 
 class File extends ResponseItem
 {
@@ -12,6 +13,7 @@ class File extends ResponseItem
 
 		$this->type = 'files';
 		$this->id = (isset($row->id) ? $row->id : $row->file_id);
+		$this->id = Hashid::encode($this->id);
 
 		$photoDir = config('phogra.photoDir');
 		if (strpos($photoDir, public_path()) !== false) {
@@ -34,13 +36,13 @@ class File extends ResponseItem
 			'created_at' => (isset($row->created_at) ? $row->created_at : $row->file_created_at),
 			'updated_at' => (isset($row->updated_at) ? $row->updated_at : $row->file_updated_at),
 		];
+		$this->attributes->photo_id = Hashids::encode($this->attributes->photo_id);
 
 		$this->links = (object)[
 			"self" => $this->baseUrl . "/photos/{$this->attributes->photo_id}/files/{$this->attributes->type}"
 		];
 
 		if (!$included) {
-			dd($included);
 			$this->relationships = (object)[
 				"photo" => (object)[
 					"type"  => "photos",

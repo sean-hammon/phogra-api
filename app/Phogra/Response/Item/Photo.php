@@ -2,6 +2,8 @@
 
 namespace App\Phogra\Response\Item;
 
+use Hashids;
+
 class Photo extends ResponseItem
 {
 	public function __construct($row) {
@@ -10,7 +12,7 @@ class Photo extends ResponseItem
 
 		$this->type = 'photos';
 
-		$this->id = $row->id;
+		$this->id = Hashids::encode($row->id);
 		$this->attributes = (object)[
 			'title' => $row->title,
 			'slug' => $row->slug,
@@ -25,13 +27,13 @@ class Photo extends ResponseItem
 				"type"  => "files",
 				"data" => ($row->file_types == null ? null : explode(',', $row->file_types)),
 				"links" => (object)[
-					"self" => $this->baseUrl . "/photos/{$row->id}/files"
+					"self" => $this->baseUrl . "/photos/{$this->id}/files"
 				]
 			]
 		];
 
 		$this->links = (object)[
-			"self" => $this->baseUrl . "/photos/{$row->id}"
+			"self" => $this->baseUrl . "/photos/{$this->id}"
 		];
 	}
 
