@@ -2,6 +2,8 @@
 
 namespace App\Phogra\Response;
 
+use \DateTime;
+
 class BaseResponse
 {
 	public $links;
@@ -9,8 +11,11 @@ class BaseResponse
 	public $http_code = 200;
 
 	protected $allowedHttpVerbs = 'GET, HEAD, OPTIONS';
+	protected $lastModified;
+	protected $etag;
 
 	public function __construct() {
+		$this->lastModified = new DateTime('1970-01-01');
 		$this->links = (object)[
 			'self' => $this->getSelf()
 		];
@@ -20,6 +25,11 @@ class BaseResponse
 	 * @return \Illuminate\Http\Response
 	 */
 	public function send() {
+		$incomingETag = isset($_SERVER['HTTP_IF_NONE_MATCH']) ? trim($_SERVER['HTTP_IF_NONE_MATCH']) : false;
+		if ($incomingETag && $incomingETag == $this->etag) {
+			return response("", 304);
+		}
+
 		$responseObj = new \stdClass();
 
 		//	Links go first
@@ -80,6 +90,8 @@ class BaseResponse
 			'Access-Control-Allow-Headers' => 'X-Phogra-Token',
 			//	30 days
 			'Access-Control-Max-Age' => 30 * 24 * 60 * 60,
+			'ETag' => $this->etag,
+			'Last-Modified:' . gmdate("D, d M Y H:i:s", $this->lastModified->getTimestamp()). " GMT",
 			'Access-Control-Allow-Origin' => $requestDomain,
 			'Access-Control-Allow-Methods' => $this->allowedHttpVerbs
 		];
