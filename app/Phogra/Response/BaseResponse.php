@@ -33,7 +33,9 @@ class BaseResponse
 		$responseObj = new \stdClass();
 
 		//	Links go first
-		$responseObj->links = $this->links;
+		if (isset($this->links)) {
+			$responseObj->links = $this->links;
+		}
 
 		//	Then warnings, if any
 		$warnings = app('Warnings');
@@ -90,11 +92,14 @@ class BaseResponse
 			'Access-Control-Allow-Headers' => 'X-Phogra-Token',
 			//	30 days
 			'Access-Control-Max-Age' => 30 * 24 * 60 * 60,
-			'ETag' => $this->etag,
-			'Last-Modified:' . gmdate("D, d M Y H:i:s", $this->lastModified->getTimestamp()). " GMT",
 			'Access-Control-Allow-Origin' => $requestDomain,
 			'Access-Control-Allow-Methods' => $this->allowedHttpVerbs
 		];
+
+		if (isset($this->lastModified)) {
+			$headers['ETag'] = $this->etag;
+			$headers['Last-Modified'] = gmdate("D, d M Y H:i:s", $this->lastModified->getTimestamp()). " GMT";
+		}
 
 		return $headers;
 	}

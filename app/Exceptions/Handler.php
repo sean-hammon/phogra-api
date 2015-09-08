@@ -6,6 +6,7 @@ use Exception;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use App\Phogra\Exception\PhograException;
+use App\Phogra\Response\ExceptionResponse;
 
 class Handler extends ExceptionHandler
 {
@@ -60,7 +61,9 @@ class Handler extends ExceptionHandler
             $content->stacktrace = explode("\n", $e->getTraceAsString());
         }
 
+        $response = new ExceptionResponse($content);
+        $response->http_code = $status;
 
-        return response()->json($content, $status, [], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+        return $response->send();
     }
 }
