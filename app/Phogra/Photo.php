@@ -2,6 +2,7 @@
 
 namespace App\Phogra;
 
+use App\Phogra\Query\Table;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use App\Phogra\Eloquent\Photo as PhotoModel;
@@ -24,10 +25,6 @@ class Photo
 	 * @var Builder
 	 */
 	private $query;
-
-    private $photosTable = 'photos';
-    private $filesTable = 'files';
-	private $galleryLookup = 'gallery_photos';
 
 	/**
 	 * @param $data
@@ -87,7 +84,7 @@ class Photo
 	public function one($id, $params) {
 		$this->initQuery($params);
 
-		$this->query->where("{$this->photosTable}.id", "=", $id);
+		$this->query->where(Table::photos .".id", "=", $id);
 		$result = $this->query->get();
 
 		if (count($result)) {
@@ -109,7 +106,7 @@ class Photo
 	public function multiple($ids, $params) {
 
 		$this->initQuery($params);
-		$this->query->whereIn("{$this->photosTable}.id", $ids);
+		$this->query->whereIn(Table::photos .".id", $ids);
 
 		$result = $this->query->get();
 
@@ -121,7 +118,8 @@ class Photo
 	}
 
 	/**
-	 * Fetch multiple photo rows based on a comma separated list
+	 * Fetch multiple photo rows based on a given gallery id. Returns photos of child galleries
+     * if no photos exist in the specified gallery.
 	 *
 	 * @param $gallery_id  int     the gallery id to filter by
 	 * @param $params      object  parameter object created in BaseController
@@ -130,23 +128,50 @@ class Photo
 	 */
 	public function byGalleryId($gallery_id, $params) {
 
-		$this->initQuery($params);
-		$this->query->join($this->galleryLookup, function($join) use ($gallery_id) {
-			$join->on("{$this->galleryLookup}.photo_id", "=", "{$this->photosTable}.id")
-				->where("gallery_id", "=", $gallery_id);
-		});
-
+        $this->initQuery($params);
+        $this->query->join(Table::gallery_photos, function($join) use ($gallery_id) {
+            $join->on(Table::gallery_photos .".photo_id", "=", Table::photos.".id")
+                 ->where("gallery_id", "=", $gallery_id);
+        });
 		$result = $this->query->get();
 
+        //  This gallery has photos. Send 'em back.
 		if (count($result)) {
 			return $result;
-		} else {
-			return null;
 		}
+
+        //  Gallery is empty, so we're going to assume it's a parent container and look for
+        //  photos in it's children.
+        //  TODO: Make this an option that can be triggered with a parameter
+        $nodeQuery = DB::table(Table::galleries)
+                       ->select('node')
+                       ->where('id', '=', $gallery_id);
+        $gallery = $nodeQuery->first();
+
+        $this->initQuery($params);
+        $this->query->join(Table::gallery_photos, Table::gallery_photos .".photo_id", "=", Table::photos .".id");
+        $this->query->join(Table::galleries, function($join) use ($gallery) {
+            $join->on(Table::galleries.".id", "=", Table::gallery_photos.".gallery_id")
+                 ->where("node", "like", $gallery->node.":%");
+        });
+
+        $result = $this->query->get();
+
+        if (count($result)) {
+            return $result;
+        }
+
+        //  Total fail.
+        return null;
 	}
 
 	/**
-	 * Fetch multiple photo rows based on a comma separated list
+	 * Fetch multiple photo rows based on a gallery id and photo ids. Not sure what use
+     * this really is. If you have photo ids, the gallery_id is pointless, but for the sake
+     * of hobgoblins in the API, here it is. https://en.wikiquote.org/wiki/Consistency
+     *
+     * I'm pretty sure the API doesn't return this as a link. As soon as I'm positive, I'll
+     * take it out.
 	 *
 	 * @param $gallery_id  integer    the gallery id to filter by
      * @param $photo_ids   integer[]  a collection of row ids
@@ -157,10 +182,10 @@ class Photo
 	public function byGalleryAndPhotoIds($gallery_id, $photo_ids, $params) {
 
 		$this->initQuery($params);
-		$this->query->join($this->galleryLookup, function($join) use ($gallery_id, $photo_ids) {
-			$join->on("{$this->galleryLookup}.photo_id", "=", "{$this->photosTable}.id")
+		$this->query->join(Table::gallery_photos, function($join) use ($gallery_id, $photo_ids) {
+			$join->on(Table::gallery_photos .".photo_id", "=", Table::photos.".id")
 				 ->where("gallery_id", "=", $gallery_id)
-				 ->whereIn("{$this->galleryLookup}.photo_id", $photo_ids);
+				 ->whereIn(Table::gallery_photos .".photo_id", $photo_ids);
 		});
 
 		$result = $this->query->get();
@@ -181,25 +206,25 @@ class Photo
 	 */
 	private function initQuery($params) {
 
-		$this->query = DB::table($this->photosTable);
+		$this->query = DB::table(Table::photos);
 
 
 		$joinParams = new JoinParams();
 		$joinParams->as = 'relationships';
 		$joinParams->raw = "(SELECT
 						   photo_id,
-						   GROUP_CONCAT({$this->filesTable}.id SEPARATOR ',') AS file_ids,
-						   GROUP_CONCAT({$this->filesTable}.type SEPARATOR ',') AS file_types
-						 FROM {$this->filesTable}
+						   GROUP_CONCAT(". Table::files .".id SEPARATOR ',') AS file_ids,
+						   GROUP_CONCAT(". Table::files .".type SEPARATOR ',') AS file_types
+						 FROM " . Table::files . "
 						 GROUP BY photo_id)
 						 AS {$joinParams->as}";
-		$joinParams->on = ["{$joinParams->as}.photo_id", "=", "{$this->photosTable}.id"];
+		$joinParams->on = ["{$joinParams->as}.photo_id", "=", Table::photos .".id"];
 		$join = new Join($joinParams);
 		$join->apply($this->query);
 
 
-		$this->query->select("{$this->photosTable}.*", "{$joinParams->as}.file_types");
-		$this->query->whereNull("{$this->photosTable}.deleted_at");
+		$this->query->select(Table::photos .".*", "{$joinParams->as}.file_types");
+		$this->query->whereNull(Table::photos .".deleted_at");
 
 		$this->applyParams($params);
 	}
@@ -220,7 +245,7 @@ class Photo
 	 * @param $params  object   the parameter object created by the BaseController
 	 */
 	private function hasFields($params) {
-		$table = $this->photosTable;
+		$table = Table::photos;
 		if (isset($params->fields->$table)) {
 
 			//  This will overwrite the select statement that adds the files
@@ -313,15 +338,15 @@ class Photo
 			"files.created_at as file_created_at",
 			"files.updated_at as file_updated_at"]
 		);
-		$this->query->orderBy("{$this->photosTable}.id");
-		$this->query->orderBy("{$this->filesTable}.type");
+		$this->query->orderBy(Table::photos .".id");
+		$this->query->orderBy(Table::files .".type");
 
 		$joinParams = new JoinParams();
-		$joinParams->table = $this->filesTable;
+		$joinParams->table = Table::files;
 		$joinParams->on = [
-			"{$this->filesTable}.photo_id",
+			Table::files .".photo_id",
 			"=",
-			"{$this->photosTable}.id"
+			Table::photos .".id"
 		];
 		return new Join($joinParams);
 	}
