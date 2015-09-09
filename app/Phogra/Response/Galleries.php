@@ -23,7 +23,7 @@ class Galleries extends BaseResponse
 			}
 		} else {
 			$this->data = new Gallery($data);
-			$this->lastModified = new DateTime($this->data->updated_at);
+			$this->lastModified = new DateTime($data->updated_at);
 		}
 
 		$this->etag = md5(json_encode($this->data));
