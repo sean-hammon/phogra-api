@@ -62,7 +62,7 @@ class PhotosController extends BaseController {
         if (count($ids) === 0) {
             throw new NotFoundException("Nothing found for {$hash}.");
         }
-		if (count($ids) === 1) {
+		if (count($ids) === 1 && count($this->requestParams->include) === 0) {
 			$result = $this->repository->one($ids[0], $this->requestParams);
 		} else {
 			$result = $this->repository->multiple($ids, $this->requestParams);

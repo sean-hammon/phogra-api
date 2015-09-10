@@ -3,6 +3,7 @@
 namespace App\Phogra\Response;
 
 use \DateTime;
+use Hashids;
 use App\Phogra\Response\Item\Photo;
 
 class Photos extends BaseResponse
@@ -15,7 +16,7 @@ class Photos extends BaseResponse
 			$this->data = [];
 			$current = null;
 			foreach ($data as $row) {
-				if (!isset($current) || $row->id != $current->id) {
+				if (!isset($current) || Hashids::encode($row->id) != $current->id) {
 					$current = new Photo($row);
 					$this->data[] = $current;
 				}
