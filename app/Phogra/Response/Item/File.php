@@ -13,7 +13,7 @@ class File extends ResponseItem
 
 		$this->type = 'files';
 		$this->id = (isset($row->id) ? $row->id : $row->file_id);
-		$this->id = Hashid::encode($this->id);
+		$this->id = Hashids::encode($this->id);
 
 		$photoDir = config('phogra.photoDir');
 		if (strpos($photoDir, public_path()) !== false) {
