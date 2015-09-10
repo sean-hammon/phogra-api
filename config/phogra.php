@@ -18,24 +18,34 @@ return array(
 		'original' => (object)[
 			'height' => null,
 			'width'  => null,
-			'autoGenerate' => ['2k', '1k-l', '1k-p', 'thumb']
+			'autoGenerate' => ['hifi_l', 'hifi_p', 'lofi_l', 'lofi_p', 'thumb']
 		],
-		'4k' =>	(object)[
+		'ulfi_l' =>	(object)[
 			'height' => null,
 			'width'  => 3840,
-			'autoGenerate' => ['2k', '1k-l', '1k-p', 'thumb']
+			'autoGenerate' => ['hifi_l', 'hifi_p', 'lofi_l', 'lofi_p', 'thumb']
 		],
-		'2k' => (object)[
+		'ulfi_p' =>	(object)[
+			'height' => 3840,
+			'width'  => null,
+			'autoGenerate' => ['hifi_l', 'hifi_p', 'lofi_l', 'lofi_p', 'thumb']
+		],
+		'hifi_l' => (object)[
 			'height' => null,
 			'width'  => 1980,
-			'autoGenerate' => ['1k-l', '1k-p', 'thumb']
+			'autoGenerate' => ['lofi_l', 'lofi_p', 'thumb']
 		],
-		'1k-l' => (object)[
+		'hifi_p' => (object)[
+			'height' => 1980,
+			'width'  => null,
+			'autoGenerate' => ['lofi_l', 'lofi_p', 'thumb']
+		],
+		'lofi_l' => (object)[
 			'height' => null,
 			'width'  => 990,
 			'autoGenerate' => ['thumb']
 		],
-		'1k-p' => (object)[
+		'lofi_p' => (object)[
 			'height'  => 990,
 			'width' => null,
 			'autoGenerate' => ['thumb']
