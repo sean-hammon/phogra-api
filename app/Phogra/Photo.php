@@ -197,6 +197,20 @@ class Photo
 		}
 	}
 
+	public function getFile($photo_ids, $file_types, $params) {
+		$this->initQuery($params);
+		$this->query->where(Table::photos .".id", "=", $photo_ids);
+		$this->query->where(Table::files ."type", "=", $file_types);
+
+		$result = $this->query->get();
+
+		if (count($result)) {
+			return $result;
+		}
+
+		return null;
+	}
+
 	/**
 	 * Initialize the table query with SQL common to all queries
 	 *

@@ -32,7 +32,6 @@ class File extends ResponseItem
 			'height' => $row->height,
 			'width' => $row->width,
 			'bytes' => $row->bytes,
-			'href' => $this->baseUrl . $href,
 			'created_at' => (isset($row->created_at) ? $row->created_at : $row->file_created_at),
 			'updated_at' => (isset($row->updated_at) ? $row->updated_at : $row->file_updated_at),
 		];
@@ -48,7 +47,9 @@ class File extends ResponseItem
 					"type"  => "photos",
 					"data" => $this->attributes->photo_id,
 					"links" => (object)[
-						"self" => $this->baseUrl . "/photos/{$this->attributes->photo_id}"
+						"self" => $this->baseUrl . "/photos/{$this->attributes->photo_id}/files/{$this->type}",
+						"image" => $this->baseUrl . "/photos/{$this->attributes->photo_id}/image/{$this->type}",
+						"src" => $this->baseUrl . $href
 					]
 				]
 			];
