@@ -1,7 +1,11 @@
 <?php
 
-namespace app\Http\Controllers;
+namespace App\Http\Controllers;
 
+use Hashids;
+use Illuminate\Http\Request;
+use App\Phogra\Photo;
+use App\Phogra\Response\Image as ImageResponse;
 use App\Phogra\Exception\BadRequestException;
 use App\Phogra\Exception\NotFoundException;
 

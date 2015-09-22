@@ -2,6 +2,9 @@
 
 namespace app\Http\Controllers;
 
+use Hashids;
+use Illuminate\Http\Request;
+use App\Phogra\Photo;
 use App\Phogra\Exception\BadRequestException;
 use App\Phogra\Exception\NotFoundException;
 
