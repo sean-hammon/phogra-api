@@ -20,9 +20,9 @@ class File extends ResponseItem
 			$model = new FileModel();
 			$model->hash = $row->hash;
 			$model->mimetype = $row->mimetype;
-			$href = "/" . $model->location();
+			$href = "/" . str_replace("\\", "/", $model->location());
 		} else {
-			$href = "/files/{$this->id}/image";
+			$href = null;
 		}
 
 		$this->attributes = (object)[
@@ -38,7 +38,9 @@ class File extends ResponseItem
 		$this->attributes->photo_id = Hashids::encode($this->attributes->photo_id);
 
 		$this->links = (object)[
-			"self" => $this->baseUrl . "/photos/{$this->attributes->photo_id}/files/{$this->attributes->type}"
+			"self" => $this->baseUrl . "/photos/{$this->attributes->photo_id}/files/{$this->attributes->type}",
+			"image" => $this->baseUrl . "/photos/{$this->attributes->photo_id}/image/{$this->attributes->type}",
+			"src" => ($href ? $this->baseUrl . $href : null)
 		];
 
 		if (!$included) {
