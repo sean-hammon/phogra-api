@@ -57,21 +57,14 @@ return array(
 		]
 	],
 
-	//  Directories for file storage
-	//
-	//  If the photoDir is in the public_path, the API will return URLs pointing
-	//  directly to the image file.
-	//
-	//  If the photoDir is outside the public path,
-	//  the API will return an API endpoint that will use readfile() to return
-	//	the image data.
-	//
-	//	If the photoDir is inside the public path, it cannot match any api endpoints.
-	//	So photos, is a no-no since there is a /photos endpoint. You'll end up with a
-	//	redirect loop when accessing /photos.
+	//  By default file system access in Laravel is relative to storage/app. You can change
+	//	this inn your filesystems.php config if you want. The photoDir setting assumes it is
+    //  a subdirectory in your configured file system folder.
 
-	'photoDir'       => public_path() . DIRECTORY_SEPARATOR . "photo",
-	'photoTempDir'   => storage_path() . DIRECTORY_SEPARATOR . "photo-tmp",
+    //  TODO: Update the seeder to use the file system library and put images in the right place.
+
+	'photoDir'       => "photos",
+	'photoTempDir'   => storage_path("photo-tmp"),
 
 	//	Is the API public? If you want anyone to be able to hit the api, set publicApi = true
 	'publicApi'      => true,

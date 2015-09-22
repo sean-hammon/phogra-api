@@ -21,7 +21,7 @@ class File extends Model
 	{
 		preg_match('/([\w]{2})([\w]{2})(.*)/', $this->hash, $matches);
 		array_shift($matches);
-		$location = implode(DIRECTORY_SEPARATOR, $matches) . $this->fileExtension();
+		$location = config("phogra.photoDir") . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $matches) . $this->fileExtension();
 
 		return $location;
 	}
