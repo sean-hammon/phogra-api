@@ -58,25 +58,7 @@ class BaseResponse
 		return response("Phogra API", 200, $this->addHeaders());
 	}
 
-	/**
-	 * Determines the self link from the request URI. If for some reason someone
-	 * is using a script name, eg. /index.php/foo/bar, then the check for
-	 * PATH_INFO will return the correct URI.
-	 *
-	 * @return string
-	 */
-	private function getSelf() {
-
-		$self_link = $_SERVER['REQUEST_URI'];
-		if (isset($_SERVER['PATH_INFO'])) {
-			$self_link = $_SERVER['PATH_INFO'];
-		}
-
-		return $self_link;
-
-	}
-
-	private function addHeaders() {
+	protected function addHeaders() {
 
 		$allowedDomains = config("phogra.allowedDomains");
 		$ssl = !empty($_SERVER['HTTPS']) ? "s" : '';
@@ -102,6 +84,24 @@ class BaseResponse
 		}
 
 		return $headers;
+	}
+
+	/**
+	 * Determines the self link from the request URI. If for some reason someone
+	 * is using a script name, eg. /index.php/foo/bar, then the check for
+	 * PATH_INFO will return the correct URI.
+	 *
+	 * @return string
+	 */
+	private function getSelf() {
+
+		$self_link = $_SERVER['REQUEST_URI'];
+		if (isset($_SERVER['PATH_INFO'])) {
+			$self_link = $_SERVER['PATH_INFO'];
+		}
+
+		return $self_link;
+
 	}
 
 	private function jsonOptions() {
