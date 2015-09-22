@@ -199,10 +199,19 @@ class Photo
 
 	public function getFile($photo_ids, $file_types, $params) {
 		$this->initQuery($params);
-		$this->query->where(Table::photos .".id", "=", $photo_ids);
-		$this->query->where(Table::files ."type", "=", $file_types);
+        $this->query->addSelect([
+            "files.id as file_id", "type", "mimetype",
+            "height", "width", "bytes", "hash",
+            "files.created_at as file_created_at",
+            "files.updated_at as file_updated_at"]
+        );
+        $this->query->where(Table::photos .".id", "=", $photo_ids);
+		$this->query->join(Table::files, function($join) use ($file_types){
+            $join->on(Table::files .".photo_id", "=", Table::photos .".id")
+                 ->where(Table::files .".type", "=", $file_types);
+        });
 
-		$result = $this->query->get();
+		$result = $this->query->first();
 
 		if (count($result)) {
 			return $result;
