@@ -38,12 +38,12 @@ Route::group(['middleware' => 'phogra.api.token'], function(){
 
 	//  /photos/:id/files
 	Route::options('photos.files', 'PhotoFilesController@options');
-	Route::options('photos.files', 'PhotoFilesController', array(
+	Route::resource('photos.files', 'PhotoFilesController', array(
 		'except' => array('create','edit')
 	));
 	//  /photos/:id/image
 	Route::options('photos.image', 'PhotoImageController@options');
-	Route::options('photos.image', 'PhotoImageController', array(
+	Route::resource('photos.image', 'PhotoImageController', array(
 		'except' => array('create','edit')
 	));
 	//  /photos/:id/metadata
