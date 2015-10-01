@@ -4,7 +4,7 @@ namespace App\Phogra\Response;
 
 use \DateTime;
 use Hashids;
-use App\Phogra\Response\Item\Photo;
+use App\Phogra\Response\Item\File;
 
 class Files extends BaseResponse
 {
