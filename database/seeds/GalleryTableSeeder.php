@@ -30,21 +30,21 @@ class GalleryTableSeeder extends Seeder
                                 "title" => 'Colorado',
                             ],
                             [
-                                "id"    => 5,
-                                "title" => 'Utah',
-                            ],
-                            [
                                 "id"    => 6,
                                 "title" => 'Florida'
+                            ],
+                            [
+                                "id" => 20,
+                                "title" => 'Illinois'
                             ],
                             [
                                 "id" => 19,
                                 "title" => 'Minnesota'
                             ],
                             [
-                                "id" => 20,
-                                "title" => 'Illinois'
-                            ]
+                                "id"    => 5,
+                                "title" => 'Utah',
+                            ],
                         ]
                     ],
                     [
