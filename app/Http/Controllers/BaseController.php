@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Phogra\Exception\InvalidParameterException;
+use App\Phogra\Exception\BadRequestException;
 use App\Phogra\Response\BaseResponse;
 
 class BaseController extends Controller {
@@ -79,7 +80,7 @@ class BaseController extends Controller {
 
         $data = json_decode($json, true);
         if (json_last_error() > 0) {
-            throw new BadRequestException(json_last_error_msg());
+            throw new BadRequestException("JSON decode: " . json_last_error_msg());
         }
 
         return $data;
