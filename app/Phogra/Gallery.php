@@ -2,6 +2,8 @@
 
 namespace App\Phogra;
 
+use App\Phogra\Exception\BadRequestException;
+use App\Phogra\Exception\UnknownException;
 use Auth;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
@@ -30,13 +32,19 @@ class Gallery
 		$this->user = Auth::user();
 	}
 
-	/**
-	 * @param array $data row data for insert
-	 *
-	 * @return object
-	 */
+    /**
+     * @param array $data row data for insert
+     *
+     * @return \App\Phogra\Eloquent\Gallery
+     * @throws BadRequestException
+     * @throws UnknownException
+     */
     public function create($data)
     {
+
+        if (!isset($data['title'])) {
+            throw new BadRequestException("Title is a required field.");
+        }
         try {
 			if (!isset($data['slug']) || empty($data['slug'])) {
 				$data['slug'] = str_slug($data['title']);
@@ -45,12 +53,13 @@ class Gallery
 				$data['parent_id'] = null;
 			}
 			if (!isset($data['node'])) {
-				$data['node'] = $this->makeNode($data);
+				$this->makeNode($data);
 			}
 
 			return GalleryModel::create($data);
         }
         catch(\Exception $e) {
+            throw new UnknownException($e->getMessage());
             // TODO: Do something if the insert fails
         }
     }
@@ -122,27 +131,83 @@ class Gallery
 	/**
 	 * Generate the tree node data that is used in SQL queries.
 	 *
-	 * @param $data  array  row data for the gallery
+	 * @param array $data row data for the gallery
 	 *
 	 * @return string
 	 */
-	private function makeNode($data) {
+	private function makeNode(&$data) {
 		$max_node = GalleryModel::where('parent_id', $data['parent_id'])->max('node');
 
 		if (is_null($max_node)) {
-			$parent_node = GalleryModel::where('id', $data['parent_id'])->max('node');
-			if (is_null($parent_node)) {
-				return "001";
-			}
+			$parent = GalleryModel::find($data['parent_id']);
+			if (is_null($parent)) {
+				$new_node = "001";
+			} else {
+                $new_node = $parent->node.":001";
+            }
+		} else {
+            $tree = explode(":", $max_node);
+            if (isset($data['position'])) {
+                $this->insertNodeAt($data);
+                $new_node = $this->getNodeAt($tree, $data['position']);
 
-			return $parent_node.":001";
-		}
+                //  Get rid of the position attribute so Eloquent doesn't
+                //  use it in the query.
+                unset($data['position']);
+            } else {
+                $new_node = $this->incrementNode($tree);
+            }
+        }
 
-		$tree = explode(":", $max_node);
-		$int = (int)array_pop($tree);
-		$tree[] = sprintf('%03d',++$int);
-		return implode(":", $tree);
+        $data['node'] = $new_node;
 	}
+
+    /**
+     * Create a node string for a specific position in the tree.
+     *
+     * @param array $tree
+     * @param int $position
+     *
+     * @return string
+     */
+    private function getNodeAt($tree, $position) {
+        array_pop($tree);
+        $tree[] = sprintf('%03d', $position);
+        return implode(":", $tree);
+    }
+
+    /**
+     * Get the next node string in the tree.
+     *
+     * @param array $tree
+     *
+     * @return string
+     */
+    private function incrementNode($tree) {
+        $int = (int)array_pop($tree);
+        $tree[] = sprintf('%03d',++$int);
+        return implode(":", $tree);
+    }
+
+    private function insertNodeAt($data) {
+        $parent = GalleryModel::find($data['parent_id']);
+        $parent_node = explode(":", $parent->node);
+        $targetIdx = count($parent_node);
+
+        //  Order By node DESC keeps you from running into unique constraint problems
+        $affected = GalleryModel::where('node', "like", $parent->node.":%")->orderBy("node", "desc")->get();
+        $pos = (int)$data['position'];
+
+        foreach ($affected as $aNode) {
+            $tree = explode(":", $aNode->node);
+            $intVal = (int)$tree[$targetIdx];
+            if ($intVal >= $pos) {
+                $tree[$targetIdx] = sprintf('%03d', $intVal+1);
+                $aNode->node = implode(":", $tree);
+                $aNode->save();
+            }
+        }
+    }
 
 	/**
 	 * Initialize the table query with SQL common to all queries
