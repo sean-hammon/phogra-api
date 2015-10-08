@@ -33,6 +33,12 @@ class Gallery
 	}
 
     /**
+     * Add one or more new galleries.
+     *
+     * When sending multiple galleries with position data, order becomes important
+     * because each row is processed independently. Depending on the the order and
+     * the position values you supply, you might not get what you expect.
+     *
      * @param array $data row data for insert
      *
      * @return \App\Phogra\Eloquent\Gallery
@@ -41,22 +47,34 @@ class Gallery
      */
     public function create($data)
     {
+        if (is_array($data)) {
+            $new_galleries = [];
+            foreach ($data as $row) {
+                $new_galleries[] = $this->addNew($row);
+            }
+            return $new_galleries;
+        }
 
-        if (!isset($data['title'])) {
+        return $this->addNew($data);
+    }
+
+    private function addNew($row) {
+
+        if (!isset($row['title'])) {
             throw new BadRequestException("Title is a required field.");
         }
         try {
-			if (!isset($data['slug']) || empty($data['slug'])) {
-				$data['slug'] = str_slug($data['title']);
+			if (!isset($row['slug']) || empty($row['slug'])) {
+				$row['slug'] = str_slug($row['title']);
 			}
-			if (!isset($data['parent_id'])) {
-				$data['parent_id'] = null;
+			if (!isset($row['parent_id'])) {
+				$row['parent_id'] = null;
 			}
-			if (!isset($data['node'])) {
-				$this->makeNode($data);
+			if (!isset($row['node'])) {
+				$this->makeNode($row);
 			}
 
-			return GalleryModel::create($data);
+			return GalleryModel::create($row);
         }
         catch(\Exception $e) {
             throw new UnknownException($e->getMessage());
