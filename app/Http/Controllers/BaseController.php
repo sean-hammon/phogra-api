@@ -71,6 +71,20 @@ class BaseController extends Controller {
 		}
 	}
 
+	protected function getRequestBody() {
+		$json = $this->request->getContent();
+        if (empty($json)) {
+            throw new BadRequestException("No post body provided");
+        }
+
+        $data = json_decode($json, true);
+        if (json_last_error() > 0) {
+            throw new BadRequestException(json_last_error_msg());
+        }
+
+        return $data;
+	}
+
 	private function processInclude($value) {
 		$values = explode(',', $value);
 		foreach ($values as $val) {
