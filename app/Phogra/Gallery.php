@@ -47,7 +47,7 @@ class Gallery
      */
     public function create($data)
     {
-        if (is_array($data)) {
+        if (!isset($data['title'])) {
             $new_galleries = [];
             foreach ($data as $row) {
                 $new_galleries[] = $this->addNew($row);
@@ -58,8 +58,8 @@ class Gallery
         return $this->addNew($data);
     }
 
-    private function addNew($row) {
-
+    private function addNew($row)
+	{
         if (!isset($row['title'])) {
             throw new BadRequestException("Title is a required field.");
         }
