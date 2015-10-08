@@ -58,6 +58,16 @@ class GalleryTableSeeder extends Seeder
                         ]
                     ],
                     [
+                        'id' => 13,
+                        'title' => 'Mexico',
+                        'children' => [
+                            [
+                                'id' => 14,
+                                'title' => 'Teotihuacan'
+                            ]
+                        ]
+                    ],
+                    [
                         'id'       => 9,
                         'title'    => 'New Zealand',
                         'children' => [
@@ -72,16 +82,6 @@ class GalleryTableSeeder extends Seeder
                             [
                                 'id'    => 12,
                                 'title' => 'Queenstown'
-                            ]
-                        ]
-                    ],
-                    [
-                        'id' => 13,
-                        'title' => 'Mexico',
-                        'children' => [
-                            [
-                                'id' => 14,
-                                'title' => 'Teotihuacan'
                             ]
                         ]
                     ]
