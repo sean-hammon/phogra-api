@@ -19,6 +19,7 @@ class GalleriesController extends BaseController {
 		parent::__construct($request);
 
 		$this->repository = $repository;
+        $this->middleware('jwt.auth', ['except' => ['index','show']]);
 	}
 
 	/**
@@ -34,14 +35,19 @@ class GalleriesController extends BaseController {
 		return $response->send();
 	}
 
-	/**
-	 * Store a newly created resource in storage.
-	 *
-	 * @return Response
-	 */
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @return Response
+     * @throws BadRequestException
+     */
 	public function store()
 	{
-		//
+		$data = $this->getRequestBody();
+        $gallery = $this->repository->create($data);
+
+        $response = new GalleriesResponse($gallery);
+        return $response->send();
 	}
 
 	/**
