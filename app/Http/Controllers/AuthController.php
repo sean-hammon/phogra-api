@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Phogra\Exception\UnauthorizedException;
-use App\Phogra\Exception\UnknownException;
+use Hash;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use App\Phogra\Exception\UnauthorizedException;
+use App\Phogra\Exception\UnknownException;
+use App\Phogra\Eloquent\User;
+use App\Phogra\Response\Users as UserResponse;
 
 class AuthController extends Controller
 {
@@ -32,7 +35,11 @@ class AuthController extends Controller
 			throw new UnknownException('Could not create token:');
 		}
 
-		return response()->json(compact('token'));
+        $user = User::where('email', '=', $credentials['email'])->first();
+
+		$user->token = $token;
+        $response = new UserResponse($user);
+		return $response->send();
 	}
 
 }
