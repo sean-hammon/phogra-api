@@ -71,7 +71,7 @@ class BaseResponse
 
 		$headers = [
 			'Accept' => 'application/json',
-			'Access-Control-Allow-Headers' => 'X-Phogra-Token',
+			'Access-Control-Allow-Headers' => 'X-Phogra-API,Content-Type,Authorization',
 			//	30 days
 			'Access-Control-Max-Age' => 30 * 24 * 60 * 60,
 			'Access-Control-Allow-Origin' => $requestDomain,

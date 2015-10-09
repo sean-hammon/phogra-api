@@ -34,7 +34,7 @@ class BaseController extends Controller {
 	}
 
 	private function processParams() {
-		$get = $this->request->all();
+		$get = $this->request->query();
 		if(count($get)) {
 			$this->hasParams = true;
 		}

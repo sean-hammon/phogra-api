@@ -11,7 +11,7 @@ use App\Phogra\Exception\UnknownException;
 use App\Phogra\Eloquent\User;
 use App\Phogra\Response\Users as UserResponse;
 
-class AuthController extends Controller
+class AuthController extends BaseController
 {
 	public function authenticate(Request $request) {
 		$authHeader = $request->header('Authorization');

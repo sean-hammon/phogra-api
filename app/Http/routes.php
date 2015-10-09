@@ -12,6 +12,8 @@
 */
 
 Route::get('/', 'ApiController@index');
+
+Route::options('authenticate', 'AuthController@options');
 Route::post('/authenticate', 'AuthController@authenticate');
 
 Route::group(['middleware' => 'phogra.api.token'], function(){
