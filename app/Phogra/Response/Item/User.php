@@ -17,8 +17,7 @@ class User extends ResponseItem
             'id' => $row->id,
             'name' => $row->name,
             'email' => $row->email,
-            'admin' => $row->admin,
-            'hash' => $row->hash,
+            'admin' => $row->is_admin,
             'token' => $row->token,
             'created_at' => $row->created_at,
             'updated_at' => $row->updated_at
