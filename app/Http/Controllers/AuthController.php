@@ -42,4 +42,16 @@ class AuthController extends BaseController
 		return $response->send();
 	}
 
+	public function validateToken(Request $request) {
+        try {
+            $user = JWTAuth::parseToken()->authenticate();
+        } catch (JWTException $e) {
+            throw new UnauthorizedException($e->getMessage());
+        }
+
+        $user->token = JWTAuth::getToken();
+        $response = new UserResponse($user);
+        return $response->send();
+    }
+
 }
