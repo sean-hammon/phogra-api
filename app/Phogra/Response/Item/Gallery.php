@@ -22,6 +22,7 @@ class Gallery extends ResponseItem
 			'parent_id' => Hashids::encode($row->parent_id),
 			'title' => $row->title,
 			'slug' => $row->slug,
+			'node' => $row->node,
 			'description' => $row->description,
 			'protected' => $row->protected,
 			'created_at' => $row->created_at,
