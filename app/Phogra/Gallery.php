@@ -278,6 +278,7 @@ class Gallery
         );
         $this->query->whereNull("{$this->galleryTable}.deleted_at");
         $this->query->where("{$this->galleryTable}.protected", "=", 0);
+        $this->query->orderBy("{$this->galleryTable}.node");
 
         if (isset($this->user)) {
             $this->query->orWhere(function ($query) {
