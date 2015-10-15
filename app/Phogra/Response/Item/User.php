@@ -25,7 +25,7 @@ class User extends ResponseItem
 
         $this->relationships = (object)[
             "galleries" => (object)[
-                "type"  => "gallery",
+                "type" => "gallery",
                 "data" => ($row->galleries == null ? null : explode(',', $row->galleries)),
                 "links" => (object)[
                     "self" => $this->baseUrl . "/users/{$this->id}/galleries"

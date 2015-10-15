@@ -6,39 +6,41 @@ use Hashids;
 
 class Photo extends ResponseItem
 {
-	public function __construct($row) {
+    public function __construct($row)
+    {
 
-		parent::__construct();
+        parent::__construct();
 
-		$this->type = 'photos';
+        $this->type = 'photos';
 
-		$this->id = Hashids::encode($row->id);
-		$this->attributes = (object)[
-			'title' => $row->title,
-			'slug' => $row->slug,
-			'short_desc' => $row->short_desc,
-			'long_desc' => $row->long_desc,
-			'created_at' => $row->created_at,
-			'updated_at' => $row->updated_at
-		];
+        $this->id = Hashids::encode($row->id);
+        $this->attributes = (object)[
+            'title' => $row->title,
+            'slug' => $row->slug,
+            'short_desc' => $row->short_desc,
+            'long_desc' => $row->long_desc,
+            'created_at' => $row->created_at,
+            'updated_at' => $row->updated_at
+        ];
 
-		$this->relationships = (object)[
-			"files" => (object)[
-				"type"  => "files",
-				"data" => ($row->file_types == null ? null : explode(',', $row->file_types)),
-				"links" => (object)[
-					"self" => $this->baseUrl . "/photos/{$this->id}/files"
-				]
-			]
-		];
+        $this->relationships = (object)[
+            "files" => (object)[
+                "type" => "files",
+                "data" => ($row->file_types == null ? null : explode(',', $row->file_types)),
+                "links" => (object)[
+                    "self" => $this->baseUrl . "/photos/{$this->id}/files"
+                ]
+            ]
+        ];
 
-		$this->links = (object)[
-			"self" => $this->baseUrl . "/photos/{$this->id}"
-		];
-	}
+        $this->links = (object)[
+            "self" => $this->baseUrl . "/photos/{$this->id}"
+        ];
+    }
 
-	public function addFile($row) {
-		$this->included[] = new File($row, true);
-	}
+    public function addFile($row)
+    {
+        $this->included[] = new File($row, true);
+    }
 
 }

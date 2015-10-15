@@ -10,9 +10,10 @@ namespace App\Phogra\Response;
 
 class ExceptionResponse extends BaseResponse
 {
-	public function __construct($data) {
-		unset($this->links);
-		$this->data = $data;
-	}
+    public function __construct($data)
+    {
+        unset($this->links);
+        $this->data = $data;
+    }
 
 }
