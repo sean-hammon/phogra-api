@@ -18,9 +18,16 @@ on adhering strictly to the standard. It will eventually be the API that drives 
 
 - The API will auto-generate thumbnails and alternate file sizes for you. PHP may need more than the default
   memory allotment to get this done. The Windows default, 128M, should be enough to process most standard photo sized images, 
-  which are generally in the 3-5MB range. I was able to process a 12MB image, but it was not enough to process
+  which are generally in the 5-8MB range. I was able to process a 12MB image, but it was not enough to process
   a 30MB image that I had stitched together from several shots. 256M was enough to process the 30MB image. 
   If your host doesn't allow you to modify the max memory parameter, you'll have to upload smaller files.
+- You'll need to adjust your `post_max_size` in your php.ini file as necessary. It defaults to 8M, which may not
+  be enough if you're going to let users upload images from their phone. Looking at the photos currently on my
+  LG4, most are under 8MB, but there are a few outliers that are too large. Panoramic images get larger than
+  8MB very quickly.
+- The companion to `post_max_size` is `upload_max_filesize`. They should be pretty close in value. Just remember
+  that `post_max_size` includes the full post body. If you're going to try and finese these values, make sure
+  `post_max_size` is 1-2M larger than `upload_max_filesize`.
 - The API is also using finfo to guess at mime types. It may not be enabled by default on your platform/host.
   Windows users will need to enable the php_fileinfo.dll in the php.ini file. \*nix users will have to figure 
   out how to enable fileinfo.so for their environment.
