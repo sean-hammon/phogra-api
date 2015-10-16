@@ -2,6 +2,7 @@
 
 namespace App\Phogra;
 
+use App\Phogra\Eloquent\Gallery;
 use App\Phogra\Query\Table;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
@@ -37,8 +38,8 @@ class Photo
 		$gallery_id = null;
 		$exception = '';
 		if (isset($data['gallery_id'])) {
-			$gallery_id = $data[$gallery_id];
-			unset($data[$gallery_id]);
+			$gallery_id = $data['gallery_id'];
+			unset($data['gallery_id']);
 		}
 		if (!isset($data['title']) && !isset($data['slug'])) {
 			$exception .= "You must specify at least a title or a slug.";
@@ -50,24 +51,21 @@ class Photo
 		$toCheck = isset($data['slug']) ? $data['slug'] : str_slug($data['title']);
 		$slugCheck = PhotoModel::where('slug', '=', $toCheck)->first();
 		if ($slugCheck != null) {
-			throw new InvalidParameterException('The slug "' . $toCheck . '" already exists in the database. " .
-				"Slugs must be unique. If you didn\'t specify a slug, it was generated from the title. " .
-				"Either change the title or specify a slug that is unique.');
+			throw new InvalidParameterException('The slug "' . $toCheck . '" already exists in the database. ' .
+				'Slugs must be unique. If you didn\'t specify a slug, it was generated from the title. ' .
+				'Either change the title or specify a slug that is unique.');
 		}
 
 		if (!isset($data['slug']) || empty($data['slug'])) {
 			$data['slug'] = str_slug($data['title']);
 		}
-		if (!isset($data['parent_id'])) {
-			$data['parent_id'] = null;
-		}
-		if (!isset($data['node'])) {
-			$data['node'] = $this->makeNode($data);
-		}
 
 		$photo = PhotoModel::create($data);
 
-		//TODO: Handle gallery data
+		if (isset($gallery_id)) {
+			$gallery = Gallery::find($gallery_id);
+			$gallery->photos()->attach($photo);
+		}
 
 		return $photo;
     }
