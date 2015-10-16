@@ -45,7 +45,7 @@ class Image extends BaseResponse
 
         $filepath = $this->data->location();
 
-        return response()->make(Storage::get($filepath), $this->http_code, $headers);
+        return response()->make(readfile($filepath), $this->http_code, $headers);
 
     }
 }
