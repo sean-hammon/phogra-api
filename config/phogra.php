@@ -57,14 +57,11 @@ return array(
 		]
 	],
 
-	//  By default file system access in Laravel is relative to storage/app. You can change
-	//	this inn your filesystems.php config if you want. The photoDir setting assumes it is
-    //  a subdirectory in your configured file system folder.
+	//  Make sure you don't create a folder in the public folder that matches a route, eg.
+	//  photos or galleries. This will cause you heartburn.
 
-    //  TODO: Update the seeder to use the file system library and put images in the right place.
-
-	'photoDir'       => "photos",
-	'photoTempDir'   => storage_path("photo-tmp"),
+	'photoDir'       => storage_path("app/photos"),
+	'photoTempDir'   => storage_path("app/photo-tmp"),
 
 	//	Is the API public? If you want anyone to be able to hit the api, set publicApi = true
 	'publicApi'      => true,
