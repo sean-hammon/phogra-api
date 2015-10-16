@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 class File extends Model
 {
 	protected $table = "files";
-	protected $fillable = ['hash','height','width','bytes','type','mimetype'];
+	protected $fillable = ['photo_id', 'hash','height','width','bytes','type','mimetype'];
 
 	public function photos()
 	{

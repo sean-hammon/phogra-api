@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use Hashids;
-use Illuminate\Http\Request;
+use App\Phogra\Exception\BadRequestException;
 use App\Phogra\Exception\NotFoundException;
 use App\Phogra\Exception\InvalidOperationException;
+use App\Phogra\Exception\InvalidJsonException;
+use App\Phogra\File\Processor;
 use App\Phogra\Photo;
 use App\Phogra\Response\Photos as PhotosResponse;
+use Hashids;
+use Illuminate\Http\Request;
 
 class PhotosController extends BaseController {
 
@@ -16,6 +19,7 @@ class PhotosController extends BaseController {
 	public function __construct(Request $request, Photo $repository) {
 		parent::__construct($request);
 		$this->repository = $repository;
+		$this->middleware('jwt.auth', ['except' => ['index','show']]);
 	}
 
 	/**
@@ -28,20 +32,48 @@ class PhotosController extends BaseController {
 		throw new InvalidOperationException('Retrieving all photos is not supported.');
 	}
 
-	/**
-	 * Store a newly created resource in storage.
-	 *
-	 * @return Response
-	 * @throws InvalidJsonException
-	 */
+    /**
+     * Store a newly created resource in storage.
+     * @return Response
+     *
+     * @throws BadRequestException
+     * @throws InvalidJsonException
+     * @throws \App\Phogra\Exception\InvalidParameterException
+     */
 	public function store()
 	{
-		$incoming = json_decode($this->request->getContent());
+        $json = $this->request->getContent();
+        $file = null;
+
+        //  If $json is empty at this point, it's probably a multi-part post.
+        if (empty($json)) {
+            $json = json_decode($this->request->input('json'), true);
+            $file = $this->request->file('photo');
+            if (!empty($file) && $file->isValid() === false) {
+                throw new BadRequestException($file->getErrorMessage());
+            }
+
+        } else {
+            $json = json_decode($json);
+        }
+
 		if (json_last_error()) {
 			throw new InvalidJsonException(json_last_error_msg());
 		}
+        $photo = $this->repository->create($json);
+        if (isset($file)) {
+            $file->move(config("phogra.photoTempDir"), $file->getClientOriginalName());
+            $path = config("phogra.photoTempDir") . DIRECTORY_SEPARATOR . $file->getClientOriginalName();
 
-		$photo = $this->repository->create(get_object_vars($incoming));
+            $processor = new Processor($photo->id, $path);
+            $processor->make('original');
+
+            $typeConfig = config('phogra.fileTypes');
+            foreach ($typeConfig->original->autoGenerate as $type) {
+                $processor->make($type);
+            }
+        }
+
 		$response = new PhotosResponse($photo);
 		return $response->send();
 

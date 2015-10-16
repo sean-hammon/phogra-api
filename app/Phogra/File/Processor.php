@@ -2,6 +2,7 @@
 namespace App\Phogra\File;
 
 use App\Phogra\Eloquent\File as FileModel;
+use App\Phogra\Exception\DuplicateFileException;
 
 class Processor
 {
@@ -157,6 +158,8 @@ class Processor
 		$this->moveFile($tmpPath, $fileRecord->location());
 
 		imagedestroy($modified);
+		//unlink($tmpPath);
+//		unlink($this->filePath);
 
 		return $fileRecord;
 	}
@@ -230,13 +233,13 @@ class Processor
 	private function moveFile($oldPath, $newPath)
 	{
 		$exploded = explode(DIRECTORY_SEPARATOR, $newPath);
-		$filename = array_pop($exploded);
-		$path = config('phogra.photoDir') . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $exploded);
+		array_pop($exploded);
+		$path = implode(DIRECTORY_SEPARATOR, $exploded);
 
 		if (!file_exists($path)) {
 			mkdir($path, 0775, true);
 		}
 
-		rename($oldPath, $path . DIRECTORY_SEPARATOR . $filename);
+		rename($oldPath, $newPath);
 	}
 }
