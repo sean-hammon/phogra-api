@@ -9,31 +9,33 @@ use App\Phogra\Response\Galleries as GalleriesResponse;
 use Illuminate\Http\Request;
 use Hashids;
 
-class GalleriesController extends BaseController {
+class GalleriesController extends BaseController
+{
 
-	private $repository;
+    private $repository;
 
-	public function __construct(Request $request, Gallery $repository) {
+    public function __construct(Request $request, Gallery $repository)
+    {
 
-		$this->allowedParams[] = 'empty';
-		parent::__construct($request);
+        $this->allowedParams[] = 'empty';
+        parent::__construct($request);
 
-		$this->repository = $repository;
-        $this->middleware('jwt.auth', ['except' => ['index','show']]);
-	}
+        $this->repository = $repository;
+        $this->middleware('jwt.auth', ['except' => ['index', 'show']]);
+    }
 
-	/**
-	 * Return all gallery records
-	 *
-	 * @return \App\Phogra\Response
-	 */
-	public function index()
-	{
-		$galleries = $this->repository->all($this->requestParams);
+    /**
+     * Return all gallery records
+     *
+     * @return \App\Phogra\Response
+     */
+    public function index()
+    {
+        $galleries = $this->repository->all($this->requestParams);
 
-		$response = new GalleriesResponse($galleries);
-		return $response->send();
-	}
+        $response = new GalleriesResponse($galleries);
+        return $response->send();
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -41,69 +43,67 @@ class GalleriesController extends BaseController {
      * @return Response
      * @throws BadRequestException
      */
-	public function store()
-	{
-		$data = $this->getRequestBody();
+    public function store()
+    {
+        $data = $this->getRequestBody();
         $gallery = $this->repository->create($data);
 
         $response = new GalleriesResponse($gallery);
         return $response->send();
-	}
+    }
 
-	/**
-	 * Display the specified galleries.
-	 *
-	 * @param  int|string $id integer row id for a single gallery OR
-	 *                          string of comma separated ids
-	 *
-	 * @return \Illuminate\Http\Response
-	 * @throws BadRequestException
-	 * @throws NotFoundException
-	 */
-	public function show($id)
-	{
+    /**
+     * Display the specified galleries.
+     *
+     * @param  int|string $id integer row id for a single gallery OR
+     *                          string of comma separated ids
+     *
+     * @return \Illuminate\Http\Response
+     * @throws BadRequestException
+     * @throws NotFoundException
+     */
+    public function show($id)
+    {
         $ids = Hashids::decode($id);
         if (count($ids) === 0) {
             throw new NotFoundException("No data found for {$id}");
         }
 
-		if (count($ids) == 1) {
+        if (count($ids) == 1) {
             $result = $this->repository->one($ids[0], $this->requestParams);
-		} else {
+        } else {
             $result = $this->repository->multiple($ids, $this->requestParams);
-		}
+        }
 
-		if (is_null($result)) {
-			throw new NotFoundException("No data found for {$id}.");
-		} else {
-			$response = new GalleriesResponse($result);
-			return $response->send();
-		}
+        if (is_null($result)) {
+            throw new NotFoundException("No data found for {$id}.");
+        } else {
+            $response = new GalleriesResponse($result);
+            return $response->send();
+        }
 
-	}
+    }
 
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  int $id
+     * @return Response
+     */
+    public function update($id)
+    {
+        //
+    }
 
-	/**
-	 * Update the specified resource in storage.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function update($id)
-	{
-		//
-	}
-
-
-	/**
-	 * Remove the specified resource from storage.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function destroy($id)
-	{
-		//
-	}
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int $id
+     * @return Response
+     */
+    public function destroy($id)
+    {
+        //
+    }
 
 }

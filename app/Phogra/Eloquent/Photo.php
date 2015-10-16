@@ -11,15 +11,15 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Photo extends Model
 {
-	protected $fillable = array('title','slug','description');
+    protected $fillable = array('title', 'slug', 'description');
 
-	public function galleries()
-	{
-		return $this->belongsToMany('App\Phogra\Eloquent\Gallery', 'gallery_photos');
-	}
+    public function galleries()
+    {
+        return $this->belongsToMany('App\Phogra\Eloquent\Gallery', 'gallery_photos');
+    }
 
-	public function files()
-	{
-		return $this->hasMany('App\Phogra\Eloquent\File');
-	}
+    public function files()
+    {
+        return $this->hasMany('App\Phogra\Eloquent\File');
+    }
 }

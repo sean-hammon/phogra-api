@@ -12,25 +12,27 @@ use App\Phogra\Response\Photos as PhotosResponse;
 use Hashids;
 use Illuminate\Http\Request;
 
-class PhotosController extends BaseController {
+class PhotosController extends BaseController
+{
 
-	private $repository;
+    private $repository;
 
-	public function __construct(Request $request, Photo $repository) {
-		parent::__construct($request);
-		$this->repository = $repository;
-		$this->middleware('jwt.auth', ['except' => ['index','show']]);
-	}
+    public function __construct(Request $request, Photo $repository)
+    {
+        parent::__construct($request);
+        $this->repository = $repository;
+        $this->middleware('jwt.auth', ['except' => ['index', 'show']]);
+    }
 
-	/**
-	 * Display a listing of the resource.
-	 *
-	 * @throws InvalidOperationException
-	 */
-	public function index()
-	{
-		throw new InvalidOperationException('Retrieving all photos is not supported.');
-	}
+    /**
+     * Display a listing of the resource.
+     *
+     * @throws InvalidOperationException
+     */
+    public function index()
+    {
+        throw new InvalidOperationException('Retrieving all photos is not supported.');
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -40,8 +42,8 @@ class PhotosController extends BaseController {
      * @throws InvalidJsonException
      * @throws \App\Phogra\Exception\InvalidParameterException
      */
-	public function store()
-	{
+    public function store()
+    {
         $json = $this->request->getContent();
         $file = null;
 
@@ -57,9 +59,9 @@ class PhotosController extends BaseController {
             $json = json_decode($json);
         }
 
-		if (json_last_error()) {
-			throw new InvalidJsonException(json_last_error_msg());
-		}
+        if (json_last_error()) {
+            throw new InvalidJsonException(json_last_error_msg());
+        }
         $photo = $this->repository->create($json);
         if (isset($file)) {
             $file->move(config("phogra.photoTempDir"), $file->getClientOriginalName());
@@ -74,67 +76,65 @@ class PhotosController extends BaseController {
             }
         }
 
-		$response = new PhotosResponse($photo);
-		return $response->send();
+        $response = new PhotosResponse($photo);
+        return $response->send();
 
-	}
+    }
 
-	/**
-	 * Display the specified photo(s).
-	 *
-	 * @param  string $hash string hash
-	 *
-	 * @return \Illuminate\Http\Response
-	 * @throws \App\Phogra\Exception\BadRequestException
-	 * @throws \App\Phogra\Exception\NotFoundException
-	 */
-	public function show($hash)
-	{
-		$ids = Hashids::decode($hash);
+    /**
+     * Display the specified photo(s).
+     *
+     * @param  string $hash string hash
+     *
+     * @return \Illuminate\Http\Response
+     * @throws \App\Phogra\Exception\BadRequestException
+     * @throws \App\Phogra\Exception\NotFoundException
+     */
+    public function show($hash)
+    {
+        $ids = Hashids::decode($hash);
         if (count($ids) === 0) {
             throw new NotFoundException("Nothing found for {$hash}.");
         }
-		if (count($ids) === 1 && count($this->requestParams->include) === 0) {
-			$result = $this->repository->one($ids[0], $this->requestParams);
-		} else {
-			$result = $this->repository->multiple($ids, $this->requestParams);
-		}
+        if (count($ids) === 1 && count($this->requestParams->include) === 0) {
+            $result = $this->repository->one($ids[0], $this->requestParams);
+        } else {
+            $result = $this->repository->multiple($ids, $this->requestParams);
+        }
 
-		if (is_null($result)) {
+        if (is_null($result)) {
             throw new NotFoundException("Nothing found for {$hash}.");
-		} else {
-			$response = new PhotosResponse($result);
-			return $response->send();
-		}
-	}
+        } else {
+            $response = new PhotosResponse($result);
+            return $response->send();
+        }
+    }
 
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  int $id
+     * @return Response
+     */
+    public function update($id)
+    {
+        //
+    }
 
-	/**
-	 * Update the specified resource in storage.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function update($id)
-	{
-		//
-	}
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int $id
+     * @return Response
+     */
+    public function destroy($id)
+    {
+        //
+    }
 
-
-	/**
-	 * Remove the specified resource from storage.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function destroy($id)
-	{
-		//
-	}
-
-	public function options() {
-		return parent::options();
-	}
-
+    public function options()
+    {
+        return parent::options();
+    }
 
 }

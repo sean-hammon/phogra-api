@@ -13,7 +13,6 @@ use App\Phogra\Query\Join;
 use App\Phogra\Query\JoinParams;
 use App\Phogra\Query\WhereIn;
 
-
 /**
  * Class Photo
  * @package App\Phogra
@@ -22,121 +21,124 @@ use App\Phogra\Query\WhereIn;
  */
 class Photo
 {
-	/**
-	 * @var Builder
-	 */
-	private $query;
+    /**
+     * @var Builder
+     */
+    private $query;
 
-	/**
-	 * @param $data
-	 *
-	 * @return object
-	 * @throws InvalidParameterException
-	 */
+    /**
+     * @param $data
+     *
+     * @return object
+     * @throws InvalidParameterException
+     */
     public function create($data)
     {
-		$gallery_id = null;
-		$exception = '';
-		if (isset($data['gallery_id'])) {
-			$gallery_id = $data['gallery_id'];
-			unset($data['gallery_id']);
-		}
-		if (!isset($data['title']) && !isset($data['slug'])) {
-			$exception .= "You must specify at least a title or a slug.";
-		}
-		if ($exception) {
-			throw new InvalidParameterException($exception);
-		}
+        $gallery_id = null;
+        $exception = '';
+        if (isset($data['gallery_id'])) {
+            $gallery_id = $data['gallery_id'];
+            unset($data['gallery_id']);
+        }
+        if (!isset($data['title']) && !isset($data['slug'])) {
+            $exception .= "You must specify at least a title or a slug.";
+        }
+        if ($exception) {
+            throw new InvalidParameterException($exception);
+        }
 
-		$toCheck = isset($data['slug']) ? $data['slug'] : str_slug($data['title']);
-		$slugCheck = PhotoModel::where('slug', '=', $toCheck)->first();
-		if ($slugCheck != null) {
-			throw new InvalidParameterException('The slug "' . $toCheck . '" already exists in the database. ' .
-				'Slugs must be unique. If you didn\'t specify a slug, it was generated from the title. ' .
-				'Either change the title or specify a slug that is unique.');
-		}
+        $toCheck = isset($data['slug']) ? $data['slug'] : str_slug($data['title']);
+        $slugCheck = PhotoModel::where('slug', '=', $toCheck)->first();
+        if ($slugCheck != null) {
+            throw new InvalidParameterException(
+                'The slug "' . $toCheck . '" already exists in the database. ' .
+                'Slugs must be unique. If you didn\'t specify a slug, it was generated from the title. ' .
+                'Either change the title or specify a slug that is unique.'
+            );
+        }
 
-		if (!isset($data['slug']) || empty($data['slug'])) {
-			$data['slug'] = str_slug($data['title']);
-		}
+        if (!isset($data['slug']) || empty($data['slug'])) {
+            $data['slug'] = str_slug($data['title']);
+        }
 
-		$photo = PhotoModel::create($data);
+        $photo = PhotoModel::create($data);
 
-		if (isset($gallery_id)) {
-			$gallery = Gallery::find($gallery_id);
-			$gallery->photos()->attach($photo);
-		}
+        if (isset($gallery_id)) {
+            $gallery = Gallery::find($gallery_id);
+            $gallery->photos()->attach($photo);
+        }
 
-		return $photo;
+        return $photo;
     }
 
+    /**
+     * Fetch a single photo result
+     *
+     * @param $id       int     row id of the gallery
+     * @param $params  object  parameter object created in BaseController
+     *
+     * @return array|static[]
+     */
+    public function one($id, $params)
+    {
+        $this->initQuery($params);
 
-	/**
-	 * Fetch a single photo result
-	 *
-	 * @param $id	   int     row id of the gallery
-	 * @param $params  object  parameter object created in BaseController
-	 *
-	 * @return array|static[]
-	 */
-	public function one($id, $params) {
-		$this->initQuery($params);
+        $this->query->where(Table::photos . ".id", "=", $id);
+        $result = $this->query->get();
 
-		$this->query->where(Table::photos .".id", "=", $id);
-		$result = $this->query->get();
+        if (count($result)) {
+            return $result[0];
+        } else {
+            return null;
+        }
+    }
 
-		if (count($result)) {
-			return $result[0];
-		} else {
-			return null;
-		}
-	}
-
-
-	/**
-	 * Fetch multiple photo rows based on a comma separated list
-	 *
-	 * @param $ids	  integer[] a collection of row ids
-	 * @param $params object    parameter object created in BaseController
-	 *
-	 * @return array|static[]
-	 */
-	public function multiple($ids, $params) {
-
-		$this->initQuery($params);
-		$this->query->whereIn(Table::photos .".id", $ids);
-
-		$result = $this->query->get();
-
-		if (count($result)) {
-			return $result;
-		} else {
-			return null;
-		}
-	}
-
-	/**
-	 * Fetch multiple photo rows based on a given gallery id. Returns photos of child galleries
-     * if no photos exist in the specified gallery.
-	 *
-	 * @param $gallery_id  int     the gallery id to filter by
-	 * @param $params      object  parameter object created in BaseController
-	 *
-	 * @return array|static[]
-	 */
-	public function byGalleryId($gallery_id, $params) {
+    /**
+     * Fetch multiple photo rows based on a comma separated list
+     *
+     * @param $ids      integer[] a collection of row ids
+     * @param $params object    parameter object created in BaseController
+     *
+     * @return array|static[]
+     */
+    public function multiple($ids, $params)
+    {
 
         $this->initQuery($params);
-        $this->query->join(Table::gallery_photos, function($join) use ($gallery_id) {
-            $join->on(Table::gallery_photos .".photo_id", "=", Table::photos.".id")
+        $this->query->whereIn(Table::photos . ".id", $ids);
+
+        $result = $this->query->get();
+
+        if (count($result)) {
+            return $result;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Fetch multiple photo rows based on a given gallery id. Returns photos of child galleries
+     * if no photos exist in the specified gallery.
+     *
+     * @param $gallery_id  int     the gallery id to filter by
+     * @param $params      object  parameter object created in BaseController
+     *
+     * @return array|static[]
+     */
+    public function byGalleryId($gallery_id, $params)
+    {
+
+        $this->initQuery($params);
+        $this->query->join(Table::gallery_photos, function ($join) use ($gallery_id) {
+            $join->on(Table::gallery_photos . ".photo_id", "=", Table::photos . ".id")
                  ->where("gallery_id", "=", $gallery_id);
         });
-		$result = $this->query->get();
+        $result = $this->query->get();
 
         //  This gallery has photos. Send 'em back.
-		if (count($result)) {
-			return $result;
-		}
+        if (count($result)) {
+            return $result;
+        }
 
         //  Gallery is empty, so we're going to assume it's a parent container and look for
         //  photos in it's children.
@@ -147,10 +149,10 @@ class Photo
         $gallery = $nodeQuery->first();
 
         $this->initQuery($params);
-        $this->query->join(Table::gallery_photos, Table::gallery_photos .".photo_id", "=", Table::photos .".id");
-        $this->query->join(Table::galleries, function($join) use ($gallery) {
-            $join->on(Table::galleries.".id", "=", Table::gallery_photos.".gallery_id")
-                 ->where("node", "like", $gallery->node.":%");
+        $this->query->join(Table::gallery_photos, Table::gallery_photos . ".photo_id", "=", Table::photos . ".id");
+        $this->query->join(Table::galleries, function ($join) use ($gallery) {
+            $join->on(Table::galleries . ".id", "=", Table::gallery_photos . ".gallery_id")
+                 ->where("node", "like", $gallery->node . ":%");
         });
 
         $result = $this->query->get();
@@ -161,214 +163,219 @@ class Photo
 
         //  Total fail.
         return null;
-	}
+    }
 
-	/**
-	 * Fetch multiple photo rows based on a gallery id and photo ids. Not sure what use
+    /**
+     * Fetch multiple photo rows based on a gallery id and photo ids. Not sure what use
      * this really is. If you have photo ids, the gallery_id is pointless, but for the sake
      * of hobgoblins in the API, here it is. https://en.wikiquote.org/wiki/Consistency
      *
      * I'm pretty sure the API doesn't return this as a link. As soon as I'm positive, I'll
      * take it out.
-	 *
-	 * @param $gallery_id  integer    the gallery id to filter by
+     *
+     * @param $gallery_id  integer    the gallery id to filter by
      * @param $photo_ids   integer[]  a collection of row ids
-	 * @param $params      object     parameter object created in BaseController
-	 *
-	 * @return array|static[]
-	 */
-	public function byGalleryAndPhotoIds($gallery_id, $photo_ids, $params) {
+     * @param $params      object     parameter object created in BaseController
+     *
+     * @return array|static[]
+     */
+    public function byGalleryAndPhotoIds($gallery_id, $photo_ids, $params)
+    {
 
-		$this->initQuery($params);
-		$this->query->join(Table::gallery_photos, function($join) use ($gallery_id, $photo_ids) {
-			$join->on(Table::gallery_photos .".photo_id", "=", Table::photos.".id")
-				 ->where("gallery_id", "=", $gallery_id)
-				 ->whereIn(Table::gallery_photos .".photo_id", $photo_ids);
-		});
-
-		$result = $this->query->get();
-
-		if (count($result)) {
-			return $result;
-		} else {
-			return null;
-		}
-	}
-
-	public function getFile($photo_ids, $file_types, $params) {
-		$this->initQuery($params);
-        $this->query->addSelect([
-            "files.id as file_id", "type", "mimetype",
-            "height", "width", "bytes", "hash",
-            "files.created_at as file_created_at",
-            "files.updated_at as file_updated_at"]
-        );
-        $this->query->where(Table::photos .".id", "=", $photo_ids);
-		$this->query->join(Table::files, function($join) use ($file_types){
-            $join->on(Table::files .".photo_id", "=", Table::photos .".id")
-                 ->where(Table::files .".type", "=", $file_types);
+        $this->initQuery($params);
+        $this->query->join(Table::gallery_photos, function ($join) use ($gallery_id, $photo_ids) {
+            $join->on(Table::gallery_photos . ".photo_id", "=", Table::photos . ".id")
+                 ->where("gallery_id", "=", $gallery_id)
+                 ->whereIn(Table::gallery_photos . ".photo_id", $photo_ids);
         });
 
-		$result = $this->query->first();
+        $result = $this->query->get();
 
-		if (count($result)) {
-			return $result;
-		}
+        if (count($result)) {
+            return $result;
+        } else {
+            return null;
+        }
+    }
 
-		return null;
-	}
+    public function getFile($photo_ids, $file_types, $params)
+    {
+        $this->initQuery($params);
+        $this->query->addSelect([
+                                    "files.id as file_id", "type", "mimetype",
+                                    "height", "width", "bytes", "hash",
+                                    "files.created_at as file_created_at",
+                                    "files.updated_at as file_updated_at"]
+        );
+        $this->query->where(Table::photos . ".id", "=", $photo_ids);
+        $this->query->join(Table::files, function ($join) use ($file_types) {
+            $join->on(Table::files . ".photo_id", "=", Table::photos . ".id")
+                 ->where(Table::files . ".type", "=", $file_types);
+        });
 
-	/**
-	 * Initialize the table query with SQL common to all queries
-	 *
-	 * @param $params  object  the parameter object created by the BaseController
-	 *
-	 * @return \Illuminate\Database\Query\Builder;
-	 */
-	private function initQuery($params) {
+        $result = $this->query->first();
 
-		$this->query = DB::table(Table::photos);
+        if (count($result)) {
+            return $result;
+        }
 
+        return null;
+    }
 
-		$joinParams = new JoinParams();
-		$joinParams->as = 'relationships';
-		$joinParams->raw = "(SELECT
+    /**
+     * Initialize the table query with SQL common to all queries
+     *
+     * @param $params  object  the parameter object created by the BaseController
+     *
+     * @return \Illuminate\Database\Query\Builder;
+     */
+    private function initQuery($params)
+    {
+
+        $this->query = DB::table(Table::photos);
+
+        $joinParams = new JoinParams();
+        $joinParams->as = 'relationships';
+        $joinParams->raw = "(SELECT
 						   photo_id,
-						   GROUP_CONCAT(". Table::files .".id SEPARATOR ',') AS file_ids,
-						   GROUP_CONCAT(". Table::files .".type SEPARATOR ',') AS file_types
+						   GROUP_CONCAT(" . Table::files . ".id SEPARATOR ',') AS file_ids,
+						   GROUP_CONCAT(" . Table::files . ".type SEPARATOR ',') AS file_types
 						 FROM " . Table::files . "
 						 GROUP BY photo_id)
 						 AS {$joinParams->as}";
-		$joinParams->on = ["{$joinParams->as}.photo_id", "=", Table::photos .".id"];
-		$join = new Join($joinParams);
-		$join->apply($this->query);
+        $joinParams->on = ["{$joinParams->as}.photo_id", "=", Table::photos . ".id"];
+        $join = new Join($joinParams);
+        $join->apply($this->query);
 
+        $this->query->select(Table::photos . ".*", "{$joinParams->as}.file_types");
+        $this->query->whereNull(Table::photos . ".deleted_at");
 
-		$this->query->select(Table::photos .".*", "{$joinParams->as}.file_types");
-		$this->query->whereNull(Table::photos .".deleted_at");
+        $this->applyParams($params);
+    }
 
-		$this->applyParams($params);
-	}
+    /**
+     * Look through the parameter object and modify the query as necessary
+     *
+     * @param $params  object  the parameter object created by the BaseController
+     */
+    private function applyParams($params)
+    {
+        $this->hasFields($params);
+        $this->hasIncludes($params);
+    }
 
-	/**
-	 * Look through the parameter object and modify the query as necessary
-	 *
-	 * @param $params  object  the parameter object created by the BaseController
-	 */
-	private function applyParams($params) {
-		$this->hasFields($params);
-		$this->hasIncludes($params);
-	}
+    /**
+     * Add select fields if necessary
+     *
+     * @param $params  object   the parameter object created by the BaseController
+     */
+    private function hasFields($params)
+    {
+        $table = Table::photos;
+        if (isset($params->fields->$table)) {
 
-	/**
-	 * Add select fields if necessary
-	 *
-	 * @param $params  object   the parameter object created by the BaseController
-	 */
-	private function hasFields($params) {
-		$table = Table::photos;
-		if (isset($params->fields->$table)) {
+            //  This will overwrite the select statement that adds the files
+            //  and photo ids to the results. According to the spec at http://jsonapi.org
+            //  if you are specifying fields and you want child objects you need to
+            //  add those to your field list.
+            $this->query->select($params->fields->$table);
+        }
+    }
 
-			//  This will overwrite the select statement that adds the files
-			//  and photo ids to the results. According to the spec at http://jsonapi.org
-			//  if you are specifying fields and you want child objects you need to
-			//  add those to your field list.
-			$this->query->select($params->fields->$table);
-		}
-	}
+    /**
+     * Add hydrated related objects
+     *
+     * @param $params  object   the parameter object created by the BaseController
+     * @throws BadRequestException
+     */
+    private function hasIncludes($params)
+    {
+        if (empty($params->include)) {
+            return;
+        }
 
-	/**
-	 * Add hydrated related objects
-	 *
-	 * @param $params  object   the parameter object created by the BaseController
-	 * @throws BadRequestException
-	 */
-	private function hasIncludes($params) {
-		if (empty($params->include)) {
-			return;
-		}
+        $filesJoin = null;
+        $filesWhere = null;
 
-		$filesJoin = null;
-		$filesWhere = null;
+        foreach ($params->include as $relation) {
+            if (is_array($relation)) {
+                switch ($relation[0]) {
+                    case "files":
+                        if (count($relation) > 2) {
+                            throw new BadRequestException(implode(".", $relation) . " is not a valid relationship.");
+                        }
+                        $validTypes = array_keys(get_object_vars(config("phogra.fileTypes")));
+                        if (!in_array($relation[1], $validTypes)) {
+                            throw new BadRequestException(implode(".", $relation) . " is not a valid relationship.");
+                        }
 
-		foreach ($params->include as $relation) {
-			if (is_array($relation)) {
-				switch($relation[0]) {
-					case "files":
-						if (count($relation) > 2) {
-							throw new BadRequestException(implode(".",$relation) . " is not a valid relationship.");
-						}
-						$validTypes = array_keys(get_object_vars(config("phogra.fileTypes")));
-						if( !in_array($relation[1], $validTypes)) {
-							throw new BadRequestException(implode(".",$relation) . " is not a valid relationship.");
-						}
+                        if (is_null($filesJoin)) {
+                            $filesJoin = $this->joinFiles();
+                        }
+                        if (is_null($filesWhere)) {
+                            $filesWhere = new WhereIn('files.type', $relation[1]);
+                            $filesJoin->addWhere($filesWhere);
+                        } else {
+                            $filesWhere->addValue($relation[1]);
+                        }
+                        break;
 
-						if (is_null($filesJoin)) {
-							$filesJoin = $this->joinFiles();
-						}
-						if (is_null($filesWhere)) {
-							$filesWhere = new WhereIn('files.type', $relation[1]);
-							$filesJoin->addWhere($filesWhere);
-						} else {
-							$filesWhere->addValue($relation[1]);
-						}
-						break;
+                    case "users":
+                        //	TODO: Someday?
+                        throw new BadRequestException(implode(".", $relation) . " is not a valid relationship.");
+                        break;
 
-					case "users":
-						//	TODO: Someday?
-						throw new BadRequestException(implode(".",$relation) . " is not a valid relationship.");
-						break;
+                    default:
+                        throw new BadRequestException(implode(".", $relation) . " is not a valid relationship.");
 
-					default:
-						throw new BadRequestException(implode(".",$relation) . " is not a valid relationship.");
+                }
 
-				}
+                continue;
+            }
 
-				continue;
-			}
+            switch ($relation) {
+                case 'files':
+                    $filesJoin = $this->joinFiles();
+                    break;
 
-			switch($relation) {
-				case 'files':
-					$filesJoin = $this->joinFiles();
-					break;
+                case "users":
+                    //	TODO: Someday?
+                    throw new BadRequestException("$relation is not a valid relationship.");
+                    break;
 
-				case "users":
-					//	TODO: Someday?
-					throw new BadRequestException("$relation is not a valid relationship.");
-					break;
+                default:
+                    throw new BadRequestException("$relation is not a valid relationship.");
+            }
+        }
 
-				default:
-					throw new BadRequestException("$relation is not a valid relationship.");
-			}
-		}
+        if (isset($filesJoin)) {
+            $filesJoin->apply($this->query);
+        }
+    }
 
-		if (isset($filesJoin)) {
-			$filesJoin->apply($this->query);
-		}
-	}
+    /**
+     * Build the Join object to do a join to the files table.
+     *
+     * @return Join
+     */
+    private function joinFiles()
+    {
+        $this->query->addSelect([
+                                    "files.id as file_id", "type", "mimetype",
+                                    "height", "width", "bytes", "hash",
+                                    "files.created_at as file_created_at",
+                                    "files.updated_at as file_updated_at"]
+        );
+        $this->query->orderBy(Table::photos . ".id");
+        $this->query->orderBy(Table::files . ".type");
 
-	/**
-	 * Build the Join object to do a join to the files table.
-	 *
-	 * @return Join
-	 */
-	private function joinFiles() {
-		$this->query->addSelect([
-			"files.id as file_id", "type", "mimetype",
-			"height", "width", "bytes", "hash",
-			"files.created_at as file_created_at",
-			"files.updated_at as file_updated_at"]
-		);
-		$this->query->orderBy(Table::photos .".id");
-		$this->query->orderBy(Table::files .".type");
-
-		$joinParams = new JoinParams();
-		$joinParams->table = Table::files;
-		$joinParams->on = [
-			Table::files .".photo_id",
-			"=",
-			Table::photos .".id"
-		];
-		return new Join($joinParams);
-	}
+        $joinParams = new JoinParams();
+        $joinParams->table = Table::files;
+        $joinParams->on = [
+            Table::files . ".photo_id",
+            "=",
+            Table::photos . ".id"
+        ];
+        return new Join($joinParams);
+    }
 }
