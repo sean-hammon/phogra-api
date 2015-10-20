@@ -4,14 +4,15 @@ namespace App\Phogra;
 
 use App\Phogra\Eloquent\Gallery;
 use App\Phogra\Query\Table;
-use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Facades\DB;
 use App\Phogra\Eloquent\Photo as PhotoModel;
 use App\Phogra\Exception\BadRequestException;
 use App\Phogra\Exception\InvalidParameterException;
 use App\Phogra\Query\Join;
 use App\Phogra\Query\JoinParams;
 use App\Phogra\Query\WhereIn;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\DB;
+use Hashids;
 
 /**
  * Class Photo
@@ -34,11 +35,11 @@ class Photo
      */
     public function create($data)
     {
-        $gallery_id = null;
+        $gallery_ids = null;
         $exception = '';
-        if (isset($data['gallery_id'])) {
-            $gallery_id = $data['gallery_id'];
-            unset($data['gallery_id']);
+        if (isset($data['$gallery_ids'])) {
+            $gallery_ids = $data['$gallery_ids'];
+            unset($data['$gallery_ids']);
         }
         if (!isset($data['title']) && !isset($data['slug'])) {
             $exception .= "You must specify at least a title or a slug.";
@@ -63,9 +64,14 @@ class Photo
 
         $photo = PhotoModel::create($data);
 
-        if (isset($gallery_id)) {
-            $gallery = Gallery::find($gallery_id);
-            $gallery->photos()->attach($photo);
+        if (isset($gallery_ids) && !empty($gallery_ids)) {
+            foreach ($gallery_ids as $gid) {
+                if (!is_numeric($gid)) {
+                    $gid = Hashids::decode($gid);
+                }
+                $gallery = Gallery::find($gid);
+                $gallery->photos()->attach($photo);
+            }
         }
 
         return $photo;
