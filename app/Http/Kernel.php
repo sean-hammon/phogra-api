@@ -31,5 +31,6 @@ class Kernel extends HttpKernel
         'jwt.auth' => \Tymon\JWTAuth\Middleware\GetUserFromToken::class,
         'jwt.refresh' => \Tymon\JWTAuth\Middleware\RefreshToken::class,
         'phogra.api.token' => \App\Http\Middleware\ApiToken::class,
+        'phogra.jwt.auth' => \App\Http\Middleware\JwtAuth::class,
     ];
 }

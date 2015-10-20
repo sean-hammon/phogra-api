@@ -30,7 +30,7 @@ class AuthController extends BaseController
 
         try {
             if (!$token = JWTAuth::attempt($credentials)) {
-                throw new UnauthorizedException("Invalid login.");
+                throw new UnauthorizedException("Invalid credentials.");
             }
         } catch (JWTException $e) {
             throw new UnknownException('Could not create token:');
@@ -48,7 +48,7 @@ class AuthController extends BaseController
         try {
             $user = JWTAuth::parseToken()->authenticate();
         } catch (JWTException $e) {
-            throw new UnauthorizedException($e->getMessage());
+            throw new UnauthorizedException("Invalid credentials.");
         }
 
         $user->token = JWTAuth::getToken();

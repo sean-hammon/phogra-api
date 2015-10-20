@@ -21,7 +21,7 @@ class GalleriesController extends BaseController
         parent::__construct($request);
 
         $this->repository = $repository;
-        $this->middleware('jwt.auth', ['except' => ['index', 'show']]);
+        $this->middleware('phogra.jwt.auth', ['except' => ['index', 'show']]);
     }
 
     /**
