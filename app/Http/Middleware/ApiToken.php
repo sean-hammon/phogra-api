@@ -1,6 +1,6 @@
 <?php
 
-namespace app\Http\Middleware;
+namespace App\Http\Middleware;
 
 use App\Phogra\Eloquent\User;
 use App\Phogra\Exception\UnauthorizedException;
@@ -14,7 +14,7 @@ class ApiToken
 		if (!config('phogra.publicApi')) {
 			$token = $request->header(config('phogra.apiTokenHeader'));
 			if (!$token) {
-				throw new UnauthorizedException('Token missing.');
+				throw new UnauthorizedException('Api token missing.');
 			}
 			$user = User::where('api_token', '=', $token)->first();
 			if (!$user) {
