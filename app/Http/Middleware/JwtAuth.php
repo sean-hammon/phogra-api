@@ -26,7 +26,7 @@ class JwtAuth extends BaseMiddleware
         try {
             $user = $this->auth->authenticate($token);
         } catch (TokenExpiredException $e) {
-            throw new UnauthorizedException('Invalid credentials.');
+            throw new UnauthorizedException('Expired token.');
         } catch (JWTException $e) {
             throw new UnauthorizedException('Invalid credentials.');
         }
