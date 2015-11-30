@@ -31,6 +31,7 @@ class CreateFilesTable extends Migration {
 			$table->integer('bytes')->unsigned()->nullable();
 			$table->char('hash', 64)->unique();
 			$table->timestamps();
+			$table->softDeletes();
 		});
 	}
 

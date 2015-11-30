@@ -3,12 +3,15 @@
 namespace app\Phogra\Eloquent;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Class File
  */
 class File extends Model
 {
+    use SoftDeletes;
+
     protected $table    = "files";
     protected $fillable = ['photo_id', 'hash', 'height', 'width', 'bytes', 'type', 'mimetype'];
 
