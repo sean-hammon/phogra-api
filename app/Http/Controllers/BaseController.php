@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Phogra\Exception\InvalidParameterException;
 use App\Phogra\Exception\BadRequestException;
 use App\Phogra\Response\BaseResponse;
+use Hashids;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class BaseController extends Controller
 {
@@ -86,6 +88,73 @@ class BaseController extends Controller
         $data = json_decode($json, true);
         if (json_last_error() > 0) {
             throw new BadRequestException("JSON decode: " . json_last_error_msg());
+        }
+
+        return $data;
+    }
+
+    protected function getPutData() {
+
+        $raw_data = $this->request->getContent();
+
+        if( substr($raw_data, 0, 1) === "{") {
+
+            $data["json"] = $this->getRequestBody();
+
+        } else {
+
+            //http://stackoverflow.com/questions/9464935/php-multipart-form-data-put-request
+            $boundary = substr($raw_data, 0, strpos($raw_data, "\r\n"));
+
+            // Fetch each part
+            $parts = array_slice(explode($boundary, $raw_data), 1);
+            $data = array();
+
+            foreach ($parts as $part) {
+                // If this is the last part, break
+                if ($part == "--\r\n") {
+                    break;
+                }
+
+                // Separate content from headers
+                $part = ltrim($part, "\r\n");
+                list($raw_headers, $body) = explode("\r\n\r\n", $part, 2);
+                // Parse the headers list
+                $raw_headers = explode("\r\n", $raw_headers);
+                $headers = array();
+                foreach ($raw_headers as $header) {
+                    list($name, $value) = explode(':', $header);
+                    $headers[strtolower($name)] = ltrim($value, ' ');
+                }
+
+                // Parse the Content-Disposition to get the field name, etc.
+                if (isset($headers['content-disposition'])) {
+                    $filename = null;
+                    preg_match(
+                        '/^(.+); *name="([^"]+)"(; *filename="([^"]+)")?/',
+                        $headers['content-disposition'],
+                        $matches
+                    );
+                    list(, $type, $name) = $matches;
+                    isset($matches[4]) and $filename = $matches[4];
+
+                    // handle your fields here
+                    switch ($name) {
+                        // this is a file upload
+                        case 'file':
+                            $tmpFile = config('phogra.photoTempDir') . DIRECTORY_SEPARATOR . $filename;
+                            file_put_contents($tmpFile, $body);
+                            $data[$name] = $tmpFile;
+                            break;
+
+                        // default for all other files is to populate $data
+                        default:
+                            $data[$name] = substr($body, 0, strlen($body) - 2);
+                            break;
+                    }
+                }
+            }
+
         }
 
         return $data;
