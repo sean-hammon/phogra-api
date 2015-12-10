@@ -58,7 +58,15 @@ class Handler extends ExceptionHandler
 			$content->message = $e->getMessage();
 			$status = $e->getCode();
 		} elseif( app()->environment('local')) {
-            $content->stacktrace = explode("\n", $e->getTraceAsString());
+
+            $trace_lines = explode("\n", $e->getTraceAsString());
+            $content->stacktrace = array_filter($trace_lines, function($item){
+
+                //  Don't usually care about all the stacktrace lines dealing with library calls.
+                //  Just want to see the lines related to my code
+                $iCare = strpos($item, "\\app\\");
+                return $iCare !== false ? true : false;
+            });
         }
 
         $response = new ExceptionResponse($content);
