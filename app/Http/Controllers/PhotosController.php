@@ -117,18 +117,55 @@ class PhotosController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  int $id
-     * @return Response
+     * @param  int $hash
+     *
+     * @return \Illuminate\Http\Response
+     * @throws \App\Phogra\Exception\BadRequestException
+     * @throws \App\Phogra\Exception\NotFoundException
      */
-    public function update($id)
+    public function update($hash)
     {
-        //
+
+        $ids = Hashids::decode($hash);
+        if (count($ids) === 0) {
+            throw new NotFoundException("Invalid hash.");
+        }
+        if (count($ids) > 1) {
+            throw new BadRequestException("Multiple IDs are not currently supported.");
+        }
+        $photoID = $ids[0];
+
+        $requestData = $this->getPutData();
+
+        $photo = PhotoModel::find($photoID);
+        $fileData = null;
+        if (isset($requestData["json"])) {
+            $photoData = json_decode($requestData["json"], true);
+            if (!empty($photoData)) {
+                $photo->fill($photoData);
+                $photo->update();
+            }
+        }
+
+        $fileTypes = get_object_vars(config('phogra.fileTypes'));
+        foreach ($fileTypes as $type => $info) {
+            if (isset($requestData[$type])) {
+
+                $processor = new Processor($photo->id, $requestData[$type]);
+                $processor->makeOrReplace($type);
+
+            }
+        }
+
+        $response = new PhotosResponse($photo);
+        return $response->send();
     }
 
     /**
      * Remove the specified resource from storage.
      *
      * @param  int $id
+     *
      * @return Response
      */
     public function destroy($id)
@@ -139,6 +176,17 @@ class PhotosController extends BaseController
     public function options()
     {
         return parent::options();
+    }
+
+    private function movePostFile($file)
+    {
+        $randomized = '/tmp_' . bin2hex(openssl_random_pseudo_bytes(16));
+        $file->move(config("phogra.photoTempDir"), $randomized);
+        return config("phogra.photoTempDir") . DIRECTORY_SEPARATOR . $randomized;
+    }
+
+    private function processFile($photo_id, $path, $type)
+    {
     }
 
 }
