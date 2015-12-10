@@ -85,147 +85,49 @@ class Processor
     }
 
     /**
-     * @param  $imageType string  the image type to generate. Types defined in config/phogra.php
-     * @return FileModel  App\Phogra\Eloquent\File
+     * @param string $imageType the image type to generate. Types defined in config/phogra.php
+     * @param bool $replace Allow a matching hash to be over written, or remove an existing file
+     *                      for a given type
      *
-     * @throws DuplicateFileException
+     * @return \App\Phogra\Eloquent\File App\Phogra\Eloquent\File
+     *
+     * @throws \App\Phogra\Exception\DuplicateFileException
      */
-    public function make($imageType)
+    public function make($imageType, $replace = false)
     {
-        $tmpPath = config('phogra.photoTempDir') . '/tmp_' . bin2hex(openssl_random_pseudo_bytes(16));
+        $hash = hash('sha256', file_get_contents($this->filePath));
 
-        $typeConfig = config("phogra.fileTypes");
-        $type = $typeConfig->$imageType;
-
-        if (is_null($type->width) && is_null($type->height)) {
-
-            //	We're just going to copy the original image and do not need make any
-            //	modifications.
-
-            $modified = imagecreatetruecolor($this->originalWidth, $this->originalHeight);
-            imagecopy($modified, $this->imageResource, 0, 0, 0, 0, $this->originalWidth, $this->originalHeight);
-
-        } elseif (isset($type->width) && isset($type->height)) {
-
-            //	If both dimensions are given, we know we need to crop.
-
-            $modified = $this->cropImage($this->imageResource, $type->width, $type->height);
-
-        } elseif (is_null($type->width)) {
-            if ($this->originalHeight >= $this->originalWidth) {
-
-                //	If width is null and we have a portrait image, just scale.
-
-                $modified = $this->resizeImage($this->imageResource, $type->width, $type->height);
-
-            } else {
-
-                //	Otherwise we're going to crop it to a portrait image
-
-                $croppedWidth = intval($type->height * $this->originalHeight / $this->originalWidth);
-                $modified = $this->cropImage($this->imageResource, $croppedWidth, $type->height);
+        if (!$replace) {
+            $dupCheck = FileModel::where("hash", "=", $hash)->first();
+            if ($dupCheck) {
+                throw new DuplicateFileException("This image appears to already exist in the database.");
             }
-        } elseif (is_null($type->height)) {
-            if ($this->originalWidth >= $this->originalHeight) {
-
-                //	Height is null and we have a landscape image. Just scale.
-
-                $modified = $this->resizeImage($this->imageResource, $type->width, $type->height);
-            } else {
-
-                //	Otherwise we're going to crop it to a portrait image
-
-                $croppedHeight = intval($type->width * $this->originalWidth / $this->originalHeight);
-                $modified = $this->cropImage($this->imageResource, $type->width, $croppedHeight);
+        } else {
+            $existingFile = FileModel::where("photo_id", "=", $this->photo_id)
+                                        ->where("type", "=", $imageType);
+            if ($existingFile) {
+                // soft delete the file
+                $existingFile->delete();
             }
-        }
-
-        $this->writeTempFile($modified, $tmpPath);
-        $hash = hash('sha256', file_get_contents($tmpPath));
-        $dupCheck = FileModel::where("hash", "=", $hash)->first();
-        if ($dupCheck) {
-            throw new DuplicateFileException("This image appears to already exist in the database.");
         }
         $data = [
             'photo_id' => $this->photo_id,
             'type' => $imageType,
             'hash' => $hash,
-            'bytes' => filesize($tmpPath),
-            'height' => imagesy($modified),
-            'width' => imagesx($modified),
+            'bytes' => filesize($this->filePath),
+            'height' => $this->originalHeight,
+            'width' => $this->originalWidth,
             'mimetype' => $this->mime_type
         ];
-        $fileRecord = FileModel::create($data);
-        $this->moveFile($tmpPath, $fileRecord->location());
 
-        imagedestroy($modified);
-        //unlink($tmpPath);
-//		unlink($this->filePath);
+        $fileRecord = FileModel::create($data);
+        $this->moveFile($this->filePath, $fileRecord->location());
 
         return $fileRecord;
     }
 
-    private function resizeImage($image, $width, $height)
-    {
-        $original = (object)[
-            'width' => imagesx($image),
-            'height' => imagesy($image)
-        ];
-        $modified = (object)[
-            'width' => $width,
-            'height' => $height
-        ];
-        $ratio = $original->width / $original->height;
-
-        if (is_null($modified->width)) {
-            $modified->width = intval($modified->height * $ratio);
-        }
-
-        if (is_null($modified->height)) {
-            $modified->height = intval($modified->width / $ratio);
-        }
-
-        $copy = imagecreatetruecolor($modified->width, $modified->height);
-        imagecopyresampled($copy, $image, 0, 0, 0, 0, $modified->width, $modified->height, $original->width, $original->height);
-
-        return $copy;
-    }
-
-    private function cropImage($image, $width, $height)
-    {
-        $original = (object)[
-            'width' => imagesx($image),
-            'height' => imagesy($image)
-        ];
-        $resize = (object)[
-            'width' => $original->width <= $original->height ? $width : null,
-            'height' => $original->height <= $original->width ? $height : null,
-        ];
-        $resized = $this->resizeImage($image, $resize->width, $resize->height);
-
-        $newX = intval((imagesx($resized) - $width) / 2);
-        $newY = intval((imagesy($resized) - $height) / 2);
-        $copy = imagecreatetruecolor($width, $height);
-        imagecopy($copy, $resized, 0, 0, $newX, $newY, $width, $height);
-
-        imagedestroy($resized);
-        return $copy;
-    }
-
-    private function writeTempFile($image, $path, $quality = null)
-    {
-        switch ($this->mime_type) {
-            case "image/jpeg":
-                $quality = is_null($quality) ? 75 : $quality;
-                imagejpeg($image, $path, $quality);
-                break;
-
-            case "image/png":
-                $quality = is_null($quality) ? 3 : $quality;
-                imagepng($image, $path, $quality);
-                break;
-        }
-
+    public function makeOrReplace($imageType) {
+        $this->make($imageType, true);
     }
 
     /**

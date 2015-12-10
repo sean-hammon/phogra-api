@@ -139,18 +139,18 @@ class BaseController extends Controller
                     isset($matches[4]) and $filename = $matches[4];
 
                     // handle your fields here
-                    switch ($name) {
-                        // this is a file upload
-                        case 'file':
-                            $tmpFile = config('phogra.photoTempDir') . DIRECTORY_SEPARATOR . $filename;
-                            file_put_contents($tmpFile, $body);
-                            $data[$name] = $tmpFile;
-                            break;
+                    if ($filename !== null) {
 
-                        // default for all other files is to populate $data
-                        default:
-                            $data[$name] = substr($body, 0, strlen($body) - 2);
-                            break;
+                        // must be a file upload
+                        $tmpPath = config('phogra.photoTempDir') . DIRECTORY_SEPARATOR . $filename;
+                        file_put_contents($tmpPath, $body);
+                        $data[$name] = $tmpPath;
+                        break;
+
+                    } else {
+
+                        // better be json or it will blow up later...
+                        $data[$name] = substr($body, 0, strlen($body) - 2);
                     }
                 }
             }

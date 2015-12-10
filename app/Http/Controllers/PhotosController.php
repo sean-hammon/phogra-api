@@ -8,9 +8,11 @@ use App\Phogra\Exception\InvalidOperationException;
 use App\Phogra\Exception\InvalidJsonException;
 use App\Phogra\File\Processor;
 use App\Phogra\Photo;
+use App\Phogra\Eloquent\Photo as PhotoModel;
 use App\Phogra\Response\Photos as PhotosResponse;
 use Hashids;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class PhotosController extends BaseController
 {
@@ -36,7 +38,7 @@ class PhotosController extends BaseController
 
     /**
      * Store a newly created resource in storage.
-     * @return Response
+     * @return \Illuminate\Http\Response
      *
      * @throws BadRequestException
      * @throws InvalidJsonException
@@ -45,14 +47,21 @@ class PhotosController extends BaseController
     public function store()
     {
         $json = $this->request->getContent();
-        $file = null;
+        $files = [];
 
         //  If $json is empty at this point, it's probably a multi-part post.
+        //  This only works with POST. PHP doesn't do any content parsing otherwise.
         if (empty($json)) {
             $json = json_decode($this->request->input('json'), true);
-            $file = $this->request->file('photo');
-            if (!empty($file) && $file->isValid() === false) {
-                throw new BadRequestException($file->getErrorMessage());
+            $fileTypes = get_object_vars(config('phogra.fileTypes'));
+            foreach ($fileTypes as $type => $info) {
+                if ($this->request->hasFile($type)){
+                    $file = $this->request->file($type);
+                    if ($file->isValid() === false) {
+                        throw new BadRequestException($file->getErrorMessage());
+                    }
+                    $files[$type] = $file;
+                }
             }
 
         } else {
@@ -62,18 +71,13 @@ class PhotosController extends BaseController
         if (json_last_error()) {
             throw new InvalidJsonException(json_last_error_msg());
         }
+
         $photo = $this->repository->create($json);
-        if (isset($file)) {
-            $file->move(config("phogra.photoTempDir"), $file->getClientOriginalName());
-            $path = config("phogra.photoTempDir") . DIRECTORY_SEPARATOR . $file->getClientOriginalName();
+        foreach ($files as $type => $file) {
+            $path = $this->movePostFile($file);
 
             $processor = new Processor($photo->id, $path);
-            $processor->make('original');
-
-            $typeConfig = config('phogra.fileTypes');
-            foreach ($typeConfig->original->autoGenerate as $type) {
-                $processor->make($type);
-            }
+            $processor->make($type);
         }
 
         $response = new PhotosResponse($photo);
