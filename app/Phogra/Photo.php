@@ -10,6 +10,7 @@ use App\Phogra\Exception\InvalidParameterException;
 use App\Phogra\Query\Join;
 use App\Phogra\Query\JoinParams;
 use App\Phogra\Query\WhereIn;
+use App\Phogra\Query\WhereNull;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Hashids;
@@ -217,6 +218,11 @@ class Photo
         $this->query->join(Table::files, function ($join) use ($file_types) {
             $join->on(Table::files . ".photo_id", "=", Table::photos . ".id")
                  ->where(Table::files . ".type", "=", $file_types);
+
+            //TODO: need a way to turn this off
+            if (true) {
+                $join->whereNull(Table::files . ".deleted_at");
+            }
         });
 
         $result = $this->query->first();
@@ -382,6 +388,15 @@ class Photo
             "=",
             Table::photos . ".id"
         ];
-        return new Join($joinParams);
+
+        $join = new Join($joinParams);
+
+
+        //TODO: need the ability to turn this off
+        if (true) {
+            $join->addWhere(new WhereNull(Table::files . ".deleted_at"));
+        }
+
+        return $join;
     }
 }
