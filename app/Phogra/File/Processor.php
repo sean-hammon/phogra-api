@@ -100,7 +100,7 @@ class Processor
         if (!$replace) {
             $dupCheck = FileModel::where("hash", "=", $hash)->first();
             if ($dupCheck) {
-                throw new DuplicateFileException("This image appears to already exist in the database.");
+                throw new DuplicateFileException("This image appears to already exist in the database: $hash.");
             }
         } else {
             $existingFile = FileModel::where("photo_id", "=", $this->photo_id)
