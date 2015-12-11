@@ -3,9 +3,12 @@
 namespace App\Phogra\Response;
 
 use \DateTime;
+use \Illuminate\Http\Response;
 use Storage;
 use Hashids;
+
 use App\Phogra\Eloquent\File;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class Image extends BaseResponse
 {
@@ -42,10 +45,13 @@ class Image extends BaseResponse
 
         $headers = $this->addHeaders();
         $headers['Content-Type'] = $this->data->mimetype;
-
+        $headers['Content-Disposition'] = "inline";
         $filepath = $this->data->location();
 
-        return response()->make(readfile($filepath), $this->http_code, $headers);
+        $response = new StreamedResponse(function() use ($filepath) {
+            readfile($filepath);
+        }, $this->http_code, $headers);
 
+        $response->send();
     }
 }
