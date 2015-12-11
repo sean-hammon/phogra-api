@@ -2,7 +2,7 @@
 
 namespace App\Phogra;
 
-use App\Phogra\Eloquent\Gallery;
+use App\Phogra\Eloquent\Gallery as GalleryModel;
 use App\Phogra\Query\Table;
 use App\Phogra\Eloquent\Photo as PhotoModel;
 use App\Phogra\Exception\BadRequestException;
@@ -70,7 +70,7 @@ class Photo
                 if (!is_numeric($gid)) {
                     $gid = Hashids::decode($gid);
                 }
-                $gallery = Gallery::find($gid);
+                $gallery = GalleryModel::find($gid);
                 $gallery->photos()->attach($photo);
             }
         }
