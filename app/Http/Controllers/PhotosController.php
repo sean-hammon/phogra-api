@@ -149,12 +149,14 @@ class PhotosController extends BaseController
 
         $fileTypes = get_object_vars(config('phogra.fileTypes'));
         foreach ($fileTypes as $type => $info) {
+
             if (isset($requestData[$type])) {
 
                 $processor = new Processor($photo->id, $requestData[$type]);
                 $processor->makeOrReplace($type);
 
             }
+
         }
 
         $response = new PhotosResponse($photo);
@@ -183,10 +185,6 @@ class PhotosController extends BaseController
         $randomized = '/tmp_' . bin2hex(openssl_random_pseudo_bytes(16));
         $file->move(config("phogra.photoTempDir"), $randomized);
         return config("phogra.photoTempDir") . DIRECTORY_SEPARATOR . $randomized;
-    }
-
-    private function processFile($photo_id, $path, $type)
-    {
     }
 
 }
