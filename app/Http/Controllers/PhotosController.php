@@ -65,11 +65,11 @@ class PhotosController extends BaseController
             }
 
         } else {
-            $json = json_decode($json);
+            $json = json_decode($json, true);
         }
 
         if (json_last_error()) {
-            throw new InvalidJsonException(json_last_error_msg());
+            throw new InvalidJsonException("Invalid JSON: " . json_last_error_msg());
         }
 
         $photo = $this->repository->create($json);
