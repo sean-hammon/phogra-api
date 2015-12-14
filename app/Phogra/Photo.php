@@ -38,9 +38,9 @@ class Photo
     {
         $gallery_ids = null;
         $exception = '';
-        if (isset($data['$gallery_ids'])) {
+        if (isset($data['gallery_ids'])) {
             $gallery_ids = $data['$gallery_ids'];
-            unset($data['$gallery_ids']);
+            unset($data['gallery_ids']);
         }
         if (!isset($data['title']) && !isset($data['slug'])) {
             $exception .= "You must specify at least a title or a slug.";
