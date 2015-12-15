@@ -40,6 +40,9 @@ class Photo
         $exception = '';
         if (isset($data['gallery_ids'])) {
             $gallery_ids = $data['gallery_ids'];
+            if (!is_array($gallery_ids)) {
+                $gallery_ids = [$gallery_ids];
+            }
             unset($data['gallery_ids']);
         }
         if (!isset($data['title']) && !isset($data['slug'])) {
