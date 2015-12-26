@@ -39,7 +39,7 @@ return [
 
         'main' => [
             'salt' => '&m#OclKXlWMOs&WInwe!5E3t6R&QvaM^',
-            'length' => 12
+            'length' => 6
         ],
 
     ],
