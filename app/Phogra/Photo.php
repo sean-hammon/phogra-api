@@ -52,18 +52,29 @@ class Photo
             throw new InvalidParameterException($exception);
         }
 
-        $toCheck = isset($data['slug']) ? $data['slug'] : str_slug($data['title']);
-        $slugCheck = PhotoModel::where('slug', '=', $toCheck)->first();
-        if ($slugCheck != null) {
-            throw new InvalidParameterException(
-                'The slug "' . $toCheck . '" already exists in the database. ' .
-                'Slugs must be unique. If you didn\'t specify a slug, it was generated from the title. ' .
-                'Either change the title or specify a slug that is unique.'
-            );
-        }
-
         if (!isset($data['slug']) || empty($data['slug'])) {
             $data['slug'] = str_slug($data['title']);
+        }
+
+        $modified_slug = null;
+        $slugCheck = PhotoModel::where('slug', '=', $data['slug'])->first();
+
+        // ToDo: Add a request parameter so this if statement actually means something.
+        if ($slugCheck != null && false) {
+            throw new InvalidParameterException(
+                'The slug "' . $data['slug'] . '" already exists in the database. '
+            );
+        } else {
+            while ($slugCheck != null) {
+                $modified_slug = $data['slug'] . '-' . bin2hex(openssl_random_pseudo_bytes(2));
+                $slugCheck = PhotoModel::where('slug', '=', $modified_slug)->first();
+            }
+        }
+
+        if ($modified_slug !== null) {
+            $warnings = app('Warnings');
+            $warnings->addWarning('Slug made unique: ' . $data['slug'] . ' changed to ' . $modified_slug);
+            $data['slug'] = $modified_slug;
         }
 
         $photo = PhotoModel::create($data);
