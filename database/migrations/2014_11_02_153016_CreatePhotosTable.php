@@ -13,7 +13,7 @@ class CreatePhotosTable extends Migration {
 	public function up()
 	{
         Schema::create('photos', function($table){
-            $table->increments('id')->unsigned();
+            $table->increments('id');
             $table->string('title', 64)->nullable();
             $table->string('slug', 64)->unique();
 			$table->string('short_desc', 512)->nullable();
