@@ -2,7 +2,6 @@
 
 namespace App\Phogra\Response\Item;
 
-use App\Phogra\Eloquent\File as FileModel;
 use Hashids;
 
 class Photo extends ResponseItem
@@ -42,11 +41,7 @@ class Photo extends ResponseItem
 
     public function addFile($row)
     {
-        if ($row instanceof FileModel) {
-            $this->included[] = $row;
-        } else {
-            $this->included[] = new File($row, true);
-        }
+        $this->included[] = new File($row, true);
     }
 
 }
