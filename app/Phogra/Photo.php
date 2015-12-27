@@ -44,6 +44,7 @@ class Photo
                 $gallery_ids = [$gallery_ids];
             }
             unset($data['gallery_ids']);
+            $data['canonical_gallery_id'] = $gallery_ids[0];
         }
         if (!isset($data['title']) && !isset($data['slug'])) {
             $exception .= "You must specify at least a title or a slug.";
