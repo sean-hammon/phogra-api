@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Photo extends Model
 {
-    protected $fillable = array('title', 'slug', 'description');
+    protected $fillable = array('title', 'slug', 'short_desc', 'long_desc', 'canonical_gallery_id');
 
     public function galleries()
     {

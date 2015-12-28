@@ -13,7 +13,7 @@ class CreateGalleriesTable extends Migration {
 	public function up()
 	{
 		Schema::create('galleries', function(Blueprint $table){
-			$table->increments('id')->unsigned();
+			$table->increments('id');
 			$table->integer('parent_id')->nullable();
 			$table->string('title', 64);
 			$table->string('slug', 64)->unique();
