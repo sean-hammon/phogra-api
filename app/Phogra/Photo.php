@@ -30,19 +30,29 @@ class Photo
 
     /**
      * @param $data
-     *
      * @return object
+     * @throws BadRequestException
      * @throws InvalidParameterException
      */
     public function create($data)
     {
-        $gallery_ids = null;
+        $gallery_ids = [];
         $exception = '';
         if (isset($data['gallery_ids'])) {
-            $gallery_ids = $data['gallery_ids'];
-            if (!is_array($gallery_ids)) {
-                $gallery_ids = [$gallery_ids];
+            if (is_array($data['gallery_ids'])) {
+
+                //  Hashids doesn't support decoding an array of hashes.
+                foreach ($data['gallery_ids'] as $hash) {
+                    $gallery_ids[] = Hashids::decode($hash);
+                }
+            } else {
+                $gallery_ids = Hashids::decode($data['gallery_ids']);
             }
+
+            if (empty($gallery_ids)) {
+                throw new BadRequestException($data['gallery_ids'] . " is not a valid gallery hash");
+            }
+
             unset($data['gallery_ids']);
             $data['canonical_gallery_id'] = $gallery_ids[0];
         }
