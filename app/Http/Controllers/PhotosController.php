@@ -63,6 +63,20 @@ class PhotosController extends BaseController
                     $files[$type] = $file;
                 }
             }
+            $processed_files = array_keys($files);
+            $request_params = array_keys($this->request->all());
+
+            //  Take the json parameter out of the mix.
+            //  TODO: What about parameters passed in the query string?? Will there ever be any here?
+            $json_key = array_search('json', $request_params);
+            if ($json_key !== FALSE) {
+                unset($request_params[$json_key]);
+            }
+            $missed_params = array_diff($request_params, $processed_files);
+            if (!empty($missed_params)) {
+                $warnings = app('Warnings');
+                $warnings->addWarning('Incoming parameter(s) not recognized. Typo? : ' . implode(',', $missed_params));
+            }
 
         } else {
             $json = json_decode($json, true);

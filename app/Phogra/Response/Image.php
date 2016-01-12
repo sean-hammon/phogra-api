@@ -27,7 +27,9 @@ class Image extends BaseResponse
     {
         $incomingETag = isset($_SERVER['HTTP_IF_NONE_MATCH']) ? trim($_SERVER['HTTP_IF_NONE_MATCH']) : false;
         if ($incomingETag && $incomingETag == $this->etag) {
-            return response("", 304);
+            //  Apparently Apache strips off CORS headers on 304 responses.
+            //  See: http://blog.idetailaid.co.uk/cors-html5-application-cache-manifest-dont-work-together-neither-cors-apache/
+            //  return response("", 304);
         }
 
         $responseObj = new \stdClass();
