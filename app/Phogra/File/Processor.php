@@ -27,6 +27,20 @@ class Processor
      */
     private $mime_type;
 
+	/**
+	 * One of the image types defined in config/phogra.php
+	 *
+	 * @var string
+	 */
+	private $imageType;
+
+	/**
+	 * The sha hash generated from the image file itself.
+	 *
+	 * @var string
+	 */
+	private $hash;
+
     /**
      * An image resource handle to the original image
      *
@@ -52,13 +66,11 @@ class Processor
      * Process a new file: create the database record and move the file to its home
      * on the file system.
      *
-     * @param $photo_id  int     the photo to which this file belongs
      * @param $filePath  string  the location of the file to be processed
      *
      */
-    public function __construct($photo_id, $filePath)
+    public function __construct($filePath)
     {
-        $this->photo_id = $photo_id;
         $this->filePath = $filePath;
         $fileInfo = new \finfo(FILEINFO_MIME_TYPE);
         $this->mime_type = $fileInfo->file($this->filePath);
@@ -95,12 +107,13 @@ class Processor
      */
     public function make($imageType, $replace = false)
     {
-        $hash = hash('sha256', file_get_contents($this->filePath));
+        $this->hash = hash('sha256', file_get_contents($this->filePath));
+	    $this->imageType = $imageType;
 
         if (!$replace) {
-            $dupCheck = FileModel::where("hash", "=", $hash)->first();
+            $dupCheck = FileModel::where("hash", "=", $this->hash)->first();
             if ($dupCheck) {
-                throw new DuplicateFileException("This image appears to already exist in the database: $hash.");
+                throw new DuplicateFileException("This image appears to already exist in the database: $this->hash.");
             }
         } else {
             $existingFile = FileModel::where("photo_id", "=", $this->photo_id)
@@ -110,24 +123,28 @@ class Processor
                 $existingFile->delete();
             }
         }
-        $data = [
-            'photo_id' => $this->photo_id,
-            'type' => $imageType,
-            'hash' => $hash,
-            'bytes' => filesize($this->filePath),
-            'height' => $this->originalHeight,
-            'width' => $this->originalWidth,
-            'mimetype' => $this->mime_type
-        ];
-
-        $fileRecord = FileModel::create($data);
-        $this->moveFile($this->filePath, $fileRecord->location());
-
-        return $fileRecord;
     }
 
     public function makeOrReplace($imageType) {
         $this->make($imageType, true);
+    }
+
+    public function storeFile($photo_id) {
+	    $data = [
+		    'photo_id' => $photo_id,
+		    'type' => $this->imageType,
+		    'hash' => $this->hash,
+		    'bytes' => filesize($this->filePath),
+		    'height' => $this->originalHeight,
+		    'width' => $this->originalWidth,
+		    'mimetype' => $this->mime_type
+	    ];
+
+	    $fileRecord = FileModel::create($data);
+	    $this->moveFile($this->filePath, $fileRecord->location());
+
+	    return $fileRecord;
+
     }
 
     /**

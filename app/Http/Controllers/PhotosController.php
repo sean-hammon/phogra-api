@@ -86,12 +86,17 @@ class PhotosController extends BaseController
             throw new InvalidJsonException("Invalid JSON: " . json_last_error_msg());
         }
 
-        $photo = $this->repository->create($json);
         foreach ($files as $type => $file) {
             $path = $this->movePostFile($file);
 
-            $processor = new Processor($photo->id, $path);
-            $processor->make($type);
+            $files[$type] = new Processor($path);
+            $files[$type]->make($type);
+        }
+
+        //  No file exceptions. Now start saving things in the database.
+	    $photo = $this->repository->create($json);
+        foreach ($files as $type => $file) {
+	        $files[$type]->storeFile($photo->id);
         }
 
         $response = new PhotosResponse($photo);

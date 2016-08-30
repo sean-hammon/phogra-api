@@ -78,12 +78,15 @@ class PhotoFilesController extends ApiController
 
         foreach ($files as $type => $file) {
             $path = $this->movePostFile($file);
-
-            $processor = new Processor($photoID, $path);
-            $processor->make($type);
+	        $files[$type] = new Processor($path);
+	        $files[$type]->make($type);
         }
 
         $photo = PhotoModel::find($photoID);
+	    foreach ($files as $type => $file) {
+		    $files[$type]->storeFile($photo->id);
+	    }
+
         $response = new PhotosResponse($photo);
         return $response->send();
     }
