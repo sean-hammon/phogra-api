@@ -176,7 +176,7 @@ class PhotoFilesController extends ApiController
 
     private function movePostFile($file)
     {
-        $randomized = '/tmp_' . bin2hex(openssl_random_pseudo_bytes(16));
+        $randomized = 'tmp_' . bin2hex(openssl_random_pseudo_bytes(16));
         $file->move(config("phogra.photoTempDir"), $randomized);
         return config("phogra.photoTempDir") . DIRECTORY_SEPARATOR . $randomized;
     }
