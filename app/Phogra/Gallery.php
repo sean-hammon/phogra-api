@@ -75,6 +75,9 @@ class Gallery
             if (!isset($row['node'])) {
                 $this->makeNode($row);
             }
+	        if (isset($row['protected'])) {
+	        	$row['protected'] = 1;
+	        }
             if (isset($row['shared'])) {
             	unset($row['shared']);
 	            $row['protected'] = 1;
