@@ -69,6 +69,8 @@ class Gallery
             }
             if (!isset($row['parent_id'])) {
                 $row['parent_id'] = null;
+            } else {
+            	$row['parent_id'] = Hashids::decode($row['parent_id']);
             }
             if (!isset($row['node'])) {
                 $this->makeNode($row);
