@@ -399,7 +399,7 @@ class Photo
     {
         $this->query->addSelect([
                                     "files.id as file_id", "type", "mimetype",
-                                    "height", "width", "bytes", "hash",
+                                    "height", "width", "bytes", "hash", "top", "left",
                                     "files.created_at as file_created_at",
                                     "files.updated_at as file_updated_at"]
         );

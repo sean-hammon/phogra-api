@@ -32,6 +32,8 @@ class File extends ResponseItem
             'mimetype' => $row->mimetype,
             'height' => $row->height,
             'width' => $row->width,
+	        'top' => $row->top,
+	        'left' => $row->left,
             'bytes' => $row->bytes,
             'created_at' => (isset($row->created_at) ? $row->created_at : $row->file_created_at),
             'updated_at' => (isset($row->updated_at) ? $row->updated_at : $row->file_updated_at),

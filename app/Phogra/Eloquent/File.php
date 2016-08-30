@@ -13,7 +13,7 @@ class File extends Model
     use SoftDeletes;
 
     protected $table    = "files";
-    protected $fillable = ['photo_id', 'hash', 'height', 'width', 'bytes', 'type', 'mimetype'];
+    protected $fillable = ['photo_id', 'hash', 'height', 'width', 'top', 'left', 'bytes', 'type', 'mimetype'];
 
     public function photos()
     {
