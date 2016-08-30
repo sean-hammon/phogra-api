@@ -24,6 +24,7 @@ class Gallery extends ResponseItem
             'title' => $row->title,
             'slug' => $row->slug,
             'node' => $row->node,
+	        'share_key' => $row->share_key,
             'description' => $row->description,
             'protected' => $row->protected,
             'created_at' => $row->created_at,

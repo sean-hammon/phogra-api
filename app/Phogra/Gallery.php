@@ -73,6 +73,11 @@ class Gallery
             if (!isset($row['node'])) {
                 $this->makeNode($row);
             }
+            if (isset($row['shared'])) {
+            	unset($row['shared']);
+	            $row['protected'] = 1;
+	            $row['share_key'] = uniqid();
+            }
 
             return GalleryModel::create($row);
         } catch (\Exception $e) {
