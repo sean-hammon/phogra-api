@@ -20,37 +20,22 @@ return array(
         'original' => (object)[
             'height' => null,
             'width' => null,
-            'autoGenerate' => ['hifi_l', 'hifi_p', 'lofi_l', 'lofi_p', 'thumb']
+            'autoGenerate' => ['hifi', 'lofi', 'thumb', 'so']
         ],
-        'ulfi_l' => (object)[
+        'ulfi' => (object)[
             'height' => null,
             'width' => 3840,
-            'autoGenerate' => ['hifi_l', 'hifi_p', 'lofi_l', 'lofi_p', 'thumb']
+	        'autoGenerate' => ['hifi', 'lofi', 'thumb', 'so']
         ],
-        'ulfi_p' => (object)[
-            'height' => 3840,
-            'width' => null,
-            'autoGenerate' => ['hifi_l', 'hifi_p', 'lofi_l', 'lofi_p', 'thumb']
-        ],
-        'hifi_l' => (object)[
+        'hifi' => (object)[
             'height' => null,
             'width' => 1920,
-            'autoGenerate' => ['lofi_l', 'lofi_p', 'thumb']
+	        'autoGenerate' => ['lofi', 'thumb', 'so']
         ],
-        'hifi_p' => (object)[
-            'height' => 1920,
-            'width' => null,
-            'autoGenerate' => ['lofi_l', 'lofi_p', 'thumb']
-        ],
-        'lofi_l' => (object)[
+        'lofi' => (object)[
             'height' => null,
             'width' => 990,
-            'autoGenerate' => ['thumb']
-        ],
-        'lofi_p' => (object)[
-            'height' => 990,
-            'width' => null,
-            'autoGenerate' => ['thumb']
+            'autoGenerate' => ['so', 'thumb']
         ],
         'thumb' => (object)[
             'height' => 320,
