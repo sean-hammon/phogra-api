@@ -8,6 +8,7 @@ use App\Phogra\Response\BaseResponse;
 use Hashids;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use JWTAuth;
 
 class BaseController extends Controller
 {
@@ -32,66 +33,29 @@ class BaseController extends Controller
         $this->processParams();
     }
 
+
     protected function options()
     {
         $response = new BaseResponse();
         return $response->options();
     }
 
-    private function processParams()
-    {
-        $get = $this->request->query();
-        if (count($get)) {
-            $this->hasParams = true;
-        }
 
-        $incoming = array_keys($get);
-        $disallowed = array_diff($incoming, $this->allowedParams);
-        if (count($disallowed)) {
-            throw new InvalidParameterException("Unrecognized parameters:" . implode(",", $disallowed));
-        }
-        foreach ($get as $key => $value) {
-            switch ($key) {
-                case 'include':
-                    $this->processInclude($value);
-                    break;
+	protected function getRequestBody()
+	{
+		$json = $this->request->getContent();
+		if (empty($json)) {
+			throw new BadRequestException("No post body provided");
+		}
 
-                case 'page':
-                    $this->processPaging($value);
-                    break;
+		$data = json_decode($json, true);
+		if (json_last_error() > 0) {
+			throw new BadRequestException("JSON decode: " . json_last_error_msg());
+		}
 
-                case 'sort':
-                    $this->processSort($value);
-                    break;
+		return $data;
+	}
 
-                case 'filter':
-                    $this->processFilters($value);
-                    break;
-
-                case 'fields':
-                    $this->processFields($value);
-                    break;
-
-                case 'empty':
-                    $this->processEmpty($value);
-            }
-        }
-    }
-
-    protected function getRequestBody()
-    {
-        $json = $this->request->getContent();
-        if (empty($json)) {
-            throw new BadRequestException("No post body provided");
-        }
-
-        $data = json_decode($json, true);
-        if (json_last_error() > 0) {
-            throw new BadRequestException("JSON decode: " . json_last_error_msg());
-        }
-
-        return $data;
-    }
 
     protected function getPutData() {
 
@@ -160,6 +124,48 @@ class BaseController extends Controller
         return $data;
     }
 
+
+	private function processParams()
+	{
+		$get = $this->request->query();
+		if (count($get)) {
+			$this->hasParams = true;
+		}
+
+		$incoming = array_keys($get);
+		$disallowed = array_diff($incoming, $this->allowedParams);
+		if (count($disallowed)) {
+			throw new InvalidParameterException("Unrecognized parameters:" . implode(",", $disallowed));
+		}
+		foreach ($get as $key => $value) {
+			switch ($key) {
+				case 'include':
+					$this->processInclude($value);
+					break;
+
+				case 'page':
+					$this->processPaging($value);
+					break;
+
+				case 'sort':
+					$this->processSort($value);
+					break;
+
+				case 'filter':
+					$this->processFilters($value);
+					break;
+
+				case 'fields':
+					$this->processFields($value);
+					break;
+
+				case 'empty':
+					$this->processEmpty($value);
+			}
+		}
+	}
+
+
     private function processInclude($value)
     {
         $values = explode(',', $value);
@@ -172,25 +178,30 @@ class BaseController extends Controller
         }
     }
 
+
     private function processPaging($value)
     {
         $this->requestParams->page = $value;
     }
+
 
     private function processSort($value)
     {
         $this->requestParams->sort = [$value];
     }
 
+
     private function processFilters($value)
     {
 
     }
 
+
     private function processFields($value)
     {
         $this->requestParams->fields[] = $value;
     }
+
 
     private function processEmpty($value)
     {
