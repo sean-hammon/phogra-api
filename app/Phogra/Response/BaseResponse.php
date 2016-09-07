@@ -3,6 +3,8 @@
 namespace App\Phogra\Response;
 
 use \DateTime;
+use Auth;
+use JWTAuth;
 
 class BaseResponse
 {
@@ -84,6 +86,11 @@ class BaseResponse
             'Access-Control-Allow-Methods' => $this->allowedHttpVerbs
         ];
 
+	    $user = Auth::user();
+		if (isset($user)) {
+			$key = config('phogra.apiTokenHeader');
+			$headers[$key] = JWTAuth::fromUser($user);
+		}
         if (isset($this->lastModified)) {
             $headers['ETag'] = $this->etag;
             $headers['Last-Modified'] = gmdate("D, d M Y H:i:s", $this->lastModified->getTimestamp()) . " GMT";

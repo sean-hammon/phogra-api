@@ -15,6 +15,7 @@ return array(
     // 		The image will be scaled cropped.
 
     //	TODO: refactor this because we aren't auto-generating any more.
+	//  TODO: look into using queues to auto-generate in a shared-host-friendly manner
 
     'fileTypes' => (object)[
         'original' => (object)[
@@ -50,9 +51,7 @@ return array(
     'photoDir' => storage_path("app/photos"),
     'photoTempDir' => storage_path("app/photo-tmp"),
 
-    //	Is the API public? If you want anyone to be able to hit the api, set publicApi = true
-    'publicApi' => true,
-    //	The name of the HTTP header where the token should be placed if required.
+    //	The name of the HTTP header where the JWT token is returned.
     'apiTokenHeader' => 'X-Phogra-Token',
     //	Domains to allow AJAX requests from, if you specify a domain, it must be fully qualified.
     //	Remember that http://foo.com is considered a different domain from https://foo.com.
