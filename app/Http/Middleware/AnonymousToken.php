@@ -31,6 +31,10 @@ class AnonymousToken extends BaseMiddleware
 				"is_admin" => 0
 			]);
 		}
+
+		$token = $this->auth->fromUser($user);
+		$this->auth->authenticate($token);
+
 		$this->events->fire('tymon.jwt.valid', $user);
 
 		return $next($request);
