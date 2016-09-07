@@ -83,7 +83,8 @@ class BaseResponse
             //	30 days
             'Access-Control-Max-Age' => 30 * 24 * 60 * 60,
             'Access-Control-Allow-Origin' => $requestDomain,
-            'Access-Control-Allow-Methods' => $this->allowedHttpVerbs
+            'Access-Control-Allow-Methods' => $this->allowedHttpVerbs,
+	        'Access-Control-Expose-Headers' => 'X-Phogra-Token'
         ];
 
 	    $user = Auth::user();
