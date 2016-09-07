@@ -5,10 +5,7 @@ namespace App\Http\Controllers;
 use App\Phogra\Exception\InvalidParameterException;
 use App\Phogra\Exception\BadRequestException;
 use App\Phogra\Response\BaseResponse;
-use Hashids;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-use JWTAuth;
 
 class BaseController extends Controller
 {

@@ -7,7 +7,6 @@ use App\Phogra\Exception\NotFoundException;
 use App\Phogra\Gallery;
 use App\Phogra\Response\Galleries as GalleriesResponse;
 use Illuminate\Http\Request;
-use Hashids;
 
 class GalleriesController extends BaseController
 {
