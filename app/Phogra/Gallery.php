@@ -26,10 +26,10 @@ class Gallery
 
     private $galleryTable   = 'galleries';
     private $photoJoinTable = 'gallery_photos';
+	private $userJoinTable = 'gallery_users';
 
     public function __construct()
     {
-        $this->user = Auth::user();
     }
 
     /**
@@ -100,6 +100,7 @@ class Gallery
      */
     public function all($params)
     {
+	    $this->user = Auth::user();
         $this->initQuery($params);
 
         return $this->query->get();
@@ -291,16 +292,10 @@ class Gallery
         $this->query->orderBy("{$this->galleryTable}.node");
 
         if (isset($this->user)) {
-            $this->query->orWhere(function ($query) {
-                $query->where("{$this->galleryTable}.protected", "=", 1);
-                $query->whereRaw(
-                    "{$this->galleryTable}.id IN
-					(SELECT gallery_id
-						FROM {$this->userJoinTable}
-						WHERE user_id = {$this->user->id}
-					)"
-                );
-            });
+        	$this->query->leftJoin($this->userJoinTable, function($join){
+        		$join->on('gallery_users.gallery_id', '=', 'galleries.id');
+		        $join->where('gallery_users.user_id', '=', $this->user->id);
+	        });
         }
 
         //	By default only return galleries that have photos, unless empty = true
