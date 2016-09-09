@@ -28,10 +28,10 @@ class JwtAuth extends BaseMiddleware
         } catch (TokenExpiredException $e) {
             throw new UnauthorizedException('Expired token.');
         } catch (JWTException $e) {
-            throw new UnauthorizedException('Invalid credentials.');
+            throw new UnauthorizedException('Could not parse token.');
         }
 
-        if (! $user) {
+        if (!$user || !$user->is_admin) {
             throw new UnauthorizedException('Invalid credentials.');
         }
 
