@@ -30,10 +30,16 @@ class AnonymousToken extends BaseMiddleware
 				"password" => $password,
 				"is_admin" => 0
 			]);
+
+			$now = new \DateTime();
+			$exp = new \DateInterval("P365D");
+			$now->add($exp);
+			$token = $this->auth->fromUser($user, [
+				"exp" => $now->getTimestamp()
+			]);
+			$this->auth->authenticate($token);
 		}
 
-		$token = $this->auth->fromUser($user);
-		$this->auth->authenticate($token);
 
 		$this->events->fire('tymon.jwt.valid', $user);
 
