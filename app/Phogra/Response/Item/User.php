@@ -14,7 +14,6 @@ class User extends ResponseItem
 
         $this->id = Hashids::encode($row->id);
         $this->attributes = (object)[
-            'id' => $row->id,
             'name' => $row->name,
             'email' => $row->email,
             'admin' => $row->is_admin,
