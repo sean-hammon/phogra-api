@@ -7,6 +7,7 @@ use App\Phogra\Exception\NotFoundException;
 use App\Phogra\Gallery;
 use App\Phogra\Response\Galleries as GalleriesResponse;
 use Illuminate\Http\Request;
+use Vinkla\Hashids\Facades\Hashids;
 
 class GalleriesController extends BaseController
 {
@@ -55,28 +56,28 @@ class GalleriesController extends BaseController
     /**
      * Display the specified galleries.
      *
-     * @param  int|string $id integer row id for a single gallery OR
+     * @param  string $hash integer row id for a single gallery OR
      *                          string of comma separated ids
      *
      * @return \Illuminate\Http\Response
      * @throws BadRequestException
      * @throws NotFoundException
      */
-    public function show($id)
+    public function show($hash)
     {
-        $ids = Hashids::decode($id);
+        $ids = Hashids::decode($hash);
         if (count($ids) === 0) {
-            throw new NotFoundException("No data found for {$id}");
+            throw new NotFoundException("No data found for {$hash}");
         }
 
         if (count($ids) == 1) {
-            $result = $this->repository->one($ids[0], $this->requestParams);
+		$result = $this->repository->one($ids[0], $this->requestParams);
         } else {
             $result = $this->repository->multiple($ids, $this->requestParams);
         }
 
         if (is_null($result)) {
-            throw new NotFoundException("No data found for {$id}.");
+            throw new NotFoundException("No data found for {$hash}.");
         } else {
             $response = new GalleriesResponse($result);
             return $response->send();
