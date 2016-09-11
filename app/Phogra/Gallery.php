@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use App\Phogra\Query\Join;
 use App\Phogra\Query\JoinParams;
 use App\Phogra\Eloquent\Gallery as GalleryModel;
+use Vinkla\Hashids\Facades\Hashids;
 
 /**
  * Class Gallery
@@ -70,7 +71,11 @@ class Gallery
             if (!isset($row['parent_id'])) {
                 $row['parent_id'] = null;
             } else {
-            	$row['parent_id'] = Hashids::decode($row['parent_id']);
+	            $parent = Hashids::decode($row['parent_id']);
+	            if (count($parent) > 1) {
+		            throw new BadRequestException("Multiple ids not allowed for gallery parent_id");
+	            }
+            	$row['parent_id'] = $parent[0];
             }
             if (!isset($row['node'])) {
                 $this->makeNode($row);
