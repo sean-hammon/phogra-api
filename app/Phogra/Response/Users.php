@@ -28,7 +28,5 @@ class Users extends BaseResponse
         }
 
         $this->etag = md5(json_encode($this->data));
-
-        $this->etag = md5(json_encode($this->data));
     }
 }
