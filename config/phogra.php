@@ -38,6 +38,11 @@ return array(
             'width' => 990,
             'autoGenerate' => ['so', 'thumb']
         ],
+	    'so' => (object)[
+	    	'height' => null,
+		    'width' => 740,
+		    'autoGenerate' => []
+	    ],
         'thumb' => (object)[
             'height' => 320,
             'width' => 320,
