@@ -267,6 +267,7 @@ class Photo
 						   GROUP_CONCAT(" . Table::files . ".id SEPARATOR ',') AS file_ids,
 						   GROUP_CONCAT(" . Table::files . ".type SEPARATOR ',') AS file_types
 						 FROM " . Table::files . "
+						 WHERE " . Table::files . ".deleted_at IS NULL 
 						 GROUP BY photo_id)
 						 AS {$joinParams->as}";
         $joinParams->on = ["{$joinParams->as}.photo_id", "=", Table::photos . ".id"];
