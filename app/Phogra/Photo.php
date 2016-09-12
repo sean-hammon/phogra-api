@@ -39,18 +39,11 @@ class Photo
         $gallery_ids = [];
         $exception = '';
         if (isset($data['gallery_ids'])) {
-            if (is_array($data['gallery_ids'])) {
-
-                //  Hashids doesn't support decoding an array of hashes.
-                foreach ($data['gallery_ids'] as $hash) {
-                    $gallery_ids[] = Hashids::decode($hash);
-                }
-            } else {
-                $gallery_ids = Hashids::decode($data['gallery_ids']);
-            }
+	        $gallery_ids = Helpers::extractIds($data['gallery_ids']);
 
             if (empty($gallery_ids)) {
-                throw new BadRequestException($data['gallery_ids'] . " is not a valid gallery hash");
+	            $arrStr = str_replace("\n", "", print_r($data['gallery_ids'], true));
+                throw new BadRequestException($arrStr . " is not a valid gallery hash");
             }
 
             unset($data['gallery_ids']);
@@ -89,14 +82,10 @@ class Photo
         }
 
         $photo = PhotoModel::create($data);
-
         if (isset($gallery_ids) && !empty($gallery_ids)) {
             foreach ($gallery_ids as $gid) {
-                if (!is_numeric($gid)) {
-                    $gid = Hashids::decode($gid);
-                }
-                $gallery = GalleryModel::find($gid);
-                $gallery->photos()->attach($photo);
+				$gallery = GalleryModel::find($gid);
+				$gallery->photos()->attach($photo);
             }
         }
 
