@@ -7,7 +7,8 @@ use App\Phogra\Exception\NotFoundException;
 use App\Phogra\Gallery;
 use App\Phogra\Response\Galleries as GalleriesResponse;
 use Illuminate\Http\Request;
-use Vinkla\Hashids\Facades\Hashids;
+use Illuminate\Http\Response;
+use Hashids;
 
 class GalleriesController extends BaseController
 {
@@ -28,7 +29,7 @@ class GalleriesController extends BaseController
     /**
      * Return all gallery records
      *
-     * @return \App\Phogra\Response
+     * @return Response
      */
     public function index()
     {
@@ -59,7 +60,7 @@ class GalleriesController extends BaseController
      * @param  string $hash integer row id for a single gallery OR
      *                          string of comma separated ids
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      * @throws BadRequestException
      * @throws NotFoundException
      */
