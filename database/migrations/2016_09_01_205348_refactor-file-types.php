@@ -12,6 +12,10 @@ class RefactorFileTypes extends Migration
      */
     public function up()
     {
+	    $now = new DateTime();
+	    DB::table("files")
+		    ->where('type', 'like', '%_p')
+		    ->update(['deleted_at' => $now->format('Y-m-d H:i:s')]);
         DB::statement("ALTER TABLE `files` CHANGE COLUMN `type` `type` ENUM('original','ulfi_l','ulfi_p','hifi_l','hifi_p','lofi_l','lofi_p','thumb','so','hifi','lofi','ulfi') NOT NULL DEFAULT 'original' COLLATE 'utf8_unicode_ci' AFTER `photo_id`;");
 	    DB::table("files")
 		    ->whereIn('type', ['hifi_l','hifi_p'])
@@ -58,5 +62,8 @@ class RefactorFileTypes extends Migration
 	      ->where('height', '>', 'width')
 	      ->update(['type' => 'ulfi_p']);
 	    DB::statement("ALTER TABLE `files` CHANGE COLUMN `type` `type` ENUM('original','ulfi_l','ulfi_p','hifi_l','hifi_p','lofi_l','lofi_p','thumb') NOT NULL DEFAULT 'original' COLLATE 'utf8_unicode_ci' AFTER `photo_id`;");
+	    DB::table("files")
+	      ->where('type', 'like', '%_p')
+	      ->update(['deleted_at' => null]);
     }
 }
