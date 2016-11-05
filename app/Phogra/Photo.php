@@ -85,7 +85,11 @@ class Photo
         if (isset($gallery_ids) && !empty($gallery_ids)) {
             foreach ($gallery_ids as $gid) {
 				$gallery = GalleryModel::find($gid);
-				$gallery->photos()->attach($photo);
+	            if ($gallery == null) {
+		            $warnings->addWarning('Gallery not found: ' . Hashids::encode($gid));
+	            } else {
+		            $gallery->photos()->attach($photo);
+	            }
             }
         }
 
