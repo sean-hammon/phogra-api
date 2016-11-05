@@ -89,6 +89,11 @@ class Photo
             }
         }
 
+	    if (isset($data['tags'])) {
+		    $hash = Hashids::encode($photo->id);
+			$this->tagPhotos([$hash], $data['tags']);
+	    }
+
         return $photo;
     }
 
@@ -218,6 +223,56 @@ class Photo
             return null;
         }
     }
+
+    public function tagPhotos($photo_ids, $tags)
+    {
+	    $query = DB::table(Table::tags);
+	    $query->whereIn('name', $tags);
+	    $existing_tags = $query->get();
+
+	    $new_tags = [];
+	    if (count($existing_tags) > 0){
+		    for( $i = 0; $i < count($existing_tags); $i++) {
+			    $tag = $existing_tags[$i]->name;
+			    if (!in_array($tag, $tags)) {
+				    $new_tags[] = ['name' => $tag];
+			    }
+		    }
+	    } else {
+		    for( $i = 0; $i < count($tags); $i++) {
+				$new_tags[] = ['name' => $tags[$i]];
+		    }
+	    }
+
+	    if (count($new_tags) > 0) {
+		    DB::table(Table::tags)->insert($new_tags);
+		    $query = DB::table(Table::tags);
+		    $query->whereIn('name', $tags);
+		    $existing_tags[] = $query->get();
+	    }
+
+	    for ($i = 0; $i < count($photo_ids); $i++) {
+			$photo_id = Hashids::decode($photo_ids[$i]);
+		    for ($j = 0; $j < count($existing_tags); $j++) {
+				$data = [
+					"photo_id" => $photo_id[0],
+					"tag_id" => $existing_tags[$j]->id
+				];
+			    try{
+				    DB::table(Table::photo_tags)->insert($data);
+			    }
+			    catch(\PDOException $e) {
+				    if ($e->getCode() !== "23000") {
+					    throw $e;
+				    }
+			    }
+		    }
+	    }
+
+	    return true;
+
+    }
+
 
     public function getFile($photo_ids, $file_types, $params)
     {
