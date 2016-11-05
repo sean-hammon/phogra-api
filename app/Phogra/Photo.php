@@ -274,7 +274,20 @@ class Photo
         $join = new Join($joinParams);
         $join->apply($this->query);
 
-        $this->query->select(Table::photos . ".*", "{$joinParams->as}.file_types");
+	    $tagParams = new JoinParams();
+	    $tagParams->as = 'tt';
+	    $tagParams->type = "left";
+	    $tagParams->raw = "(SELECT photo_id, 
+	                            GROUP_CONCAT(t.name SEPARATOR ',') AS tags
+	                        FROM " . Table::tags . " t
+	                        JOIN " . Table::photo_tags ." pt ON pt.tag_id = t.id
+	                            GROUP BY pt.photo_id)
+	                        AS {$tagParams->as}";
+	    $tagParams->on = ["{$tagParams->as}.photo_id", "=", Table::photos . ".id"];
+	    $join = new Join($tagParams);
+	    $join->apply($this->query);
+
+        $this->query->select(Table::photos . ".*", "{$joinParams->as}.file_types", "{$tagParams->as}.tags");
         $this->query->whereNull(Table::photos . ".deleted_at");
 
         $this->applyParams($params);
