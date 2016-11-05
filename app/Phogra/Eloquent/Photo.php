@@ -22,4 +22,9 @@ class Photo extends Model
     {
         return $this->hasMany('App\Phogra\Eloquent\File');
     }
+
+    public function tags()
+    {
+	    return $this->hasMany('App\Phogra\Eloquent\Tag');
+    }
 }
