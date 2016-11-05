@@ -31,7 +31,14 @@ class Photo extends ResponseItem
                 "links" => (object)[
                     "self" => $this->baseUrl . "/photos/{$this->id}/files"
                 ]
-            ]
+            ],
+            "tags" => (object)[
+				"type" => "tags",
+				"data" => ($row->tags == null ? null : explode(',', $row->tags)),
+				"links" => (object)[
+					"self" => $this->baseUrl . "/photos/{$this->id}/tags"
+				]
+			]
         ];
 
         $this->links = (object)[
