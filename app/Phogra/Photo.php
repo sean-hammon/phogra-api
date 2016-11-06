@@ -234,25 +234,33 @@ class Photo
 	    $query->whereIn('name', $tags);
 	    $existing_tags = $query->get();
 
-	    $new_tags = [];
-	    if (count($existing_tags) > 0){
-		    for( $i = 0; $i < count($existing_tags); $i++) {
-			    $tag = $existing_tags[$i]->name;
-			    if (!in_array($tag, $tags)) {
-				    $new_tags[] = ['name' => $tag];
+	    if (count($existing_tags) != count($tags)) {
+		    //  We have incoming tags that aren't in the database.
+		    $found_tags = [];
+		    if (count($existing_tags) > 0){
+			    //  Strip the tag value out of the row hash.
+			    for( $i = 0; $i < count($existing_tags); $i++) {
+				    $found_tags[] = $existing_tags[$i]->name;
 			    }
+			    //  These are the new tags that need to be added to the database.
+			    $new_tags = array_diff($tags, $found_tags);
+		    } else {
+			    //  There were no existing tags. They need to all be added to the database.
+			    $new_tags = $tags;
 		    }
-	    } else {
-		    for( $i = 0; $i < count($tags); $i++) {
-				$new_tags[] = ['name' => $tags[$i]];
-		    }
-	    }
 
-	    if (count($new_tags) > 0) {
-		    DB::table(Table::tags)->insert($new_tags);
+		    if (count($new_tags) > 0) {
+			    //  Create an array of hashes for the insert statement.
+			    $insert = array_map(function($item){
+				    return ['name' => $item];
+			    }, $new_tags);
+			    DB::table(Table::tags)->insert($insert);
+		    }
+
+		    //  Now fetch the tag rows again with all the tags included.
 		    $query = DB::table(Table::tags);
 		    $query->whereIn('name', $tags);
-		    $existing_tags[] = $query->get();
+		    $existing_tags = $query->get();
 	    }
 
 	    for ($i = 0; $i < count($photo_ids); $i++) {
@@ -262,10 +270,14 @@ class Photo
 					"photo_id" => $photo_id[0],
 					"tag_id" => $existing_tags[$j]->id
 				];
+			    //  try/catch is expensive, but I don't know if it's any more expensive than
+			    //  querying each row before attempting an insert.
 			    try{
 				    DB::table(Table::photo_tags)->insert($data);
 			    }
 			    catch(\PDOException $e) {
+				    //  23000 is a unique key violation. If it's any error other than that
+				    //  re-throw the error.
 				    if ($e->getCode() !== "23000") {
 					    throw $e;
 				    }
