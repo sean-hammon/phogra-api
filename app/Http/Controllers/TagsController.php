@@ -40,4 +40,19 @@ class TagsController extends BaseController
 		}
 	}
 
+
+	public function tagPhotos()
+	{
+		$data = json_decode($this->request->getContent());
+		$success = $this->photos->tagPhotos($data->photo_ids, $data->tags);
+
+		if ($success) {
+			$tags = TagModel::whereIn("name", $data->tags)->get();
+			$response = new TagResponse($tags->all());
+			return $response->send();
+		} else {
+			throw new InvalidParameterException("Tagging photos failed.");
+		}
+	}
+
 }
