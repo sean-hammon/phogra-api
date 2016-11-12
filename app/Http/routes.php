@@ -18,6 +18,8 @@ Route::get('/', 'ApiController@index');
 Route::post('/authenticate', 'AuthController@authenticate');
 Route::post('/validate-token', 'AuthController@validateToken');
 
+Route::get('/tag/{tag}/photos', 'TagsController@getPhotosByTag');
+
 //  /galleries
 //  /galleries/:id
 Route::resource('galleries', 'GalleriesController', array(

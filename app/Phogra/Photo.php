@@ -229,6 +229,32 @@ class Photo
         }
     }
 
+	/**
+	 * Fetch multiple photos by tag.
+	 *
+	 * @param $tag      string  the tag to search on
+	 * @param $params   object  parameter object created in BaseController
+	 *
+	 * @return array|null|static[]
+	 */
+    public function findByTag($tag, $params) {
+		$this->initQuery($params);
+	    $this->query->join(Table::photo_tags, Table::photo_tags . ".photo_id", "=", Table::photos . ".id");
+	    $this->query->join(Table::tags, function($join) use ($tag) {
+		    $join->on(Table::tags . ".id", "=", Table::photo_tags . ".tag_id")
+			    ->where(Table::tags . ".name", "=", $tag);
+	    });
+
+	    $result = $this->query->get();
+
+	    if (count($result)) {
+		    return $result;
+	    } else {
+		    return null;
+	    }
+    }
+
+
     public function tagPhotos($photo_ids, $tags)
     {
 	    $query = DB::table(Table::tags);
