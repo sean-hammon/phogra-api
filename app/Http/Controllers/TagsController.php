@@ -28,9 +28,9 @@ class TagsController extends BaseController
 		$this->middleware('phogra.jwt.auth', ['except' => ['getPhotosByTag','options']]);
 	}
 
-	public function getPhotosByTag($tag) {
+	public function getPhotosByTag($tag)
+	{
 		$photos = $this->photos->findByTag($tag, $this->requestParams);
-
 
 		if (is_null($photos)) {
 			throw new NotFoundException("Nothing found for '{$tag}''.");
