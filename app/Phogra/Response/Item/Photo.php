@@ -24,6 +24,15 @@ class Photo extends ResponseItem
             'updated_at' => $row->updated_at
         ];
 
+	    if (!is_string($row->tags)) {
+
+		    //  TODO: On creation this is coming back as a Laravel collection.
+		    //  Will track that down later. Just handle it for now.
+		    $names_only = $row->tags->map(function($item){
+			    return $item->name;
+		    });
+		    $row->tags = implode($names_only->all(), ',');
+	    }
         $this->relationships = (object)[
             "files" => (object)[
                 "type" => "files",
