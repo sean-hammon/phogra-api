@@ -25,6 +25,6 @@ class Photo extends Model
 
     public function tags()
     {
-	    return $this->hasMany('App\Phogra\Eloquent\Tag');
+	    return $this->belongsToMany('App\Phogra\Eloquent\Tag', 'photo_tags');
     }
 }
