@@ -64,7 +64,7 @@ class Handler extends ExceptionHandler
 
                 //  Don't usually care about all the stacktrace lines dealing with library calls.
                 //  Just want to see the lines related to my code
-                $iCare = strpos($item, "\\app\\");
+                $iCare = strpos($item, "Phogra") || strpos($item, "Controllers");
                 return $iCare !== false ? true : false;
             });
         }
