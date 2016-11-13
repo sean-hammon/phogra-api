@@ -24,7 +24,7 @@ class Photo extends ResponseItem
             'updated_at' => $row->updated_at
         ];
 
-	    if (!is_string($row->tags)) {
+	    if (!is_string($row->tags) && $row->tags != null) {
 
 		    //  TODO: On creation this is coming back as a Laravel collection.
 		    //  Will track that down later. Just handle it for now.
