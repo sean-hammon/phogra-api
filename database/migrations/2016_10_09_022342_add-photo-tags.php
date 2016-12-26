@@ -12,16 +12,16 @@ class AddPhotoTags extends Migration
      */
     public function up()
     {
-	    Schema::create('tags', function (Blueprint $table) {
-		    $table->increments('id');
-		    $table->string('name');
-	    });
+        Schema::create('tags', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('name');
+        });
 
-	    Schema::create('photo_tags', function (Blueprint $table) {
-		    $table->increments('id');
-		    $table->string('photo_id');
-		    $table->string('tag_id');
-	    });
+        Schema::create('photo_tags', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('photo_id');
+            $table->string('tag_id');
+        });
     }
 
     /**
@@ -31,7 +31,7 @@ class AddPhotoTags extends Migration
      */
     public function down()
     {
-	    Schema::drop('photo_tags');
-	    Schema::drop('tags');
+        Schema::drop('photo_tags');
+        Schema::drop('tags');
     }
 }

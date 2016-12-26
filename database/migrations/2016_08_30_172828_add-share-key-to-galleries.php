@@ -25,7 +25,7 @@ class AddShareKeyToGalleries extends Migration
     public function down()
     {
         Schema::table('galleries', function (Blueprint $table) {
-	        $table->dropColumn('share_key');
+            $table->dropColumn('share_key');
         });
     }
 }

@@ -13,7 +13,7 @@ class MakeApiTokenNullable extends Migration
     public function up()
     {
         //
-	    DB::statement('ALTER TABLE `users` CHANGE COLUMN `api_token` `api_token` VARCHAR(60) NULL DEFAULT NULL');
+        DB::statement('ALTER TABLE `users` CHANGE COLUMN `api_token` `api_token` VARCHAR(60) NULL DEFAULT NULL');
     }
 
     /**
@@ -24,6 +24,6 @@ class MakeApiTokenNullable extends Migration
     public function down()
     {
         //
-	    DB::statement('ALTER TABLE `users` CHANGE COLUMN `api_token` `api_token` VARCHAR(60) NOT NULL');
+        DB::statement('ALTER TABLE `users` CHANGE COLUMN `api_token` `api_token` VARCHAR(60) NOT NULL');
     }
 }

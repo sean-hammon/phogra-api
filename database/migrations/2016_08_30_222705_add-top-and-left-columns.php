@@ -14,7 +14,7 @@ class AddTopAndLeftColumns extends Migration
     {
         Schema::table('files', function (Blueprint $table) {
             $table->smallInteger('top')->nullable()->unsigned();
-	        $table->smallInteger('left')->nullable()->unsigned();
+            $table->smallInteger('left')->nullable()->unsigned();
         });
     }
 
@@ -26,8 +26,8 @@ class AddTopAndLeftColumns extends Migration
     public function down()
     {
         Schema::table('files', function (Blueprint $table) {
-	        $table->dropColumn('top');
-	        $table->dropColumn('left');
+            $table->dropColumn('top');
+            $table->dropColumn('left');
         });
     }
 }
