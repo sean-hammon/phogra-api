@@ -21,6 +21,8 @@ Route::post('/validate-token', 'AuthController@validateToken');
 Route::post('/tag/photos', 'TagsController@tagPhotos');
 Route::get('/tag/{tag}/photos', 'TagsController@getPhotosByTag');
 
+Route::get('/gallery/share/{key}', 'GalleriesController@shared');
+
 //  /galleries
 //  /galleries/:id
 Route::resource('galleries', 'GalleriesController', array(
