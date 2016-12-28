@@ -32,4 +32,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @var array
      */
     protected $hidden = ['password', 'remember_token'];
+
+    public function galleries() {
+    	return $this->belongsToMany('App\Phogra\Eloquent\Gallery', 'gallery_users');
+    }
 }

@@ -12,4 +12,9 @@ class Gallery extends Model
     {
         return $this->belongsToMany('App\Phogra\Eloquent\Photo', 'gallery_photos');
     }
+
+    public function users()
+    {
+    	return $this->belongsToMany('App\Phogra\Eloquent\User', 'gallery_users');
+	}
 }
