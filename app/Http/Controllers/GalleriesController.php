@@ -5,9 +5,12 @@ namespace App\Http\Controllers;
 use App\Phogra\Exception\BadRequestException;
 use App\Phogra\Exception\NotFoundException;
 use App\Phogra\Gallery;
+use App\Phogra\Eloquent\Gallery as GalleryModel;
+use App\Phogra\Response\BaseResponse;
 use App\Phogra\Response\Galleries as GalleriesResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Auth;
 use Hashids;
 
 class GalleriesController extends BaseController
@@ -106,6 +109,18 @@ class GalleriesController extends BaseController
     public function destroy($id)
     {
         //
+    }
+
+    public function shared($key) {
+    	$user = Auth::user();
+    	$gallery = GalleryModel::where('share_key', $key)->first();
+    	$exists = $user->galleries()->where('gallery_id', $gallery->id)->first();
+    	if ($exists == null) {
+			$user->galleries()->attach($gallery->id);
+	    }
+
+	    $response = new BaseResponse();
+	    return $response->send();
     }
 
 }
