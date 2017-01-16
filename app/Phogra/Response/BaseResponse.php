@@ -5,6 +5,7 @@ namespace App\Phogra\Response;
 use \DateTime;
 use Auth;
 use JWTAuth;
+use JWTFactory;
 
 class BaseResponse
 {
@@ -87,11 +88,12 @@ class BaseResponse
 	        'Access-Control-Expose-Headers' => 'X-Phogra-Token'
         ];
 
-	    $user = Auth::user();
-		if (isset($user)) {
-			$key = config('phogra.apiTokenHeader');
-			$headers[$key] = JWTAuth::fromUser($user);
-		}
+        $token = $this->buildJWT();
+        if ($token !== false) {
+            $key = config('phogra.apiTokenHeader');
+            $headers[$key] = $token;
+        }
+
         if (isset($this->lastModified)) {
             $headers['ETag'] = $this->etag;
             $headers['Last-Modified'] = gmdate("D, d M Y H:i:s", $this->lastModified->getTimestamp()) . " GMT";
@@ -116,6 +118,30 @@ class BaseResponse
         }
 
         return $self_link;
+
+    }
+
+    /**
+     * Build the JWT based on the user type. Anonymous users need a manual
+     * build to keep the TTL long. Registered users use the default
+     * functionality with a shorter TTL.
+     */
+    private function buildJWT()
+    {
+        $user = Auth::user();
+        if (!isset($user)) {
+            return false;
+        }
+
+        if (strlen($user->email) == 37 && substr($user->email, -14) == '@anonymous.com') {
+            echo "anon";
+            $payload = JWTFactory::setTTL(365*24*60)->sub($user->id)->make();
+            $token = JWTAuth::encode($payload);
+        } else {
+            $token = JWTAuth::fromUser($user);
+        }
+
+        return $token;
 
     }
 
