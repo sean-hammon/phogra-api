@@ -289,21 +289,25 @@ class Gallery
         $photoJoin = new Join($photoParams);
         $photoJoin->apply($this->query);
 
+        //  Join gallery_users to find user specific galleries
+        $this->query->leftJoin($this->userJoinTable, function($join){
+            $join->on('gallery_users.gallery_id', '=', 'galleries.id');
+            $join->where('gallery_users.user_id', '=', $this->user->id);
+        });
+
         $this->query->select(
             "{$childParams->as}.children",
             "{$photoParams->as}.photos",
-            "{$this->galleryTable}.*"
+            "{$this->galleryTable}.*",
+            "{$this->userJoinTable}.user_id"
         );
-        $this->query->whereNull("{$this->galleryTable}.deleted_at");
-        $this->query->where("{$this->galleryTable}.restricted", "=", 0);
-        $this->query->orderBy("{$this->galleryTable}.node");
 
-        if (isset($this->user)) {
-        	$this->query->leftJoin($this->userJoinTable, function($join){
-        		$join->on('gallery_users.gallery_id', '=', 'galleries.id');
-		        $join->where('gallery_users.user_id', '=', $this->user->id);
-	        });
-        }
+        $this->query->whereNull("{$this->galleryTable}.deleted_at");
+        $this->query->where(function($query) {
+            $query->where("{$this->galleryTable}.restricted", "=", 0)
+                ->orWhere("gallery_users.user_id", "IS NOT NULL");
+        });
+        $this->query->orderBy("{$this->galleryTable}.node");
 
         //	By default only return galleries that have photos, unless empty = true
         //	then return them all.
