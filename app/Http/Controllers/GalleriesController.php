@@ -119,7 +119,7 @@ class GalleriesController extends BaseController
 			$user->galleries()->attach($gallery->id);
 	    }
 
-	    $response = new BaseResponse();
+	    $response = new GalleriesResponse($gallery);
 	    return $response->send();
     }
 
