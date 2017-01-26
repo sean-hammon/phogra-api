@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use App\Phogra\Response\Warnings;
+use App\Phogra\Response\Debug;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -27,6 +28,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton('Warnings', function($app)
         {
             return new Warnings();
+        });
+        $this->app->singleton('Debug', function($app)
+        {
+            return new Debug();
         });
 
     }

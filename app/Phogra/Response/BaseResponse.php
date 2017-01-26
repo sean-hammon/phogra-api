@@ -50,6 +50,12 @@ class BaseResponse
             $responseObj->warnings = $warnings->getWarnings();
         }
 
+        //	Then debug messages, if any
+        $debug = app('Debug');
+        if ($debug->count()) {
+            $responseObj->debug = $debug->getMessages();
+        }
+
         //	Now the data
         $responseObj->data = $this->data;
 
