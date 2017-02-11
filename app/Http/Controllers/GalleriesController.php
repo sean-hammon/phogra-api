@@ -22,6 +22,7 @@ class GalleriesController extends BaseController
     {
 
         $this->allowedParams[] = 'empty';
+        $this->allowedParams[] = 'share';
         parent::__construct($request);
 
         $this->repository = $repository;
