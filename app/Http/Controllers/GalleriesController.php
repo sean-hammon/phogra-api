@@ -37,6 +37,9 @@ class GalleriesController extends BaseController
      */
     public function index()
     {
+        if (isset($this->requestParams->share)) {
+            $this->share($this->requestParams->share);
+        }
         $galleries = $this->repository->all($this->requestParams);
 
         $response = new GalleriesResponse($galleries);
@@ -112,16 +115,13 @@ class GalleriesController extends BaseController
         //
     }
 
-    public function shared($key) {
+    public function share($key) {
     	$user = Auth::user();
     	$gallery = GalleryModel::where('share_key', $key)->first();
     	$exists = $user->galleries()->where('gallery_id', $gallery->id)->first();
     	if ($exists == null) {
 			$user->galleries()->attach($gallery->id);
 	    }
-
-	    $response = new GalleriesResponse($gallery);
-	    return $response->send();
     }
 
 }
