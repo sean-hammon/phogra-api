@@ -89,6 +89,8 @@ class Gallery
 	            $row['share_key'] = uniqid();
             }
 
+            //TODO: allow featured property to be set by API
+
             return GalleryModel::create($row);
         } catch (\Exception $e) {
             throw new UnknownException($e->getMessage());
