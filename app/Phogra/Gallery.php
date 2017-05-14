@@ -80,12 +80,12 @@ class Gallery
             if (!isset($row['node'])) {
                 $this->makeNode($row);
             }
-	        if (isset($row['protected'])) {
-	        	$row['protected'] = 1;
+	        if (isset($row['restricted'])) {
+	        	$row['restricted'] = 1;
 	        }
             if (isset($row['shared'])) {
             	unset($row['shared']);
-	            $row['protected'] = 1;
+	            $row['restricted'] = 1;
 	            $row['share_key'] = uniqid();
             }
 
@@ -293,7 +293,7 @@ class Gallery
             "{$this->galleryTable}.*"
         );
         $this->query->whereNull("{$this->galleryTable}.deleted_at");
-        $this->query->where("{$this->galleryTable}.protected", "=", 0);
+        $this->query->where("{$this->galleryTable}.restricted", "=", 0);
         $this->query->orderBy("{$this->galleryTable}.node");
 
         if (isset($this->user)) {

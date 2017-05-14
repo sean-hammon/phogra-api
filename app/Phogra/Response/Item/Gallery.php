@@ -26,7 +26,7 @@ class Gallery extends ResponseItem
             'node' => $row->node,
 	        'share_key' => $row->share_key,
             'description' => $row->description,
-            'protected' => $row->protected,
+            'restricted' => $row->restricted,
             'created_at' => $row->created_at,
             'updated_at' => $row->updated_at
         ];
