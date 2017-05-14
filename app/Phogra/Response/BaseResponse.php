@@ -134,7 +134,6 @@ class BaseResponse
         }
 
         if (strlen($user->email) == 37 && substr($user->email, -14) == '@anonymous.com') {
-            echo "anon";
             $payload = JWTFactory::setTTL(365*24*60)->sub($user->id)->make();
             $token = JWTAuth::encode($payload);
         } else {
