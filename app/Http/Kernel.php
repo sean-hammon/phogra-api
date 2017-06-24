@@ -30,7 +30,7 @@ class Kernel extends HttpKernel
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'jwt.auth' => \Tymon\JWTAuth\Middleware\GetUserFromToken::class,
         'jwt.refresh' => \Tymon\JWTAuth\Middleware\RefreshToken::class,
-        'phogra.jwt.auth' => \App\Http\Middleware\JwtAuth::class,
+        'phogra.jwt.auth' => \App\Http\Middleware\JwtMiddleware::class,
         'phogra.anonymous.token' => \App\Http\Middleware\AnonymousToken::class,
     ];
 }

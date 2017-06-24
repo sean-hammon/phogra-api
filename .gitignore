@@ -7,4 +7,5 @@
 seed-photos
 composer.phar
 public/photo
+/data_dumps
 *.tar.gz

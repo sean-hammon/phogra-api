@@ -7,6 +7,8 @@ use Closure;
 use Hash;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Facades\JWTFactory;
+use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Middleware\BaseMiddleware;
 
 class AnonymousToken extends BaseMiddleware
@@ -31,12 +33,8 @@ class AnonymousToken extends BaseMiddleware
 				"is_admin" => 0
 			]);
 
-			$now = new \DateTime();
-			$exp = new \DateInterval("P365D");
-			$now->add($exp);
-			$token = $this->auth->fromUser($user, [
-				"exp" => $now->getTimestamp()
-			]);
+			$payload = JWTFactory::setTTL(365*24*60)->sub($user->id)->make();
+			$token = JWTAuth::encode($payload);
 			$this->auth->authenticate($token);
 		}
 
