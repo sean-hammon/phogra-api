@@ -13,34 +13,34 @@ use Tymon\JWTAuth\Middleware\BaseMiddleware;
 
 class AnonymousToken extends BaseMiddleware
 {
-	public function handle(Request $request, Closure $next) {
+    public function handle(Request $request, Closure $next)
+    {
 
-		$token = $this->auth->setRequest($request)->getToken();
-		if ($token) {
-			try {
-				$user = $this->auth->authenticate($token);
-			}
-			catch(JWTException $e) {}
-		}
+        $token = $this->auth->setRequest($request)->getToken();
+        if (!empty($token)) {
+            try {
+                $user = $this->auth->authenticate($token);
+            } catch (JWTException $e) {
+            }
+        }
 
-		if (! isset($user)) {
-			$email = uniqid('',true) . "@anonymous.com";
-			$password = Hash::make(env('PH_ANON_PWD'));
-			$user = User::create([
-				"name" => "Anonymous User",
-				"email" => $email,
-				"password" => $password,
-				"is_admin" => 0
-			]);
+        if (empty($user)) {
+            $email = uniqid('', true) . "@anonymous.com";
+            $password = Hash::make(env('PH_ANON_PWD'));
+            $user = User::create([
+                "name" => "Anonymous User",
+                "email" => $email,
+                "password" => $password,
+                "is_admin" => 0
+            ]);
 
-			$payload = JWTFactory::setTTL(365*24*60)->sub($user->id)->make();
-			$token = JWTAuth::encode($payload);
-			$this->auth->authenticate($token);
-		}
+            $payload = JWTFactory::setTTL(365 * 24 * 60)->sub($user->id)->make();
+            $token = JWTAuth::encode($payload);
+            $this->auth->authenticate($token);
+        }
 
+        $this->events->fire('tymon.jwt.valid', $user);
 
-		$this->events->fire('tymon.jwt.valid', $user);
-
-		return $next($request);
-	}
+        return $next($request);
+    }
 }
