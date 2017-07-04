@@ -176,6 +176,7 @@ class PhotosController extends BaseController
                 $processor = new Processor($requestData[$type]);
                 $processor->setPhotoId($photo->id);
                 $processor->makeOrReplace($type);
+                $processor->storeFile();
 
             }
 
