@@ -97,7 +97,8 @@ class PhotosController extends BaseController
         //  No file exceptions. Now start saving things in the database.
 	    $photo = $this->repository->create($json);
         foreach ($files as $type => $file) {
-	        $files[$type]->storeFile($photo->id);
+            $files[$type]->setPhotoId($photo->id);
+	        $files[$type]->storeFile();
         }
 
         $response = new PhotosResponse($photo);
@@ -172,7 +173,8 @@ class PhotosController extends BaseController
 
             if (isset($requestData[$type])) {
 
-                $processor = new Processor($photo->id, $requestData[$type]);
+                $processor = new Processor($requestData[$type]);
+                $processor->setPhotoId($photo->id);
                 $processor->makeOrReplace($type);
 
             }
