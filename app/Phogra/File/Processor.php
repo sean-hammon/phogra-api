@@ -96,6 +96,22 @@ class Processor
         imagedestroy($this->imageResource);
     }
 
+
+    /**
+     * Set the photo id for save and replace operations.
+     *
+     * This used to be a parameter in the constructor. However, when uploading new
+     * photos I wanted to make sure all the file processing was successful before
+     * doing any database operations so I didn't have orphaned data to deal with.
+     *
+     * @param int $id
+     */
+    public function setPhotoId($id)
+    {
+        $this->photo_id = $id;
+    }
+    
+
     /**
      * @param string $imageType the image type to generate. Types defined in config/phogra.php
      * @param bool $replace Allow a matching hash to be over written, or remove an existing file
