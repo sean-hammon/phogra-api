@@ -145,9 +145,9 @@ class Processor
         $this->make($imageType, true);
     }
 
-    public function storeFile($photo_id) {
+    public function storeFile() {
 	    $data = [
-		    'photo_id' => $photo_id,
+		    'photo_id' => $this->photo_id,
 		    'type' => $this->imageType,
 		    'hash' => $this->hash,
 		    'bytes' => filesize($this->filePath),
