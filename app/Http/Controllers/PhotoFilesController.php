@@ -152,7 +152,8 @@ class PhotoFilesController extends ApiController
 
         if (isset($requestData['file'])) {
 
-            $processor = new Processor($photoID, $requestData['file']);
+            $processor = new Processor($requestData['file']);
+            $processor->setPhotoId($photoID);
             $processor->makeOrReplace($type);
 
         }
