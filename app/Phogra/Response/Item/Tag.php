@@ -29,7 +29,7 @@ class Tag extends ResponseItem
 		];
 
 		$this->links = (object)[
-			"self" => $this->baseUrl . "/tag/{$this->id}"
+			"self" => $this->baseUrl . "/tag/" . urlencode($this->attributes->name)
 		];
 
 		if ($row->photos != null) {
