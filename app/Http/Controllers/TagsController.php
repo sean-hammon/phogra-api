@@ -6,12 +6,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Phogra\Eloquent\Tag;
+use App\Phogra\Tag;
+use App\Phogra\Eloquent\Tag as TagModel;
 use App\Phogra\Exception\InvalidParameterException;
 use App\Phogra\Exception\NotFoundException;
-use App\Phogra\Photo;
 use App\Phogra\Response\Tags as TagResponse;
-use App\Phogra\Response\Photos as PhotosResponse;
 use Illuminate\Http\Request;
 
 class TagsController extends BaseController
