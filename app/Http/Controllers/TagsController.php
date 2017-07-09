@@ -6,7 +6,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Phogra\Eloquent\Tag as TagModel;
+use App\Phogra\Eloquent\Tag;
 use App\Phogra\Exception\InvalidParameterException;
 use App\Phogra\Exception\NotFoundException;
 use App\Phogra\Photo;
@@ -16,17 +16,40 @@ use Illuminate\Http\Request;
 
 class TagsController extends BaseController
 {
+	private $repository;
 
-	private $photos;
-
-	public function __construct(Request $request, Photo $repository)
+	public function __construct(Request $request, Tag $repository)
 	{
 		parent::__construct($request);
 
-		$this->photos = $repository;
-		$this->middleware('phogra.anonymous.token', ['only' => ['getPhotosByTag']]);
-		$this->middleware('phogra.jwt.auth', ['except' => ['getPhotosByTag','options']]);
+		$this->repository = $repository;
+		$this->middleware('phogra.anonymous.token', ['only' => ['index','show','getPhotosByTag']]);
+		$this->middleware('phogra.jwt.auth', ['except' => ['index','show','getPhotosByTag','options']]);
 	}
+
+
+	public function index()
+	{
+		$tags = $this->repository->all($this->requestParams);
+
+		$response = new TagResponse($tags);
+
+		return $response->send();
+	}
+
+
+	public function show($tag)
+	{
+		$result = $this->repository->one($tag, $this->requestParams);
+
+		if (is_null($result)) {
+			throw new NotFoundException("No data found for {$tag}.");
+		} else {
+			$response = new TagResponse($result);
+			return $response->send();
+		}
+	}
+
 
 	public function getPhotosByTag($tag)
 	{
