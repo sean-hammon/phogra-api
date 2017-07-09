@@ -11,6 +11,8 @@
 |
 */
 
+use Illuminate\Support\Facades\Route;
+
 Route::options('/{any}', 'BaseController@options')->where(['any' => '.*']);
 
 Route::get('/', 'ApiController@index');
@@ -49,6 +51,9 @@ Route::resource('photos.image', 'PhotoImageController', array(
 ));
 //  /photos/:id/metadata
 
+Route::resource('tags', 'TagsController', [
+	'except' => ['create','edit']
+]);
 //  /user/login
 //	/user/token
 //	/user/token/refresh
