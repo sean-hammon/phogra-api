@@ -51,9 +51,16 @@ Route::resource('photos.image', 'PhotoImageController', array(
 ));
 //  /photos/:id/metadata
 
+// /tags
 Route::resource('tags', 'TagsController', [
 	'except' => ['create','edit']
 ]);
+
+//  /tags/:name/photos
+Route::resource('tags.photos', 'TagPhotosController', array(
+    'except' => array('create', 'edit')
+));
+
 //  /user/login
 //	/user/token
 //	/user/token/refresh
