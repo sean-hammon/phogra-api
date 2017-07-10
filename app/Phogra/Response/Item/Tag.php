@@ -12,6 +12,9 @@ use Hashids;
 
 class Tag extends ResponseItem
 {
+	private $photoHashes = [];
+	private $photoIds    = [];
+
 
 	public function __construct($row)
 	{
@@ -26,7 +29,26 @@ class Tag extends ResponseItem
 		];
 
 		$this->links = (object)[
-			"self" => $this->baseUrl . "/tag/{$this->id}"
+			"self" => $this->baseUrl . "/tag/" . urlencode($this->attributes->name)
 		];
+
+		if ($row->photos != null) {
+			$this->photoIds = explode(',', $row->photos);
+			$this->photoHashes = array_map("Hashids::encode", $this->photoIds);
+		}
+
+		$this->relationships = (object)[
+			"photos" => (object)[
+				"type" => "photos",
+				"data" => ($row->photos == null ? null : $this->photoHashes),
+				"links" => (object)[
+					"self" => $this->baseUrl . "/galleries/{$this->id}/photos"
+				]
+			]
+		];
+
+		if (count($this->photoHashes) > 0) {
+			$this->relationships->photos->links->related = $this->baseUrl . "/photos/" . Hashids::encode($this->photoIds);
+		}
 	}
 }

@@ -11,6 +11,8 @@
 |
 */
 
+use Illuminate\Support\Facades\Route;
+
 Route::options('/{any}', 'BaseController@options')->where(['any' => '.*']);
 
 Route::get('/', 'ApiController@index');
@@ -19,7 +21,7 @@ Route::post('/authenticate', 'AuthController@authenticate');
 Route::post('/validate-token', 'AuthController@validateToken');
 
 Route::post('/tag/photos', 'TagsController@tagPhotos');
-Route::get('/tag/{tag}/photos', 'TagsController@getPhotosByTag');
+//Route::get('/tag/{tag}/photos', 'TagsController@getPhotosByTag');
 
 //  /galleries
 //  /galleries/:id
@@ -48,6 +50,16 @@ Route::resource('photos.image', 'PhotoImageController', array(
 	'except' => array('create', 'edit')
 ));
 //  /photos/:id/metadata
+
+// /tags
+Route::resource('tags', 'TagsController', [
+	'except' => ['create','edit']
+]);
+
+//  /tags/:name/photos
+Route::resource('tags.photos', 'TagPhotosController', array(
+    'except' => array('create', 'edit')
+));
 
 //  /user/login
 //	/user/token
