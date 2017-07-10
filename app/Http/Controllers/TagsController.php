@@ -50,19 +50,6 @@ class TagsController extends BaseController
 	}
 
 
-	public function getPhotosByTag($tag)
-	{
-		$photos = $this->photos->findByTag($tag, $this->requestParams);
-
-		if (is_null($photos)) {
-			throw new NotFoundException("Nothing found for '{$tag}''.");
-		} else {
-			$response = new PhotosResponse($photos);
-			return $response->send();
-		}
-	}
-
-
 	public function tagPhotos()
 	{
 		$data = json_decode($this->request->getContent());
