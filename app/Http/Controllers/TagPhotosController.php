@@ -40,7 +40,7 @@ class TagPhotosController extends BaseController
         $result = $this->repository->findByTag($tag_name, $this->requestParams);
 
         if (is_null($result)) {
-            throw new NotFoundException("No data found for /galleries/{$gallery_hash}/photos.");
+            throw new NotFoundException("No data found for /tags/{$tag_name}/photos.");
         }
 
         $response = new PhotosResponse($result);
