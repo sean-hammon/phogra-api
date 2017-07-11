@@ -42,9 +42,9 @@ class Tag
     {
         $this->initQuery($params);
 
-        $this->query->where(Table::tags . ".name", "=", $name);
-        
-        return $this->query->get();
+        return $this->query
+	        ->where(Table::tags . ".name", "=", $name)
+	        ->first();
     }
 
 
