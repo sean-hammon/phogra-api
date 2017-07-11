@@ -42,7 +42,7 @@ class Tag extends ResponseItem
 				"type" => "photos",
 				"data" => ($row->photos == null ? null : $this->photoHashes),
 				"links" => (object)[
-					"self" => $this->baseUrl . "/galleries/{$this->id}/photos"
+					"self" => $this->baseUrl . "/tags/{$this->attributes->name}/photos"
 				]
 			]
 		];
