@@ -418,6 +418,11 @@ class Photo
             //  add those to your field list.
             $this->query->select($params->fields->$table);
         }
+        if (isset($params->fields->sort)) {
+            //  Just adding a default for now.
+        } else {
+            $this->query->orderBy(Table::photos . ".created_at", "DESC");
+        }
     }
 
     /**
