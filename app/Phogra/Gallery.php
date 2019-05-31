@@ -71,11 +71,13 @@ class Gallery
             if (!isset($row['parent_id'])) {
                 $row['parent_id'] = null;
             } else {
-	            $parent = Hashids::decode($row['parent_id']);
-	            if (count($parent) > 1) {
-		            throw new BadRequestException("Multiple ids not allowed for gallery parent_id");
-	            }
-            	$row['parent_id'] = $parent[0];
+                if (gettype($row['parent_id']) === 'string') {
+                    $parent = Hashids::decode($row['parent_id']);
+                    if (count($parent) > 1) {
+                        throw new BadRequestException("Multiple ids not allowed for gallery parent_id");
+                    }
+                    $row['parent_id'] = $parent[0];
+                }
             }
             if (!isset($row['node'])) {
                 $this->makeNode($row);
@@ -90,7 +92,6 @@ class Gallery
             }
 
             //TODO: allow featured property to be set by API
-
             return GalleryModel::create($row);
         } catch (\Exception $e) {
             throw new UnknownException($e->getMessage());
