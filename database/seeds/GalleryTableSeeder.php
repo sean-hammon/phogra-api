@@ -123,7 +123,6 @@ class GalleryTableSeeder extends Seeder
 
     private function makeGalleries($galleries, $parent = null)
     {
-        echo "================\n";
         $galleryRepo = new Gallery();
 
         foreach ($galleries as $g) {
@@ -132,7 +131,6 @@ class GalleryTableSeeder extends Seeder
 			$children = isset($g['children']) ? $g['children'] : null;
 			unset($g['children']);
 
-            print_r($g);
 			$row = $galleryRepo->create($g);
 
             if (!empty($children)) {
