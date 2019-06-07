@@ -301,63 +301,33 @@ class PhotoTableSeeder extends Seeder
                 "id" => 10,
                 "photos" => [
                     [
-                        'id' => '56',
+                        'id' => 56,
                         'title' => 'A Blue Door',
                         'slug' => 'a-blue-door',
                         'short_desc' => NULL,
                         'long_desc' => NULL
                     ], [
-                        'id' => '57',
+                        'id' => 57,
                         'title' => 'A Yellow Door',
                         'slug' => 'a-yellow-door',
                         'short_desc' => NULL,
                         'long_desc' => NULL
                     ], [
-                        'id' => '58',
-                        'title' => 'Another Yellow Door',
-                        'slug' => 'another-yellow-door',
-                        'short_desc' => NULL,
-                        'long_desc' => NULL
-                    ], [
-                        'id' => '59',
+                        'id' => 59,
                         'title' => 'Hobbits Love Yellow',
                         'slug' => 'hobbits-love-yellow',
                         'short_desc' => NULL,
                         'long_desc' => NULL
                     ], [
-                        'id' => '60',
-                        'title' => 'The Party Tree and The Green Dragon',
-                        'slug' => 'the-party-tree-and-the-green-dragon',
-                        'short_desc' => NULL,
-                        'long_desc' => NULL
-                    ], [
-                        'id' => '61',
+                        'id' => 61,
                         'title' => 'Bag End',
                         'slug' => 'bag-end',
                         'short_desc' => NULL,
                         'long_desc' => NULL
                     ], [
-                        'id' => '62',
-                        'title' => 'Bag End',
-                        'slug' => 'bag-end-a2ba',
-                        'short_desc' => NULL,
-                        'long_desc' => NULL
-                    ], [
-                        'id' => '66',
+                        'id' => 66,
                         'title' => 'The Party Tree from The Green Dragon',
                         'slug' => 'the-party-tree-from-the-green-dragon',
-                        'short_desc' => NULL,
-                        'long_desc' => NULL
-                    ], [
-                        'id' => '67',
-                        'title' => 'Hobbit Holes by the Lake',
-                        'slug' => 'hobbit-holes-by-the-lake',
-                        'short_desc' => NULL,
-                        'long_desc' => NULL
-                    ], [
-                        'id' => '68',
-                        'title' => 'Signage',
-                        'slug' => 'signage',
                         'short_desc' => NULL,
                         'long_desc' => NULL
                     ]
@@ -367,61 +337,37 @@ class PhotoTableSeeder extends Seeder
                 "id" => 11,
                 "photos" => [
                     [
-                        'id' => '78',
-                        'title' => 'Milford Sound',
-                        'slug' => 'milford-sound',
-                        'short_desc' => NULL,
-                        'long_desc' => NULL
-                    ], [
-                        'id' => '79',
-                        'title' => 'Milford Sound',
-                        'slug' => 'milford-sound-deee',
-                        'short_desc' => NULL,
-                        'long_desc' => NULL
-                    ], [
-                        'id' => '80',
-                        'title' => 'Milford Sound',
-                        'slug' => 'milford-sound-9f92',
-                        'short_desc' => NULL,
-                        'long_desc' => NULL
-                    ], [
-                        'id' => '81',
-                        'title' => 'Milford Sound',
-                        'slug' => 'milford-sound-ff72',
-                        'short_desc' => NULL,
-                        'long_desc' => NULL
-                    ], [
-                        'id' => '82',
+                        'id' => 82,
                         'title' => 'Milford Sound',
                         'slug' => 'milford-sound-90e5',
                         'short_desc' => NULL,
                         'long_desc' => NULL
                     ], [
-                        'id' => '83',
+                        'id' => 83,
                         'title' => 'Milford Sound',
                         'slug' => 'milford-sound-46c5',
                         'short_desc' => NULL,
                         'long_desc' => NULL
                     ], [
-                        'id' => '84',
+                        'id' => 84,
                         'title' => 'Milford Sound',
                         'slug' => 'milford-sound-a929',
                         'short_desc' => NULL,
                         'long_desc' => NULL
                     ], [
-                        'id' => '85',
+                        'id' => 85,
                         'title' => 'Seals Chilling in Milford Sound',
                         'slug' => 'seals-chilling-in-milford-sound',
                         'short_desc' => NULL,
                         'long_desc' => NULL
                     ], [
-                        'id' => '167',
+                        'id' => 167,
                         'title' => 'Falls in Milford Sound',
                         'slug' => 'falls-in-milford-sound',
                         'short_desc' => NULL,
                         'long_desc' => NULL
                     ], [
-                        'id' => '168',
+                        'id' => 168,
                         'title' => 'Somewhere in Southland',
                         'slug' => 'somewhere-in-southland',
                         'short_desc' => NULL,
