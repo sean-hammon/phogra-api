@@ -144,36 +144,35 @@ class FilesTableSeeder extends Seeder
                 'photo_id' => 82,
                 'filename' => 'milford-sound-90e5.jpg',
             ], [
-                'id' => 83,
+                'photo_id' => 83,
                 'filename' => 'milford-sound-46c5.jpg',
             ], [
-                'id' => 84,
+                'photo_id' => 84,
                 'filename' => 'milford-sound-a929.jpg',
             ], [
-                'id' => 85,
+                'photo_id' => 85,
                 'filename' => 'seals-chilling-in-milford-sound.jpg',
             ], [
-                'filename' => 167,
-                'slug' => 'falls-in-milford-sound.jpg',
+                'photo_id' => 167,
+                'filename' => 'falls-in-milford-sound.jpg',
             ], [
-                'id' => 168,
-                'slug' => 'somewhere-in-southland.jpg',
-            ],
-            [
-                'id' => 56,
-                'slug' => 'a-blue-door.jpg',
+                'photo_id' => 168,
+                'filename' => 'somewhere-in-southland.jpg',
             ], [
-                'id' => 57,
-                'slug' => 'a-yellow-door.jpg',
+                'photo_id' => 56,
+                'filename' => 'a-blue-door.jpg',
             ], [
-                'id' => 59,
-                'slug' => 'hobbits-love-yellow.jpg',
+                'photo_id' => 57,
+                'filename' => 'a-yellow-door.jpg',
             ], [
-                'id' => 61,
-                'slug' => 'bag-end.jpg',
+                'photo_id' => 59,
+                'filename' => 'hobbits-love-yellow.jpg',
             ], [
-                'id' => 66,
-                'slug' => 'the-party-tree-from-the-green-dragon.jpg',
+                'photo_id' => 61,
+                'filename' => 'bag-end.jpg',
+            ], [
+                'photo_id' => 66,
+                'filename' => 'the-party-tree-from-the-green-dragon.jpg',
             ]
         ];
 
