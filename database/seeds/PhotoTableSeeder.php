@@ -380,7 +380,9 @@ class PhotoTableSeeder extends Seeder
         foreach ($galleries as $g) {
             $gallery = Gallery::find($g["id"]);
             foreach ($g['photos'] as $ph) {
-                $ph['slug'] = str_slug($ph['title']);
+                if (empty($ph['slug'])){
+                    $ph['slug'] = str_slug($ph['title']);
+                }
                 $photo = new Photo($ph);
                 $gallery->photos()->save($photo);
             }
