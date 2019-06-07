@@ -9,7 +9,7 @@ class FilesTableSeeder extends Seeder
     public function run()
     {
         File::truncate();
-		$this->cleanFiles();
+        $this->cleanFiles();
 
         $data = [
             [
@@ -102,7 +102,7 @@ class FilesTableSeeder extends Seeder
             ],
             [
                 "photo_id" => 7,
-				"filename" => "DSC20090719-153.jpg"
+                "filename" => "DSC20090719-153.jpg"
             ],
             [
                 "photo_id" => 30,
@@ -139,40 +139,73 @@ class FilesTableSeeder extends Seeder
             [
                 "photo_id" => 32,
                 "filename" => "DSC20060327-194.jpg"
+            ],
+            [
+                'photo_id' => 82,
+                'filename' => 'milford-sound-90e5.jpg',
+            ], [
+                'id' => 83,
+                'filename' => 'milford-sound-46c5.jpg',
+            ], [
+                'id' => 84,
+                'filename' => 'milford-sound-a929.jpg',
+            ], [
+                'id' => 85,
+                'filename' => 'seals-chilling-in-milford-sound.jpg',
+            ], [
+                'filename' => 167,
+                'slug' => 'falls-in-milford-sound.jpg',
+            ], [
+                'id' => 168,
+                'slug' => 'somewhere-in-southland.jpg',
+            ],
+            [
+                'id' => 56,
+                'slug' => 'a-blue-door.jpg',
+            ], [
+                'id' => 57,
+                'slug' => 'a-yellow-door.jpg',
+            ], [
+                'id' => 59,
+                'slug' => 'hobbits-love-yellow.jpg',
+            ], [
+                'id' => 61,
+                'slug' => 'bag-end.jpg',
+            ], [
+                'id' => 66,
+                'slug' => 'the-party-tree-from-the-green-dragon.jpg',
             ]
-		];
+        ];
 
         foreach ($data as $photo) {
-			echo "{$photo['photo_id']}:{$photo['filename']}\n";
+            echo "{$photo['photo_id']}:{$photo['filename']}\n";
             $path = "seed-photos/" . $photo['filename'];
-			$processor = new Processor($path);
-			$processor->make('original');
+            $processor = new Processor($path);
+            $processor->make('original');
             $processor->setPhotoId($photo['photo_id']);
             $processor->storeFile();
 
-			$typeConfig = config('phogra.fileTypes');
-			foreach ($typeConfig->original->autoGenerate as $type) {
-				$processor->make($type);
-				$processor->setPhotoId($photo['photo_id']);
-				$processor->storeFile();
-			}
-			unset($processor);
+            $typeConfig = config('phogra.fileTypes');
+            foreach ($typeConfig->original->autoGenerate as $type) {
+                $processor->make($type);
+                $processor->setPhotoId($photo['photo_id']);
+                $processor->storeFile();
+            }
+            unset($processor);
         }
     }
 
-	private function cleanFiles() {
-		$pathsToClean[] = config('phogra.photoDir');
-		$pathsToClean[] = config('phogra.photoTempDir');
+    private function cleanFiles()
+    {
+        $pathsToClean[] = config('phogra.photoDir');
+        $pathsToClean[] = config('phogra.photoTempDir');
 
-		foreach ($pathsToClean as $path){
-			if (PHP_OS === 'Windows')
-			{
-				exec("rd /s /q {$path}\*.*");
-			}
-			else
-			{
-				exec("rm -rf {$path}/*");
-			}
-		}
-	}
+        foreach ($pathsToClean as $path) {
+            if (PHP_OS === 'Windows') {
+                exec("rd /s /q {$path}\*.*");
+            } else {
+                exec("rm -rf {$path}/*");
+            }
+        }
+    }
 }
