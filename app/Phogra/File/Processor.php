@@ -145,7 +145,7 @@ class Processor
         $this->make($imageType, true);
     }
 
-    public function storeFile() {
+    public function storeFile($seeding = false) {
 	    $data = [
 		    'photo_id' => $this->photo_id,
 		    'type' => $this->imageType,
@@ -157,7 +157,7 @@ class Processor
 	    ];
 
 	    $fileRecord = FileModel::create($data);
-	    $this->moveFile($this->filePath, $fileRecord->location());
+	    $this->moveFile($this->filePath, $fileRecord->location(), $seeding);
 
 	    return $fileRecord;
 
@@ -168,8 +168,9 @@ class Processor
      *
      * @param string $oldPath
      * @param string $newPath
+     * @param boolean $seeding  If we're seeding copy instead of move.
      */
-    private function moveFile($oldPath, $newPath)
+    private function moveFile($oldPath, $newPath, $seeding)
     {
         $exploded = explode(DIRECTORY_SEPARATOR, $newPath);
         array_pop($exploded);
@@ -179,6 +180,10 @@ class Processor
             mkdir($path, 0775, true);
         }
 
-        rename($oldPath, $newPath);
+        if ($seeding) {
+            copy($oldPath, $newPath);
+        } else {
+            rename($oldPath, $newPath);
+        }
     }
 }

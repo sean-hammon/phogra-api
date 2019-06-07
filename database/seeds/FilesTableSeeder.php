@@ -183,13 +183,13 @@ class FilesTableSeeder extends Seeder
             $processor = new Processor($path);
             $processor->make('original');
             $processor->setPhotoId($photo['photo_id']);
-            $processor->storeFile();
+            $processor->storeFile(true);
 
             $typeConfig = config('phogra.fileTypes');
             foreach ($typeConfig->original->autoGenerate as $type) {
                 $processor->make($type);
                 $processor->setPhotoId($photo['photo_id']);
-                $processor->storeFile();
+                $processor->storeFile(true);
             }
             unset($processor);
         }
