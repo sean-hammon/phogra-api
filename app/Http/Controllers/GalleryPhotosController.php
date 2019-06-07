@@ -6,7 +6,6 @@ use App\Phogra\Exception\BadRequestException;
 use App\Phogra\Exception\NotFoundException;
 use App\Phogra\Photo;
 use App\Phogra\Response\Photos as PhotosResponse;
-use Hashids;
 use Illuminate\Http\Request;
 
 class GalleryPhotosController extends BaseController
@@ -43,7 +42,6 @@ class GalleryPhotosController extends BaseController
         if (count($gallery_ids) > 1) {
             throw new BadRequestException('Multiple gallery ids not supported.');
         }
-
         $result = $this->repository->byGalleryId($gallery_ids[0], $this->requestParams);
 
         if (is_null($result)) {
