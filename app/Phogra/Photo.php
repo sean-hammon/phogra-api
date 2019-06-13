@@ -338,8 +338,7 @@ class Photo
         });
 
         $result = $this->query->first();
-
-        if (count($result)) {
+        if (!empty($result)) {
             return $result;
         }
 
