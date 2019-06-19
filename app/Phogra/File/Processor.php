@@ -307,7 +307,7 @@ class Processor
      * @param string $newPath
      * @param boolean $seeding  If we're seeding copy instead of move.
      */
-    private function moveFile($oldPath, $newPath, $seeding)
+    private function moveFile($oldPath, $newPath, $seeding = false)
     {
         $exploded = explode(DIRECTORY_SEPARATOR, $newPath);
         array_pop($exploded);

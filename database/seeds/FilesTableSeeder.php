@@ -176,6 +176,7 @@ class FilesTableSeeder extends Seeder
             ]
         ];
 
+        $typeConfig = config('phogra.fileTypes');
         foreach ($data as $photo) {
             echo "{$photo['photo_id']}:{$photo['filename']}\n";
             $path = "seed-photos/" . $photo['filename'];
@@ -184,11 +185,9 @@ class FilesTableSeeder extends Seeder
             $processor->setPhotoId($photo['photo_id']);
             $processor->storeFile(true);
 
-            $typeConfig = config('phogra.fileTypes');
             foreach ($typeConfig->original->autoGenerate as $type) {
-                $processor->make($type);
                 $processor->setPhotoId($photo['photo_id']);
-                $processor->storeFile(true);
+                $processor->generateImage($type);
             }
             unset($processor);
         }
