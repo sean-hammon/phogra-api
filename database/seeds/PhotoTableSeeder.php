@@ -383,6 +383,7 @@ class PhotoTableSeeder extends Seeder
                 if (empty($ph['slug'])){
                     $ph['slug'] = str_slug($ph['title']);
                 }
+                $ph["canonical_gallery_id"] = $g["id"];
                 $photo = new Photo($ph);
                 $gallery->photos()->save($photo);
             }
