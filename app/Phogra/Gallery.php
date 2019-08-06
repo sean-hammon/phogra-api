@@ -318,7 +318,7 @@ class Gallery
 					WHERE gallery_id IN
 						(SELECT `id`
 							FROM {$this->galleryTable} AS g
-							WHERE node LIKE CONCAT({$this->galleryTable}.node, ':%'))
+							WHERE node LIKE CONCAT({$this->galleryTable}.node, '%'))
 						) AS total_count
 					FROM {$this->galleryTable}
 				) AS {$countParams->as}";
